@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>AESDA</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+
+    <script src="index.js">require("./index.js")</script>
+
+</head>
+
+<body>
+    <!-- <div class="container"> -->
+    <div class="row" style="height: 5px;">
+        <div class="col-md-2" id="sidebar">
+            <ul class="nav nav-pills flex-column">
+                <li class="nav-item"><a class="nav-link disabled" data-toggle="pill" href="#">AESDA</a></li>
+                <li class="nav-item"><a class="nav-link active" data-toggle="pill" href="#config">Configuration</a></li>
+                <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#market">Market</a></li>
+                <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#ess">ESS</a></li>
+                <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#data">Data</a></li>
+                <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#result">Result</a></li>
+            </ul>
+        </div>
+        <div class="tab-content col-md-10">
+            <div class="tab-pane active" id="config">
+                <nav class="navbar navbar-light bg-light">
+                    <span class="navbar-brand mb-0 h1">Configuration</span>
+                  </nav>
+                  <div class="container">
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Email address</label>
+                            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+                            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Password</label>
+                            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                            <label class="form-check-label" for="exampleCheck1">Check me out</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+            <div class="tab-pane" id="market">
+                <nav class="navbar navbar-light bg-light">
+                    <span class="navbar-brand mb-0 h1">Market</span>
+                </nav>
+                
+                <div class="container">
+                    <div class="dropdown show">
+                        <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Select Reserve
+                        </a>
+                      
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                          <a class="dropdown-item" href="#">Primary Reserve</a>
+                          <a class="dropdown-item" href="#">Secondary Reserve</a>
+                          <a class="dropdown-item" href="#">Tertiary Reserve</a>
+                        </div>
+                        <button type="button" class="btn btn-light" id="marketBtn">Add</button>
+                      </div>
+                      
+                </div>
+            </div>
+            <div class="tab-pane" id="ess">
+                <nav class="navbar navbar-light bg-light">
+                    <span class="navbar-brand mb-0 h1">ESS</span>
+                  </nav>
+                  <div class="container">
+                    <div class="dropdown show">
+                        <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Select Storage
+                        </a>
+                      
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                          <a class="dropdown-item" href="#">Power Flow Battery</a>
+                          <a class="dropdown-item" href="#">Lithium-Ion</a>
+                          <a class="dropdown-item" href="#">Supercapacitor</a>
+                          <a class="dropdown-item" href="#">Custom</a>
+                        </div>
+                        <button type="button" class="btn btn-light" id="essBtn">Add</button>
+                      </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="data">
+                <nav class="navbar navbar-light bg-light">
+                    <span class="navbar-brand mb-0 h1">Data</span>
+                  </nav>
+                  <div class="container">
+                <form class="needs-validation" novalidate>
+                    <h5>Primary Reserve</h5>
+                    <div class="form-row">
+
+                        <div class="col-md-6 mb-3">
+                            <label for="validationCustom01">Upward Price</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="validationCustom02">Upward Power Demand</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6 mb-3">
+                            <label for="validationCustom01">Downward Price</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="validationCustom02">Downward Power Demand</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+
+                    </div>
+                    <h5>Secondary Reserve</h5>
+                    <div class="form-row">
+                        <div class="col-md-6 mb-3">
+                            <label for="validationCustom01">Upward Price</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="validationCustom02">Upward Power Demand</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6 mb-3">
+                            <label for="validationCustom01">Downward Price</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="validationCustom02">Downward Power Demand</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+
+                    </div>
+                    <h5>Tertiary Reserve</h5>
+                    <div class="form-row">
+
+                        <div class="col-md-6 mb-3">
+                            <label for="validationCustom01">Upward Price</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="validationCustom02">Upward Power Demand</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-row">
+
+                        <div class="col-md-6 mb-3">
+                            <label for="validationCustom01">Downward Price</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="validationCustom02">Downward Power Demand</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </form>
+            </div>
+            </div>
+            <div class="tab-pane" id="result">
+                <nav class="navbar navbar-light bg-light">
+                    <span class="navbar-brand mb-0 h1">Result</span>
+                  </nav>
+                  <div class="container">
+                    <div class="alert alert-danger" role="alert">
+                        No results yet... Please run the simulation!
+                      </div>
+                  </div>
+                  
+            </div>
+        </div>
+    </div>
+    <!-- </div> -->
+    <script>
+        const {ipcRenderer} = electron;
+        const {index} = require(path.resolve('./index.js'));    
+
+        document.querySelectorAll("#market .dropdown-item").forEach((node) => {
+            node.addEventListener('click', function(e){
+                document.querySelector("#market #dropdownMenuLink").innerHTML = e['toElement']['text'];
+            })
+        }) 
+
+        document.querySelectorAll("#ess .dropdown-item").forEach((node) => {
+            node.addEventListener('click', function(e){
+                document.querySelector("#ess #dropdownMenuLink").innerHTML = e['toElement']['text'];
+            })
+        }) 
+
+        // how to open window ==
+        // is this link to main.js
+        document.querySelector("#marketBtn").addEventListener('click', function() {
+            createMarketWindow();
+        })
+        document.querySelector("#essBtn").addEventListener('click', function() {
+            createEssWindow();
+        })
+
+        ipcRenderer.on('gotoResult' , function(event , data){ console.log(data.msg) });
+        
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    
+    <!-- <script>require('./index.js')</script> -->
+</body>
+
+</html>

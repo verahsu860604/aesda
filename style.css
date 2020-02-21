@@ -1,0 +1,17 @@
+#sidebar{
+    background-color: #313E50;
+    padding-right: 0px;
+}
+
+#sidebar a{
+    color: white;
+    padding: 16px 16px 16px 20px;
+}
+
+#sidebar li .active{
+    background-color: #2D70A3;
+}
+
+.tab-content{
+    padding-left: 0px;
+}
