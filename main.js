@@ -1,14 +1,14 @@
-const electron = require("electron");
-const path = require("path");
-const url = require("url");
+const electron = require("electron")
+const path = require("path")
+const url = require("url")
 
-const {app, BrowserWindow, Menu} = electron;
-const ipc = electron.ipcMain;
+const {app, BrowserWindow, Menu} = electron
+const ipc = electron.ipcMain
 
-let mainWindow, marketWindow, essWindow;
+let mainWindow, marketWindow, essWindow
 
 // SET ENV
-process.env.NODE_ENV = 'development';
+process.env.NODE_ENV = 'development'
 
 // create windows
 function createWindow() {
@@ -18,39 +18,40 @@ function createWindow() {
         },
         height: 800,
         width: 1200
-    });
+    })
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'html/index.html'),
         protocol: 'file',
         slashes: true
-    }));
+    }))
     
     mainWindow.on('closed', () => {
-        mainWindow = null;
-        app.quit();
-    });
+        mainWindow = null
+        app.quit()
+    })
 
     // build menu from template
-    const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
-    Menu.setApplicationMenu(mainMenu);
+    const mainMenu = Menu.buildFromTemplate(mainMenuTemplate)
+    Menu.setApplicationMenu(mainMenu)
 }
 
 function createMarketWindow(curMarket) {
     marketWindow = new BrowserWindow({
+        parent: mainWindow,
+        modal: true,
         webPreferences: {
             nodeIntegration: true,
-            additionalArguments: [curMarket]
         },
-    });
+    })
     marketWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'html/market.html'),
         protocol: 'file',
         slashes: true
-    }));
+    }))
     
     marketWindow.on('closed', () => {
-        marketWindow = null;
-    });
+        marketWindow = null
+    })
 
     marketWindow.webContents.on('did-finish-load', () => {
         marketWindow.webContents.send('marketType', curMarket)
@@ -59,32 +60,34 @@ function createMarketWindow(curMarket) {
 
 function createEssWindow(curEss) {
     essWindow = new BrowserWindow({
+        parent: mainWindow,
+        modal: true,
         webPreferences: {
             nodeIntegration: true
         },
-    });
+    })
     essWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'html/ess.html'),
         protocol: 'file',
         slashes: true
-    }));
+    }))
     
     essWindow.on('closed', () => {
-        essWindow = null;
-    });
+        essWindow = null
+    })
 
     essWindow.webContents.on('did-finish-load', () => {
         essWindow.webContents.send('essType', curEss)
-    });
+    })
 }
 
 // ipc
 ipc.on('createMarketWindow', (event, args) => {
-    createMarketWindow(args);
+    createMarketWindow(args)
 })
 
 ipc.on('createEssWindow', (event, args) => {
-    createEssWindow(args);
+    createEssWindow(args)
 })
 
 ipc.on('marketObj', (event, args) => {
@@ -103,12 +106,12 @@ const mainMenuTemplate = [
         submenu: [
             {
                 label: 'Reset',
-                click() {console.log('Hit reset!');}
+                click() {console.log('Hit reset!')}
             },
             {
                 label: 'Quit Application',
                 accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
-                click() {app.quit();}
+                click() {app.quit()}
             }
         ]
     }, {
@@ -118,15 +121,15 @@ const mainMenuTemplate = [
                 label: 'Run',
                 accelerator: process.platform == 'darwin' ? 'Command+R' : 'Ctrl+R',
                 click() {
-                    createResultWindow();
-                    // mainWindow.webContents.send('gotoResult');
+                    createResultWindow()
+                    // mainWindow.webContents.send('gotoResult')
                 }
             },{
                 label: 'Stop'
             }
         ]
     }
-];
+]
 
 
 
@@ -139,31 +142,31 @@ if(process.env.NODE_ENV !== 'production') {
                 label: 'Inspector',
                 accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
                 click(item, focusedWindow) {
-                    focusedWindow.openDevTools();
+                    focusedWindow.openDevTools()
                 }
             }
         ]
-    });
+    })
 }
 
 // when first start the app
-app.on('ready', createWindow);
+app.on('ready', createWindow)
 
 // when closing the app
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-        app.quit();
+        app.quit()
     }
-});
+})
 
 app.on('activate', () => {
   if(mainWindow === null) {
-      createWindow();
+      createWindow()
   }
-});
+})
 
 // Enable live reload for Electron too
 require('electron-reload')(__dirname, {
     // Note that the path to electron may vary according to the main file
     electron: require(`${__dirname}/node_modules/electron`)
-});
+})
