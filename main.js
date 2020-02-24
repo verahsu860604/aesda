@@ -20,7 +20,7 @@ function createWindow() {
         width: 1200
     });
     mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'index.html'),
+        pathname: path.join(__dirname, 'html/index.html'),
         protocol: 'file',
         slashes: true
     }));
@@ -43,7 +43,7 @@ function createMarketWindow(curMarket) {
         },
     });
     marketWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'market.html'),
+        pathname: path.join(__dirname, 'html/market.html'),
         protocol: 'file',
         slashes: true
     }));
@@ -64,7 +64,7 @@ function createEssWindow(curEss) {
         },
     });
     essWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'ess.html'),
+        pathname: path.join(__dirname, 'html/ess.html'),
         protocol: 'file',
         slashes: true
     }));

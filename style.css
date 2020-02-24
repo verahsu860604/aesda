@@ -1,3 +1,7 @@
+html, body{
+    height: 100%;
+}
+
 #sidebar{
     background-color: #313E50;
     padding-right: 0px;
