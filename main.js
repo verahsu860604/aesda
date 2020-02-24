@@ -2,16 +2,23 @@ const electron = require("electron");
 const path = require("path");
 const url = require("url");
 
-const {app, BrowserWindow, Menu, ipcMain} = electron;
+const {app, BrowserWindow, Menu} = electron;
+const ipc = electron.ipcMain;
 
-let mainWindow, resultWindow;
+let mainWindow, marketWindow, essWindow;
 
 // SET ENV
 process.env.NODE_ENV = 'development';
 
-// create main window
+// create windows
 function createWindow() {
-    mainWindow = new BrowserWindow();
+    mainWindow = new BrowserWindow({
+        webPreferences: {
+            nodeIntegration: true
+        },
+        height: 800,
+        width: 1200
+    });
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'index.html'),
         protocol: 'file',
@@ -28,20 +35,66 @@ function createWindow() {
     Menu.setApplicationMenu(mainMenu);
 }
 
-function createResultWindow() {
-    // resultWindow = new BrowserWindow({parent: mainWindow, modal: true, show: true});
-    resultWindow = new BrowserWindow();
-    resultWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'result.html'),
+function createMarketWindow(curMarket) {
+    marketWindow = new BrowserWindow({
+        webPreferences: {
+            nodeIntegration: true,
+            additionalArguments: [curMarket]
+        },
+    });
+    marketWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'market.html'),
         protocol: 'file',
         slashes: true
     }));
     
-    resultWindow.on('closed', () => {
-        resultWindow = null;
+    marketWindow.on('closed', () => {
+        marketWindow = null;
     });
 
+    marketWindow.webContents.on('did-finish-load', () => {
+        marketWindow.webContents.send('marketType', curMarket)
+    })
 }
+
+function createEssWindow(curEss) {
+    essWindow = new BrowserWindow({
+        webPreferences: {
+            nodeIntegration: true
+        },
+    });
+    essWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'ess.html'),
+        protocol: 'file',
+        slashes: true
+    }));
+    
+    essWindow.on('closed', () => {
+        essWindow = null;
+    });
+
+    essWindow.webContents.on('did-finish-load', () => {
+        essWindow.webContents.send('essType', curEss)
+    });
+}
+
+// ipc
+ipc.on('createMarketWindow', (event, args) => {
+    createMarketWindow(args);
+})
+
+ipc.on('createEssWindow', (event, args) => {
+    createEssWindow(args);
+})
+
+ipc.on('marketObj', (event, args) => {
+    mainWindow.webContents.send('marketObj', args)
+})
+
+ipc.on('essObj', (event, args) => {
+    mainWindow.webContents.send('essObj', args)
+})
+
 
 // create menu template
 const mainMenuTemplate = [
@@ -65,8 +118,8 @@ const mainMenuTemplate = [
                 label: 'Run',
                 accelerator: process.platform == 'darwin' ? 'Command+R' : 'Ctrl+R',
                 click() {
-                    // createResultWindow();
-                    mainWindow.webContents.send('gotoResult');
+                    createResultWindow();
+                    // mainWindow.webContents.send('gotoResult');
                 }
             },{
                 label: 'Stop'
@@ -74,6 +127,8 @@ const mainMenuTemplate = [
         ]
     }
 ];
+
+
 
 // Add dev tools if not in prod
 if(process.env.NODE_ENV !== 'production') {
@@ -90,7 +145,6 @@ if(process.env.NODE_ENV !== 'production') {
         ]
     });
 }
-
 
 // when first start the app
 app.on('ready', createWindow);
