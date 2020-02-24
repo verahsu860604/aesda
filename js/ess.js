@@ -6,7 +6,6 @@ const remote = electron.remote;
 const ipc = electron.ipcRenderer;
 
 let essObj = 'jjj';
-let essType;
 
 ipc.on('essType', (event, args) => {
     essType = args;
@@ -14,7 +13,7 @@ ipc.on('essType', (event, args) => {
 })
 
 document.getElementById('submitBtn').addEventListener('click', (event) => {
-    ipc.send('essObj', [essType, essObj]);
+    ipc.send('essObj', [essType, $('form').serializeArray()]);
     remote.getCurrentWindow().close();
 })
 

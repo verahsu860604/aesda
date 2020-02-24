@@ -6,7 +6,6 @@ const remote = electron.remote
 const ipc = electron.ipcRenderer
 
 let marketObj = 'jjj'
-let marketType
 
 ipc.on('marketType', (event, args) => {
     marketType = args
@@ -14,10 +13,12 @@ ipc.on('marketType', (event, args) => {
 })
 
 document.getElementById('submitBtn').addEventListener('click', (event) => {
-    ipc.send('marketObj', [marketType, marketObj])
+    ipc.send('marketObj', [marketType, $('form').serializeArray()])
     remote.getCurrentWindow().close()
 })
 
 document.getElementById('cancelBtn').addEventListener('click', (event) => {
     remote.getCurrentWindow().close()
 })
+
+

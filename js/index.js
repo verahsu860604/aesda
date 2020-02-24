@@ -1,10 +1,10 @@
 const electron = require("electron")
 const path = require("path")
 const url = require("url")
+const strMap = require("../js/string.js")
 
 const {BrowserWindow} = electron.remote
 const ipc = electron.ipcRenderer
-
 
 // Dropdown control
 var curMarket
@@ -34,15 +34,15 @@ document.querySelector("#essBtn").addEventListener('click', function() {
 
 // ipc
 ipc.on('marketObj', (event, args) => {
-    createMarketObject(args)
+    createMarketElem(args) 
 })
 
 ipc.on('essObj', (event, args) => {
-    createEssObject(args)
+    createEssElem(args)
 })
 
-// create market object
-function createMarketObject(args) {
+// create market element
+function createMarketElem(args) {
     
     var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm')
     editbtn.innerHTML = 'Edit'
@@ -55,16 +55,23 @@ function createMarketObject(args) {
     cardHead.appendChild(cardHeadText)
     
     var card = createElement('div', 'class=card mb-3')
-    
+
+    for(var i = 0; i < args[1].length; i++) {
+        var p = createElement('p')
+        p.innerHTML = strMap.miStrMap(args[1][i]['name']) + ": " + args[1][i]['value']
+        cardBody.appendChild(p)
+    }
+
     cardBody.appendChild(editbtn)
     cardBody.appendChild(deletebtn)
     card.appendChild(cardHead)
     card.appendChild(cardBody)
     document.getElementById('markets').appendChild(card)
+
 }
 
-// create ess object
-function createEssObject(args) {
+// create ess element
+function createEssElem(args) {
 
     var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm')
     editbtn.innerHTML = 'Edit'
@@ -79,6 +86,12 @@ function createEssObject(args) {
     var card = createElement('div', 'class=card mb-3')
     var cardiv = createElement('div', 'class=col-sm-4')
     
+    for(var i = 0; i < args[1].length; i++) {
+        var p = createElement('p')
+        p.innerHTML = strMap.eiStrMap(args[1][i]['name']) + ": " + args[1][i]['value']
+        cardBody.appendChild(p)
+    }
+
     var essdisplay = document.getElementById('esss')
     if(essdisplay.childElementCount === 0 || (essdisplay.lastElementChild !== null && essdisplay.lastElementChild.childElementCount === 3)){
         var row = createElement('div', 'class=row')
