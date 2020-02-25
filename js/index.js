@@ -56,6 +56,9 @@ ipc.on('essObj', (event, args) => {
 // create market element
 function createMarketElem(args) {
     
+    var marketType = args[0]
+    var marketData = args[1]
+
     var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'id=marketEditBtn')
     editbtn.innerHTML = 'Edit'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
@@ -63,14 +66,14 @@ function createMarketElem(args) {
 
     var cardBody = createElement('div', 'class=card-body')
     var cardHead = createElement('H5', 'class=card-header')
-    var cardHeadText = document.createTextNode(args[0])
+    var cardHeadText = document.createTextNode(marketType)
     cardHead.appendChild(cardHeadText)
     
     var card = createElement('div', 'class=card mb-3')
 
-    for(var i = 0; i < args[1].length; i++) {
+    for(var i = 0; i < marketData.length; i++) {
         var p = createElement('p')
-        p.innerHTML = strMap.miStrMap(args[1][i]['name']) + ": " + args[1][i]['value']
+        p.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']
         cardBody.appendChild(p)
     }
 
@@ -81,11 +84,11 @@ function createMarketElem(args) {
     document.getElementById('markets').appendChild(card)
 
     editbtn.addEventListener('click', function(e) {
-        ipc.send('editMarketObj', [args[0], marketObjList[args[0]]])
+        ipc.send('editMarketObj', [marketType, marketObjList[marketType]])
     })
 
     deletebtn.addEventListener('click', function(e) {
-        delete marketObjList[args[0]]
+        delete marketObjList[marketType]
         card.remove()
     })   
 }
@@ -95,7 +98,7 @@ function editMarketElem(marketData) {
     var i = 0
     var pObject = document.querySelectorAll('p')
     marketData.forEach(e => {
-        pObject[i++].innerHTML = e['name'] + ": " + e['value']
+        pObject[i++].innerHTML = strMap.miStrMap(e['name']) + ": " + e['value']
     })
 }
 
