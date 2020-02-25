@@ -6,6 +6,8 @@ const strMap = require("../js/string.js")
 const {BrowserWindow} = electron.remote
 const ipc = electron.ipcRenderer
 
+let marketObjList = {}
+
 // Dropdown control
 var curMarket
 document.querySelectorAll("#market .dropdown-item").forEach((node) => {
@@ -34,7 +36,17 @@ document.querySelector("#essBtn").addEventListener('click', function() {
 
 // ipc
 ipc.on('marketObj', (event, args) => {
-    createMarketElem(args) 
+    var marketType = args[0]
+    var marketData = args[1]
+    
+    if(marketType in marketObjList) {
+        marketObjList[marketType] = marketData
+        editMarketElem(marketData)
+    }else {
+        marketObjList[marketType] = marketData
+        createMarketElem(args) 
+    }
+    console.log(marketObjList)
 })
 
 ipc.on('essObj', (event, args) => {
@@ -44,7 +56,7 @@ ipc.on('essObj', (event, args) => {
 // create market element
 function createMarketElem(args) {
     
-    var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm')
+    var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'id=marketEditBtn')
     editbtn.innerHTML = 'Edit'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
     deletebtn.innerHTML = 'Delete'
@@ -68,12 +80,29 @@ function createMarketElem(args) {
     card.appendChild(cardBody)
     document.getElementById('markets').appendChild(card)
 
+    editbtn.addEventListener('click', function(e) {
+        ipc.send('editMarketObj', [args[0], marketObjList[args[0]]])
+    })
+
+    deletebtn.addEventListener('click', function(e) {
+        delete marketObjList[args[0]]
+        card.remove()
+    })   
+}
+
+// edit market element
+function editMarketElem(marketData) {
+    var i = 0
+    var pObject = document.querySelectorAll('p')
+    marketData.forEach(e => {
+        pObject[i++].innerHTML = e['name'] + ": " + e['value']
+    })
 }
 
 // create ess element
 function createEssElem(args) {
 
-    var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm')
+    var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'essEditBtn')
     editbtn.innerHTML = 'Edit'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
     deletebtn.innerHTML = 'Delete'

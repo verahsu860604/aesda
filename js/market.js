@@ -8,8 +8,18 @@ const ipc = electron.ipcRenderer
 let marketObj = 'jjj'
 
 ipc.on('marketType', (event, args) => {
-    marketType = args
+    marketType = args[0]
+    marketData = args[1]
+    
     document.getElementById('marketType').innerHTML = marketType
+    if(marketData !== "") {
+        marketData.forEach(e => {
+            document.getElementById('marketForm').elements[e['name']].value = e['value']
+        });
+    }else {
+        console.log('create new obj')
+        // todo: add default value
+    }
 })
 
 document.getElementById('submitBtn').addEventListener('click', (event) => {

@@ -35,7 +35,8 @@ function createWindow() {
     Menu.setApplicationMenu(mainMenu)
 }
 
-function createMarketWindow(curMarket) {
+// args = [marketType, marketObjData]
+function createMarketWindow(args) {
     marketWindow = new BrowserWindow({
         parent: mainWindow,
         modal: true,
@@ -54,7 +55,7 @@ function createMarketWindow(curMarket) {
     })
 
     marketWindow.webContents.on('did-finish-load', () => {
-        marketWindow.webContents.send('marketType', curMarket)
+        marketWindow.webContents.send('marketType', args)
     })
 }
 
@@ -83,7 +84,7 @@ function createEssWindow(curEss) {
 
 // ipc
 ipc.on('createMarketWindow', (event, args) => {
-    createMarketWindow(args)
+    createMarketWindow([args, ''])
 })
 
 ipc.on('createEssWindow', (event, args) => {
@@ -96,6 +97,10 @@ ipc.on('marketObj', (event, args) => {
 
 ipc.on('essObj', (event, args) => {
     mainWindow.webContents.send('essObj', args)
+})
+
+ipc.on('editMarketObj', (event, args) => {
+    createMarketWindow(args)
 })
 
 
