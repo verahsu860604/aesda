@@ -59,7 +59,7 @@ function createMarketWindow(args) {
     })
 }
 
-function createEssWindow(curEss) {
+function createEssWindow(args) {
     essWindow = new BrowserWindow({
         parent: mainWindow,
         modal: true,
@@ -78,7 +78,7 @@ function createEssWindow(curEss) {
     })
 
     essWindow.webContents.on('did-finish-load', () => {
-        essWindow.webContents.send('essType', curEss)
+        essWindow.webContents.send('essType', args)
     })
 }
 
@@ -88,7 +88,7 @@ ipc.on('createMarketWindow', (event, args) => {
 })
 
 ipc.on('createEssWindow', (event, args) => {
-    createEssWindow(args)
+    createEssWindow(args, -1, '')
 })
 
 ipc.on('marketObj', (event, args) => {
@@ -101,6 +101,10 @@ ipc.on('essObj', (event, args) => {
 
 ipc.on('editMarketObj', (event, args) => {
     createMarketWindow(args)
+})
+
+ipc.on('editEsstObj', (event, args) => {
+    createEssWindow(args)
 })
 
 

@@ -7,6 +7,10 @@ const {BrowserWindow} = electron.remote
 const ipc = electron.ipcRenderer
 
 let marketObjList = {}
+let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
+let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
+
+
 
 // Dropdown control
 var curMarket
@@ -46,11 +50,21 @@ ipc.on('marketObj', (event, args) => {
         marketObjList[marketType] = marketData
         createMarketElem(args) 
     }
-    console.log(marketObjList)
 })
 
 ipc.on('essObj', (event, args) => {
-    createEssElem(args)
+    var essType = args[0]
+    var essId = args[1]
+    var essData = args[2]
+
+    if(essObjNum[essType] <= essId) {
+        essObjList[essType][essId] = essData    
+    } else {
+        essId = essObjNum[essType] + 1
+        essObjNum[essType] = essId    
+        essObjList[essType][essId] = essData
+    }
+    createEssElem([essType, essId, essData])
 })
 
 // create market element
@@ -105,6 +119,10 @@ function editMarketElem(marketData) {
 // create ess element
 function createEssElem(args) {
 
+    var essType = args[0]
+    var essId = args[1]
+    var essData = args[2]
+
     var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'essEditBtn')
     editbtn.innerHTML = 'Edit'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
@@ -112,15 +130,15 @@ function createEssElem(args) {
     
     var cardBody = createElement('div', 'class=card-body')
     var cardHead = createElement('H5', 'class=card-header')
-    var cardHeadText = document.createTextNode(args[0])
+    var cardHeadText = document.createTextNode(essType + "-" + essId)
     cardHead.appendChild(cardHeadText)
 
     var card = createElement('div', 'class=card mb-3')
     var cardiv = createElement('div', 'class=col-sm-4')
     
-    for(var i = 0; i < args[1].length; i++) {
+    for(var i = 0; i < essData.length; i++) {
         var p = createElement('p')
-        p.innerHTML = strMap.eiStrMap(args[1][i]['name']) + ": " + args[1][i]['value']
+        p.innerHTML = strMap.eiStrMap(essData[i]['name']) + ": " + essData[i]['value']
         cardBody.appendChild(p)
     }
 
@@ -136,6 +154,19 @@ function createEssElem(args) {
     card.appendChild(cardBody)
     cardiv.appendChild(card)
     essdisplay.lastElementChild.appendChild(cardiv)
+
+    editbtn.addEventListener('click', function(e) {
+        ipc.send('editEsstObj', [essType, essId, essObjList[essType][essId]])
+    })
+
+    deletebtn.addEventListener('click', function(e) {
+        delete essObjList[essType][essId]
+        card.remove()
+    }) 
+
+}
+
+function editEssElement(args) {
 
 }
 
