@@ -8,8 +8,8 @@ const ipc = electron.ipcRenderer
 
 let marketObjList = {}
 let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
+// number of ess objects
 let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
-
 
 
 // Dropdown control
@@ -35,7 +35,7 @@ document.querySelector("#marketBtn").addEventListener('click', function() {
 })
 
 document.querySelector("#essBtn").addEventListener('click', function() {
-    if(curEss !== undefined) ipc.send("createEssWindow", curEss)
+    if(curEss !== undefined) ipc.send("createEssWindow", [curEss, essObjNum])
 })
 
 // ipc
@@ -45,7 +45,7 @@ ipc.on('marketObj', (event, args) => {
     
     if(marketType in marketObjList) {
         marketObjList[marketType] = marketData
-        editMarketElem(marketData)
+        editMarketElem(marketType, marketData)
     }else {
         marketObjList[marketType] = marketData
         createMarketElem(args) 
@@ -56,15 +56,16 @@ ipc.on('essObj', (event, args) => {
     var essType = args[0]
     var essId = args[1]
     var essData = args[2]
-
-    if(essObjNum[essType] <= essId) {
-        essObjList[essType][essId] = essData    
+    if(essObjNum[essType] >= essId) {
+        essObjList[essType][essId] = essData
+        editEssElement(essType, essId, essData)
     } else {
         essId = essObjNum[essType] + 1
         essObjNum[essType] = essId    
         essObjList[essType][essId] = essData
+        createEssElem([essType, essId, essData])
     }
-    createEssElem([essType, essId, essData])
+    
 })
 
 // create market element
@@ -83,7 +84,7 @@ function createMarketElem(args) {
     var cardHeadText = document.createTextNode(marketType)
     cardHead.appendChild(cardHeadText)
     
-    var card = createElement('div', 'class=card mb-3')
+    var card = createElement('div', 'class=card mb-3', 'id='+marketType)
 
     for(var i = 0; i < marketData.length; i++) {
         var p = createElement('p')
@@ -108,9 +109,10 @@ function createMarketElem(args) {
 }
 
 // edit market element
-function editMarketElem(marketData) {
+function editMarketElem(marketType, marketData) {
     var i = 0
-    var pObject = document.querySelectorAll('p')
+    var cardObject = document.getElementById(marketType)
+    var pObject = cardObject.querySelectorAll('p')
     marketData.forEach(e => {
         pObject[i++].innerHTML = strMap.miStrMap(e['name']) + ": " + e['value']
     })
@@ -133,7 +135,7 @@ function createEssElem(args) {
     var cardHeadText = document.createTextNode(essType + "-" + essId)
     cardHead.appendChild(cardHeadText)
 
-    var card = createElement('div', 'class=card mb-3')
+    var card = createElement('div', 'class=card mb-3', 'id='+essType+"-"+essId)
     var cardiv = createElement('div', 'class=col-sm-4')
     
     for(var i = 0; i < essData.length; i++) {
@@ -161,13 +163,18 @@ function createEssElem(args) {
 
     deletebtn.addEventListener('click', function(e) {
         delete essObjList[essType][essId]
-        card.remove()
+        cardiv.remove()
     }) 
 
 }
 
-function editEssElement(args) {
-
+function editEssElement(essType, essId, essData) {
+    var i = 0
+    var cardObject = document.getElementById(essType+"-"+essId)
+    var pObject = cardObject.querySelectorAll('p')
+    essData.forEach(e => {
+        pObject[i++].innerHTML = strMap.eiStrMap(e['name']) + ": " + e['value']
+    })
 }
 
 // creating elements

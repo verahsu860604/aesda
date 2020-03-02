@@ -5,8 +5,6 @@ const url = require("url")
 const remote = electron.remote
 const ipc = electron.ipcRenderer
 
-let marketObj = 'jjj'
-
 ipc.on('marketType', (event, args) => {
     marketType = args[0]
     marketData = args[1]
