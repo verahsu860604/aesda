@@ -19,6 +19,7 @@ function createWindow() {
         height: 800,
         width: 1200
     })
+
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'html/index.html'),
         protocol: 'file',
@@ -29,6 +30,13 @@ function createWindow() {
         mainWindow = null
         app.quit()
     })
+
+    let {PythonShell} = require('python-shell')
+    PythonShell.run('algo.py', null, function (err, results) {
+        if (err) throw err;
+        console.log('finished');
+        console.log(results)
+      });
 
     // build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate)
