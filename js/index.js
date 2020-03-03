@@ -195,9 +195,7 @@ function createElement(type, ...args) {
 }
 
 function generateResultChart() {
-
-// https://codepen.io/jordanwillis/pen/ZeaLGj?editors=1010
-window.chartColors = {
+  window.chartColors = {
     red: 'rgb(255, 99, 132)',
     orange: 'rgb(255, 159, 64)',
     yellow: 'rgb(255, 205, 86)',
@@ -207,112 +205,119 @@ window.chartColors = {
     grey: 'rgb(231,233,237)'
   };
   
-  var randomScalingFactor = function() {
-    return (Math.random() > 0.5 ? 1.0 : 1.0) * Math.round(Math.random() * 10000);
-  };
-  
-  var line1 = [randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), ];
-  var line2 = [randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), ];
-  var line3 = [randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), ];
-  
-  var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var config = {
-    type: 'line',
     data: {
-      labels: MONTHS,
       datasets: [{
-        label: "Power Flow Batter-1",
-        backgroundColor: window.chartColors.red,
+        label: 'Inferior Datapoints',
         borderColor: window.chartColors.red,
-        data: line1,
+        borderWidth: 2,
         fill: false,
-      }, {
-        label: "Power Flow Batter-2",
-        fill: false,
-        backgroundColor: window.chartColors.blue,
+        data: [ { x: 0.778, y: 0.686} ,
+          { x: 0.238, y: 0.548} ,
+          { x: 0.824, y: 0.138} ,
+          { x: 0.966, y: 0.099} ,
+          { x: 0.453, y: 0.152} ,
+          { x: 0.609, y: 0.926} ,
+          { x: 0.776, y: 0.680} ,
+          { x: 0.642, y: 0.238} ,
+          { x: 0.722, y: 0.569} ,
+          { x: 0.035, y: 0.557} ,
+          { x: 0.298, y: 0.073} ,
+          { x: 0.059, y: 0.840} ,
+          { x: 0.857, y: 0.405} ,
+          { x: 0.373, y: 0.145} ,
+          { x: 0.680, y: 0.191} ,
+          { x: 0.256, y: 0.491} ,
+          { x: 0.348, y: 0.712} ,
+          { x: 0.358, y: 0.875} ,
+          { x: 0.218, y: 0.107} ,
+          { x: 0.319, y: 0.913} ,
+          { x: 0.918, y: 0.365} ,
+          { x: 0.032, y: 0.227} ,
+          { x: 0.065, y: 0.872} ,
+          { x: 0.630, y: 0.136} ,
+          { x: 0.874, y: 0.236} ,
+          { x: 0.009, y: 0.595} ,
+          { x: 0.747, y: 0.564} ,
+          { x: 0.076, y: 0.453} ,
+          { x: 0.656, y: 0.129} ,
+          { x: 0.509, y: 0.761} ,
+          { x: 0.480, y: 0.202} ,
+          { x: 0.956, y: 0.176} ,
+          { x: 0.000, y: 0.437} ,
+          { x: 0.247, y: 0.340} ,
+          { x: 0.325, y: 0.143} ,
+          { x: 0.277, y: 0.845} ,
+          { x: 0.695, y: 0.669} ,
+          { x: 0.919, y: 0.109} ,
+          { x: 0.244, y: 0.088} ,
+          { x: 0.253, y: 0.194} ,
+          { x: 0.379, y: 0.082} ,
+          { x: 0.605, y: 0.269} ,
+          { x: 0.772, y: 0.650} ,
+          { x: 0.068, y: 0.547} ]
+      },{
+        label: 'Pareto Frontier',
+        cubicInterpolationMode: 'monotone',
         borderColor: window.chartColors.blue,
-        data: line2,
-      }, {
-        label: "Supercapacitor-1",
+        borderWidth: 2,
         fill: false,
-        backgroundColor: window.chartColors.blue,
-        borderColor: window.chartColors.orange,
-        data: line3,
+        data: [ 
+          { x: 0.009, y: 0.985, r: 1},    
+          { x: 0.712, y: 0.967, r: 1},
+          { x: 0.813, y: 0.959, r: 1},
+          { x: 0.949, y: 0.499, r: 1},
+          { x: 0.973, y: 0.246, r: 1} 
+        ],
+        borderWidth: 2.5,
+        tension: 1,
+        showLine: true
       }]
     },
     options: {
       responsive: true,
-      title:{
-        display:true,
-        text:'Chart.js Line Chart'
-      },
       tooltips: {
-        mode: 'index',
-        intersect: false,
+        callbacks: {
+          label: function(tooltipItem, data) {
+              var prp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['r']
+              return [['SoH: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['x']],
+              ['Profit: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['y']],
+              ['PRP: ' + (prp?prp:0)]];
+          }
+        },
+        bodyFontSize: 14,
+        displayColors: false          
       },
      hover: {
         mode: 'nearest',
         intersect: true
+      },
+      title: {
+        display: true,
+        text: 'Pareto Scatter Chart'
       },
       scales: {
         xAxes: [{
           display: true,
           scaleLabel: {
             display: true,
-            labelString: 'Month'
+            labelString: 'State of Health'
           }
         }],
         yAxes: [{
           display: true,
           scaleLabel: {
             display: true,
-          },
+            labelString: 'Profit'
+          }
         }]
       }
     }
   };
   
   var ctx = document.getElementById("paretoChart").getContext("2d");
-  var myLine = new Chart(ctx, config);
+  var pareto = Chart.Scatter(ctx, config);
 
-  new Chart(document.getElementById("storageChart"), {
-    type: 'bar',
-    data: {
-      labels: ["1900", "1950", "1999", "2050"],
-      datasets: [{
-          label: "Europe",
-          type: "line",
-          borderColor: "#8e5ea2",
-          data: [408,547,675,734],
-          fill: false
-        }, {
-          label: "Africa",
-          type: "line",
-          borderColor: "#3e95cd",
-          data: [133,221,783,2478],
-          fill: false
-        }, {
-          label: "Europe",
-          type: "bar",
-          backgroundColor: "rgba(0,0,0,0.2)",
-          data: [408,547,675,734],
-        }, {
-          label: "Africa",
-          type: "bar",
-          backgroundColor: "rgba(0,0,0,0.2)",
-          backgroundColorHover: "#3e95cd",
-          data: [133,221,783,2478]
-        }
-      ]
-    },
-    options: {
-      title: {
-        display: true,
-        text: 'Population growth (millions): Europe & Africa'
-      },
-      legend: { display: false }
-    }
-});
 
 }
 
