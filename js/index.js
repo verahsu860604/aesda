@@ -14,21 +14,50 @@ let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor':
 
 
 // Dropdown control
+
+
 var curMarket
-document.querySelectorAll("#market .dropdown-item").forEach((node) => {
+var marketDropdownItem = document.querySelectorAll("#market .dropdown-item")
+var marketDropdownMenu = document.querySelector("#market #dropdownMenuLink")
+
+marketDropdownItem.forEach((node) => {
     node.addEventListener('click', function(e){
         curMarket = e['toElement']['text']
-        document.querySelector("#market #dropdownMenuLink").innerHTML = curMarket
+        marketDropdownMenu.innerHTML = curMarket
     })
 }) 
 
+function toggleMarketItem(marketType) {
+  marketDropdownItem.forEach(e => {
+    if(e.text === marketType){
+      if(e.style.display === "none")e.style.display = "block"
+      else e.style.display = "none"
+    }
+  })
+}
+
 var curEss
-document.querySelectorAll("#ess .dropdown-item").forEach((node) => {
+var essDropdownItem = document.querySelectorAll("#ess .dropdown-item")
+var essDropdownMenu = document.querySelector("#ess #dropdownMenuLink")
+
+essDropdownItem.forEach((node) => {
     node.addEventListener('click', function(e){
         curEss = e['toElement']['text']
-        document.querySelector("#ess #dropdownMenuLink").innerHTML = curEss
+        essDropdownMenu.innerHTML = curEss
     })
 }) 
+
+function clearDropdownMenu(type) {
+  switch(type) {
+    case 'market':
+      marketDropdownMenu.innerHTML = "Select Reserve"    
+      break;
+    case 'ess':
+      essDropdownMenu.innerHTML = 'Select Storage'
+      break;
+    default:
+  }
+}
 
 // buttons control
 document.querySelector("#marketBtn").addEventListener('click', function() {
@@ -54,6 +83,8 @@ ipc.on('marketObj', (event, args) => {
     }else {
         marketObjList[marketType] = marketData
         createMarketElem(args) 
+        clearDropdownMenu('market')
+        toggleMarketItem(marketType)
     }
 })
 
@@ -69,6 +100,7 @@ ipc.on('essObj', (event, args) => {
         essObjNum[essType] = essId    
         essObjList[essType][essId] = essData
         createEssElem([essType, essId, essData])
+        clearDropdownMenu('ess')
     }
     
 })
@@ -113,6 +145,7 @@ function createMarketElem(args) {
     })
 
     deletebtn.addEventListener('click', function(e) {
+        toggleMarketItem(marketType)
         delete marketObjList[marketType]
         card.remove()
     })   
