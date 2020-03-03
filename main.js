@@ -133,8 +133,7 @@ const mainMenuTemplate = [
                 label: 'Run',
                 accelerator: process.platform == 'darwin' ? 'Command+R' : 'Ctrl+R',
                 click() {
-                    createResultWindow()
-                    // mainWindow.webContents.send('gotoResult')
+                    mainWindow.webContents.send('generateResult')
                 }
             },{
                 label: 'Stop'

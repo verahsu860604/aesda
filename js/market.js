@@ -15,7 +15,6 @@ ipc.on('marketType', (event, args) => {
             document.getElementById('marketForm').elements[e['name']].value = e['value']
         });
     }else {
-        console.log('create new obj')
         // todo: add default value
     }
 })
