@@ -14,252 +14,252 @@
 </head>
 
 <body>
-    <!-- <div class="container-fluid"> -->
-    <div class="row" style="height: 100%;">
-        <div class="col-md-2" id="sidebar">
-            <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a class="nav-link disabled" data-toggle="pill" href="#">AESDA</a></li>
-                <li class="nav-item"><a class="nav-link active" data-toggle="pill" href="#config">Configuration</a></li>
-                <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#market">Market</a></li>
-                <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#ess">ESS</a></li>
-                <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#data">Data</a></li>
-                <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#result">Result</a></li>
-            </ul>
-        </div>
-        <div class="tab-content col-md-10">
-            <div class="tab-pane active" id="config">
-                <nav class="navbar navbar-light bg-light">
-                    <span class="navbar-brand mb-0 h1">Configuration</span>
-                  </nav>
-                  <div class="container mt-3">
-                    <form id="configForm">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5 class="card-title">Simulation Parameters</h5>
-                                <div class="form-group">
-                                    <label for="mi-spUpdate">Prediction Horizon (hr)</label>
-                                    <input type="number" step="any" class="form-control" name="ci-predic" placeholder="default value?">
-                                </div>  
-                                <div class="form-row">
-                                    <div class="form-group col-md-4">
-                                        <label for="mi-upItv">Primary Min Interval</label>
-                                        <input type="number" step="any" class="form-control" name="ci-pmItv" placeholder="default value?">
+    <div class="container-fluid fill">
+        <div class="row" style="height: 100%;">
+            <div class="col-md-2" id="sidebar">
+                <ul class="nav nav-pills flex-column">
+                    <li class="nav-item"><a class="nav-link disabled" data-toggle="pill" href="#">AESDA</a></li>
+                    <li class="nav-item"><a class="nav-link active" data-toggle="pill" href="#config">Configuration</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#market">Market</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#ess">ESS</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#data">Data</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="pill" href="#result">Result</a></li>
+                </ul>
+            </div>
+            <div class="tab-content col-md-10">
+                <div class="tab-pane active" id="config">
+                    <nav class="navbar navbar-light bg-light">
+                        <span class="navbar-brand mb-0 h1">Configuration</span>
+                    </nav>
+                    <div class="container mt-3">
+                        <form id="configForm">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Simulation Parameters</h5>
+                                    <div class="form-group">
+                                        <label for="mi-spUpdate">Prediction Horizon (hr)</label>
+                                        <input type="number" step="any" class="form-control" name="ci-predic" placeholder="default value?">
+                                    </div>  
+                                    <div class="form-row">
+                                        <div class="form-group col-md-4">
+                                            <label for="mi-upItv">Primary Min Interval</label>
+                                            <input type="number" step="any" class="form-control" name="ci-pmItv" placeholder="default value?">
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="mi-dwnItv">Secondary Min Interval</label>
+                                            <input type="number" step="any" class="form-control" name="ci-smItv" placeholder="default value?">
+                                        </div>
+                                        <div class="form-group col-md-4">
+                                            <label for="mi-upItv">Tertiary Min Interval</label>
+                                            <input type="number" step="any" class="form-control" name="ci-tmItv" placeholder="default value?">
+                                        </div>
                                     </div>
-                                    <div class="form-group col-md-4">
-                                        <label for="mi-dwnItv">Secondary Min Interval</label>
-                                        <input type="number" step="any" class="form-control" name="ci-smItv" placeholder="default value?">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <label for="mi-upItv">Max Percentage Power Input</label>
+                                            <input type="number" step="any" class="form-control" name="ci-maxpIn" placeholder="default value?">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="mi-dwnItv">Max Percentage Power Output</label>
+                                            <input type="number" step="any" class="form-control" name="ci-maxpOut" placeholder="default value?">
+                                        </div>
+                                    </div>                                
+                                </div>
+                            </div>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Output Setting</h5>
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="paretoSwitch">
+                                        <label class="custom-control-label" for="paretoSwitch">Generate Pareto Graph</label>
                                     </div>
-                                    <div class="form-group col-md-4">
-                                        <label for="mi-upItv">Tertiary Min Interval</label>
-                                        <input type="number" step="any" class="form-control" name="ci-tmItv" placeholder="default value?">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="fileSwitch">
+                                        <label class="custom-control-label" for="fileSwitch">Generate Output File</label>
                                     </div>
                                 </div>
-                                <div class="form-row">
-                                    <div class="form-group col-md-6">
-                                        <label for="mi-upItv">Max Percentage Power Input</label>
-                                        <input type="number" step="any" class="form-control" name="ci-maxpIn" placeholder="default value?">
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="mi-dwnItv">Max Percentage Power Output</label>
-                                        <input type="number" step="any" class="form-control" name="ci-maxpOut" placeholder="default value?">
-                                    </div>
-                                </div>                                
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="tab-pane" id="market">
+                    <nav class="navbar navbar-light bg-light">
+                        <span class="navbar-brand mb-0 h1">Market</span>
+                    </nav>
+                    <div class="container">
+                        <div class="mt-3 mb-3">
+                            <div class="dropdown show">
+                                <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select Reserve</a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                    <a class="dropdown-item" href="#">Primary Reserve</a>
+                                    <a class="dropdown-item" href="#">Secondary Reserve</a>
+                                    <a class="dropdown-item" href="#">Tertiary Reserve</a>
+                                </div>
+                                <button type="button" class="btn btn-light" id="marketBtn">Add</button>
                             </div>
                         </div>
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5 class="card-title">Output Setting</h5>
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="paretoSwitch">
-                                    <label class="custom-control-label" for="paretoSwitch">Generate Pareto Graph</label>
-                                  </div>
-                                  <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="fileSwitch">
-                                    <label class="custom-control-label" for="fileSwitch">Generate Output File</label>
-                                  </div>
+                        <div id="markets"></div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="ess">
+                    <nav class="navbar navbar-light bg-light">
+                        <span class="navbar-brand mb-0 h1">ESS</span>
+                    </nav>
+                    <div class="container">
+                        <div class="mt-3 mb-3">
+                            <div class="dropdown show">
+                                <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select Storage</a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                    <a class="dropdown-item" href="#">Power Flow Battery</a>
+                                    <a class="dropdown-item" href="#">Lithium-Ion</a>
+                                    <a class="dropdown-item" href="#">Supercapacitor</a>
+                                    <a class="dropdown-item" href="#">Custom</a>
+                                </div>
+                                <button type="button" class="btn btn-light" id="essBtn">Add</button>
                             </div>
                         </div>
+                        <div id="esss"></div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="data">
+                    <nav class="navbar navbar-light bg-light">
+                        <span class="navbar-brand mb-0 h1">Data</span>
+                    </nav>
+                    <div class="container">
+                    <form class="needs-validation" novalidate>
+                        <h5>Primary Reserve</h5>
+                        <div class="form-row">
+
+                            <div class="col-md-6 mb-3">
+                                <label for="validationCustom01">Upward Price</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="validationCustom02">Upward Power Demand</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="validationCustom01">Downward Price</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="validationCustom02">Downward Power Demand</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+
+                        </div>
+                        <h5>Secondary Reserve</h5>
+                        <div class="form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="validationCustom01">Upward Price</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="validationCustom02">Upward Power Demand</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-row">
+                            <div class="col-md-6 mb-3">
+                                <label for="validationCustom01">Downward Price</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="validationCustom02">Downward Power Demand</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+
+                        </div>
+                        <h5>Tertiary Reserve</h5>
+                        <div class="form-row">
+
+                            <div class="col-md-6 mb-3">
+                                <label for="validationCustom01">Upward Price</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="validationCustom02">Upward Power Demand</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-row">
+
+                            <div class="col-md-6 mb-3">
+                                <label for="validationCustom01">Downward Price</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="validationCustom02">Downward Power Demand</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="customFile">
+                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                </div>
+                            </div>
+
+                        </div>
+
                     </form>
                 </div>
-            </div>
-            <div class="tab-pane" id="market">
-                <nav class="navbar navbar-light bg-light">
-                    <span class="navbar-brand mb-0 h1">Market</span>
-                </nav>
-                <div class="container">
-                    <div class="mt-3 mb-3">
-                        <div class="dropdown show">
-                            <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select Reserve</a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item" href="#">Primary Reserve</a>
-                                <a class="dropdown-item" href="#">Secondary Reserve</a>
-                                <a class="dropdown-item" href="#">Tertiary Reserve</a>
-                            </div>
-                            <button type="button" class="btn btn-light" id="marketBtn">Add</button>
-                        </div>
-                    </div>
-                    <div id="markets"></div>
                 </div>
-            </div>
-            <div class="tab-pane" id="ess">
-                <nav class="navbar navbar-light bg-light">
-                    <span class="navbar-brand mb-0 h1">ESS</span>
-                  </nav>
-                  <div class="container">
-                    <div class="mt-3 mb-3">
-                        <div class="dropdown show">
-                            <a class="btn btn-light dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select Storage</a>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item" href="#">Power Flow Battery</a>
-                                <a class="dropdown-item" href="#">Lithium-Ion</a>
-                                <a class="dropdown-item" href="#">Supercapacitor</a>
-                                <a class="dropdown-item" href="#">Custom</a>
-                            </div>
-                            <button type="button" class="btn btn-light" id="essBtn">Add</button>
+                <div class="tab-pane" id="result">
+                    <nav class="navbar navbar-light bg-light">
+                        <span class="navbar-brand mb-0 h1">Result</span>
+                    </nav>
+                    <div class="container h-100" >
+                        <div class="alert alert-danger" role="alert">
+                            No results yet... Please run the simulation!
                         </div>
-                    </div>
-                    <div id="esss"></div>
+                            <canvas id="paretoChart"></canvas>
+                        </div>
+                    </div>  
                 </div>
-            </div>
-            <div class="tab-pane" id="data">
-                <nav class="navbar navbar-light bg-light">
-                    <span class="navbar-brand mb-0 h1">Data</span>
-                  </nav>
-                  <div class="container">
-                <form class="needs-validation" novalidate>
-                    <h5>Primary Reserve</h5>
-                    <div class="form-row">
-
-                        <div class="col-md-6 mb-3">
-                            <label for="validationCustom01">Upward Price</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="customFile">
-                                <label class="custom-file-label" for="customFile">Choose file</label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="validationCustom02">Upward Power Demand</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="customFile">
-                                <label class="custom-file-label" for="customFile">Choose file</label>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="form-row">
-                        <div class="col-md-6 mb-3">
-                            <label for="validationCustom01">Downward Price</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="customFile">
-                                <label class="custom-file-label" for="customFile">Choose file</label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="validationCustom02">Downward Power Demand</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="customFile">
-                                <label class="custom-file-label" for="customFile">Choose file</label>
-                            </div>
-                        </div>
-
-                    </div>
-                    <h5>Secondary Reserve</h5>
-                    <div class="form-row">
-                        <div class="col-md-6 mb-3">
-                            <label for="validationCustom01">Upward Price</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="customFile">
-                                <label class="custom-file-label" for="customFile">Choose file</label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="validationCustom02">Upward Power Demand</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="customFile">
-                                <label class="custom-file-label" for="customFile">Choose file</label>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="form-row">
-                        <div class="col-md-6 mb-3">
-                            <label for="validationCustom01">Downward Price</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="customFile">
-                                <label class="custom-file-label" for="customFile">Choose file</label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="validationCustom02">Downward Power Demand</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="customFile">
-                                <label class="custom-file-label" for="customFile">Choose file</label>
-                            </div>
-                        </div>
-
-                    </div>
-                    <h5>Tertiary Reserve</h5>
-                    <div class="form-row">
-
-                        <div class="col-md-6 mb-3">
-                            <label for="validationCustom01">Upward Price</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="customFile">
-                                <label class="custom-file-label" for="customFile">Choose file</label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="validationCustom02">Upward Power Demand</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="customFile">
-                                <label class="custom-file-label" for="customFile">Choose file</label>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="form-row">
-
-                        <div class="col-md-6 mb-3">
-                            <label for="validationCustom01">Downward Price</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="customFile">
-                                <label class="custom-file-label" for="customFile">Choose file</label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="validationCustom02">Downward Power Demand</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="customFile">
-                                <label class="custom-file-label" for="customFile">Choose file</label>
-                            </div>
-                        </div>
-
-                    </div>
-
-                </form>
-            </div>
-            </div>
-            <div class="tab-pane" id="result">
-                <nav class="navbar navbar-light bg-light">
-                    <span class="navbar-brand mb-0 h1">Result</span>
-                </nav>
-                <div class="container h-100" >
-                    <div class="alert alert-danger" role="alert">
-                        No results yet... Please run the simulation!
-                    </div>
-                        <canvas id="paretoChart"></canvas>
-                    </div>
-                </div>  
             </div>
         </div>
     </div>
-    <!-- </div> -->
     
     <script>window.$ = window.jQuery = require('jquery');</script>
 	<script src="https://www.chartjs.org/dist/2.9.3/Chart.min.js"></script>
