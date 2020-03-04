@@ -71,7 +71,7 @@ ipc.on('marketType', (event, args) => {
 })
 
 document.getElementById('submitBtn').addEventListener('click', (event) => {
-    ipc.send('marketObj', [marketType, $('form').serializeArray()])
+    ipc.send('submitMarketObj', [marketType, $('form').serializeArray()])
     remote.getCurrentWindow().close()
 })
 

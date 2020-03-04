@@ -117,7 +117,7 @@ ipc.on('essType', (event, args) => {
 })
 
 document.getElementById('submitBtn').addEventListener('click', (event) => {
-    ipc.send('essObj', [essType, essId, $('form').serializeArray()]);
+    ipc.send('submitEssObj', [essType, essId, $('form').serializeArray()]);
     remote.getCurrentWindow().close();
 })
 

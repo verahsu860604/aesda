@@ -78,7 +78,7 @@ document.querySelector("#essBtn").addEventListener('click', function() {
 // var f = document.getElementById('fileSwitch').checked
 
 // ipc
-ipc.on('marketObj', (event, args) => {
+ipc.on('createMarketObj', (event, args) => {
     var marketType = args[0]
     var marketData = args[1]
     
@@ -93,7 +93,7 @@ ipc.on('marketObj', (event, args) => {
     }
 })
 
-ipc.on('essObj', (event, args) => {
+ipc.on('createEssObj', (event, args) => {
     var essType = args[0]
     var essId = args[1]
     var essData = args[2]

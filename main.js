@@ -102,12 +102,12 @@ ipc.on('createEssWindow', (event, args) => {
     
 })
 
-ipc.on('marketObj', (event, args) => {
-    mainWindow.webContents.send('marketObj', args)
+ipc.on('submitMarketObj', (event, args) => {
+    mainWindow.webContents.send('createMarketObj', args)
 })
 
-ipc.on('essObj', (event, args) => {
-    mainWindow.webContents.send('essObj', args)
+ipc.on('submitEssObj', (event, args) => {
+    mainWindow.webContents.send('createEssObj', args)
 })
 
 ipc.on('editMarketObj', (event, args) => {
