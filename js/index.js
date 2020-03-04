@@ -198,9 +198,11 @@ function editMarketElem(marketType, marketData) {
     var i = 0
     var barElem = body2.querySelectorAll('.progress-bar')
     var totalPeriod = 0
+    
     for(var j = 8; j < 12; j++) {
       totalPeriod += parseInt(marketData[j]['value'])
     } 
+
     for(var j = 8; j < 12; j++) {
       var percentage = (marketData[j]['value'] / totalPeriod) * 100
       barElem[i].style.width = percentage+'%'
