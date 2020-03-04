@@ -11,7 +11,12 @@ let marketObjList = {}
 let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
 let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
 
-
+const barColor = {
+  'mi-planning': 'bg-warning',
+  'mi-schedule': 'bg-success',
+  'mi-selection': 'bg-info',
+  'mi-delivery': 'bg-danger',
+}
 
 // Dropdown control
 
@@ -125,14 +130,39 @@ function createMarketElem(args) {
     var cardHead = createElement('H5', 'class=card-header')
     var cardHeadText = document.createTextNode(marketType)
     cardHead.appendChild(cardHeadText)
-    
+
     var card = createElement('div', 'class=card mb-3', 'id='+marketType)
 
-    for(var i = 0; i < marketData.length; i++) {
-        var p = createElement('p', 'class=mb-1')
-        p.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']
-        cardBody.appendChild(p)
+    var bodyContent1 = createElement('div', 'class=row', 'id=cardbody1')
+    var bodyContent2 = createElement('div', 'class=progress m-2', 'style=height: 40px', 'id=cardbody2')
+
+    var i = 0
+    var totalPeriod = 0
+
+    while(i < marketData.length) {
+      if(i !== 8) var pSec = createElement('div', 'class=col-md-4')
+      for(var j = 0; j < 4 && i < marketData.length; j++){
+        if(8 <= i && i <= 11) {
+          totalPeriod += parseInt(marketData[i]['value'])
+        } else {
+          var p = createElement('p', 'class=mb-1')
+          p.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']
+          pSec.appendChild(p)
+        }
+        i++
+      }
+      bodyContent1.appendChild(pSec)
     }
+
+    for(i = 8; i < 12; i++) {
+      var percentage = (marketData[i]['value'] / totalPeriod) * 100
+      var pbar = createElement('div', 'class=progress-bar '+barColor[marketData[i]['name']], 'style=width:' + percentage + '%', 'role=progressbar', 'aria-valuenow='+(marketData[i]['value'] / totalPeriod) * 100, 'aria-valuemin=0',  'aria-valuemax=100')
+      pbar.innerHTML = strMap.miStrMap(marketData[i]['name']).split(' ')[0] + ": " + marketData[i]['value'] 
+      bodyContent2.appendChild(pbar)
+    }
+
+    cardBody.appendChild(bodyContent1)
+    cardBody.appendChild(bodyContent2)
 
     cardBody.appendChild(editbtn)
     cardBody.appendChild(deletebtn)
@@ -152,12 +182,32 @@ function createMarketElem(args) {
 }
 
 function editMarketElem(marketType, marketData) {
+    
+    var body1 = document.getElementById('cardbody1')
+    var body2 = document.getElementById('cardbody2')
+
     var i = 0
-    var cardObject = document.getElementById(marketType)
-    var pObject = cardObject.querySelectorAll('p')
-    marketData.forEach(e => {
-        pObject[i++].innerHTML = strMap.miStrMap(e['name']) + ": " + e['value']
+    var pObject = body1.querySelectorAll('p')
+    
+    pObject.forEach(e => {
+      if(i === 8) i = 12
+      e.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']  
+      i++
     })
+
+    var i = 0
+    var barElem = body2.querySelectorAll('.progress-bar')
+    var totalPeriod = 0
+    for(var j = 8; j < 12; j++) {
+      totalPeriod += parseInt(marketData[j]['value'])
+    } 
+    for(var j = 8; j < 12; j++) {
+      var percentage = (marketData[j]['value'] / totalPeriod) * 100
+      barElem[i].style.width = percentage+'%'
+      barElem[i].innerHTML = strMap.miStrMap(marketData[j]['name']).split(' ')[0] + ": " + marketData[j]['value'] 
+      i++
+    }
+
 }
 
 function createEssElem(args) {
