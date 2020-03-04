@@ -213,7 +213,6 @@ function editMarketElem(marketType, marketData) {
 }
 
 function createEssElem(args) {
-
     var essType = args[0]
     var essId = args[1]
     var essData = args[2]
