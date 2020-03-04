@@ -230,8 +230,8 @@ function createEssElem(args) {
 
     var card = createElement('div', 'class=card mb-3', 'id='+essType+"-"+essId)
     var cardiv = createElement('div', 'class=col-sm-4')
-    
-    for(var i = 0; i < essData.length; i++) {
+   
+    for(var i = 0; i < 10; i++) {
         var p = createElement('p', 'class=mb-1')
         p.innerHTML = strMap.eiStrMap(essData[i]['name']) + ": " + essData[i]['value']
         cardBody.appendChild(p)
@@ -265,9 +265,9 @@ function editEssElement(essType, essId, essData) {
     var i = 0
     var cardObject = document.getElementById(essType+"-"+essId)
     var pObject = cardObject.querySelectorAll('p')
-    essData.forEach(e => {
-        pObject[i++].innerHTML = strMap.eiStrMap(e['name']) + ": " + e['value']
-    })
+    for(i = 0; i < 10; i++) {
+      pObject[i].innerHTML = strMap.eiStrMap(essData[i]['name']) + ": " + essData[i]['value']
+    }
 }
 
 function createElement(type, ...args) {
