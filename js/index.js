@@ -262,10 +262,9 @@ function createEssElem(args) {
 }
 
 function editEssElement(essType, essId, essData) {
-    var i = 0
     var cardObject = document.getElementById(essType+"-"+essId)
     var pObject = cardObject.querySelectorAll('p')
-    for(i = 0; i < 10; i++) {
+    for(var i = 0; i < 10; i++) {
       pObject[i].innerHTML = strMap.eiStrMap(essData[i]['name']) + ": " + essData[i]['value']
     }
 }
