@@ -237,7 +237,8 @@ function createEssElem(args) {
     }
 
     var essdisplay = document.getElementById('esss')
-    if(essdisplay.childElementCount === 0 || (essdisplay.lastElementChild !== null && essdisplay.lastElementChild.childElementCount === 3)){
+    if(essdisplay.childElementCount === 0){
+    // if(essdisplay.childElementCount === 0 || (essdisplay.lastElementChild !== null && essdisplay.lastElementChild.childElementCount === 3)){
         var row = createElement('div', 'class=row')
         essdisplay.appendChild(row)   
     }
