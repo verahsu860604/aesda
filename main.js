@@ -113,6 +113,7 @@ ipc.on('submitEssObj', (event, args) => {
 ipc.on('editMarketObj', (event, args) => {
     createMarketWindow(args)
 })
+
 // args = [essType, essId, essObjList[essType][essId]]
 ipc.on('editEsstObj', (event, args) => {
     createEssWindow(args)
@@ -126,7 +127,7 @@ const mainMenuTemplate = [
         submenu: [
             {
                 label: 'Reset',
-                click() {console.log('Hit reset!')}
+                // click() {console.log('Hit reset!')}
             },
             {
                 label: 'Quit Application',
