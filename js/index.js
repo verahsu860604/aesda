@@ -277,6 +277,17 @@ function createElement(type, ...args) {
     }
     return ele
 }
+var paretoChart;
+function handleClick(evt){
+  var activeElement = paretoChart.getElementAtEvent(evt);
+  if(activeElement.length>0){
+    console.log(paretoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index]);
+    
+    // console.log(activeElement[0]);
+    ipc.send("dataPointClick", paretoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index]);
+    
+  }
+}
 
 function generateResultChart() {
   window.chartColors = {
@@ -290,6 +301,7 @@ function generateResultChart() {
   };
   
   var config = {
+    fontSize: 50,
     data: {
       datasets: [{
         label: 'Inferior Datapoints',
@@ -359,6 +371,8 @@ function generateResultChart() {
       }]
     },
     options: {
+      onClick: handleClick,
+      // events: ['mousemove', 'click', 'touchstart'],
       responsive: true,
       tooltips: {
         callbacks: {
@@ -378,21 +392,30 @@ function generateResultChart() {
       },
       title: {
         display: true,
-        text: 'Pareto Scatter Chart'
+        text: 'Pareto Scatter Chart',
+        fontSize: 30
       },
       scales: {
         xAxes: [{
+          ticks: {
+            fontSize: 15
+          },
           display: true,
           scaleLabel: {
             display: true,
-            labelString: 'State of Health'
+            labelString: 'State of Health',
+            fontSize: 20
           }
         }],
         yAxes: [{
+          ticks: {
+            fontSize: 15
+          },
           display: true,
           scaleLabel: {
             display: true,
-            labelString: 'Profit'
+            labelString: 'Profit',
+            fontSize: 20
           }
         }]
       }
@@ -400,7 +423,10 @@ function generateResultChart() {
   };
   
   var ctx = document.getElementById("paretoChart").getContext("2d");
-  var pareto = Chart.Scatter(ctx, config);
+  paretoChart = new Chart.Scatter(ctx, config);
+  console.log(paretoChart);
+  // var canv = document.getElementById("paretoChart");
+  // canv.addEventListener('click', handleClick, false);
 
 
 }

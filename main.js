@@ -90,6 +90,30 @@ function createEssWindow(args) {
     })
 }
 
+function createDatapointWindow(args) {
+    console.log("ipc on data click" + args);
+    datapointWindow = new BrowserWindow({
+        parent: mainWindow,
+        modal: true,
+        webPreferences: {
+            nodeIntegration: true
+        },
+    })
+    datapointWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'html/datapoint.html'),
+        protocol: 'file',
+        slashes: true
+    }))
+    
+    datapointWindow.on('closed', () => {
+        datapointWindow = null
+    })
+
+    datapointWindow.webContents.on('did-finish-load', () => {
+        datapointWindow.webContents.send('essType', args)
+    })
+}
+
 // ipc
 ipc.on('createMarketWindow', (event, args) => {
     createMarketWindow([args, ''])
@@ -117,7 +141,9 @@ ipc.on('editMarketObj', (event, args) => {
 ipc.on('editEsstObj', (event, args) => {
     createEssWindow(args)
 })
-
+ipc.on('dataPointClick', (event, args) => {
+    createDatapointWindow(args)
+})
 
 // create menu template
 const mainMenuTemplate = [
