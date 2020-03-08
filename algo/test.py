@@ -76,4 +76,3 @@ mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy
 
 cc = cyclic_coordinate.CyclicCoordinate(markets, mpc)
 solutions = cc.Algo5()
-cc.plot_pareto(solutions)
