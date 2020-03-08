@@ -34,17 +34,21 @@
                 <div class="card-body">
                     <h5 class="card-title">General Configuration</h5>
                     <div class="form-row">
-                        <div class="form-group col-md-4">
-                            <label for="ei-selfDischareRatio">Self Discharge Ratio (Day)</label>
+                        <div class="form-group col-md-3">
+                            <label for="ei-selfDischareRatio">Self Discharge Ratio</label>
                             <input type="number" step="any" class="form-control" name="ei-selfDischareRatio" placeholder="default value?">
                         </div>
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-3">
                             <label for="ei-dimen">Dimension (MWh)</label>
                             <input type="number" step="any" class="form-control" name="ei-dimen" placeholder="default value?">
                         </div>
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-3">
                             <label for="ei-cost">Cost (Euro/kWj)</label>
                             <input type="number" step="any" class="form-control" name="ei-cost" placeholder="default value?">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="ei-cost">Other Cost</label>
+                            <input type="number" step="any" class="form-control" name="ei-othercost" placeholder="default value?">
                         </div>
                     </div>
                     <div class="form-row">
@@ -57,6 +61,12 @@
                             <input type="number" step="any" class="form-control" name="ei-outEffi" placeholder="default value?">
                         </div>
                     </div>
+                    
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-body" id="socinput">
+                    <h5 class="card-title">Power Profile</h5>
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="ei-maxpin">Max Power Input</label>
@@ -67,11 +77,6 @@
                         <input type="number" step="any" class="form-control" name="ei-maxpout" placeholder="default value?">
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Power Profile</h5>
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="ei-minsoc">Min SOC for Max Output</label>
@@ -83,64 +88,67 @@
                         </div>
                     </div>
                 </div>
+                <canvas id="socprofile"></canvas>                                  
             </div>
             <div class="card mb-3">
-                <div class="card-body">
+                <div class="card-body" id="dodInput">
                     <h5 class="card-title">DoD Profile</h5>
                     <div class="form-row">
-                        <div class="form-group col-md-3">
-                            <label for="ei-p1c">Point 1 Cycles</label>
-                            <input type="number" step="any" class="form-control" name="ei-p1c" placeholder="default value?">
-                        </div>
                         <div class="form-group col-md-3">
                             <label for="ei-p1d">Point 1 DoD</label>
                             <input type="number" step="any" class="form-control" name="ei-p1d" placeholder="default value?">
                         </div>
                         <div class="form-group col-md-3">
-                            <label for="ei-p2c">Point 2 Cycles</label>
-                            <input type="number" step="any" class="form-control" name="ei-p2c" placeholder="default value?">
+                            <label for="ei-p1c">Point 1 Cycles</label>
+                            <input type="number" step="any" class="form-control" name="ei-p1c" placeholder="default value?">
                         </div>
                         <div class="form-group col-md-3">
                             <label for="ei-p2d">Point 2 DoD</label>
                             <input type="number" step="any" class="form-control" name="ei-p2d" placeholder="default value?">
-                        </div>                        
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="ei-p2c">Point 2 Cycles</label>
+                            <input type="number" step="any" class="form-control" name="ei-p2c" placeholder="default value?">
+                        </div>
+                        
                     </div>
                     <div class="form-row">
-                        <div class="form-group col-md-3">
-                            <label for="ei-p3c">Point 3 Cycles</label>
-                            <input type="number" step="any" class="form-control" name="ei-p3c" placeholder="default value?">
-                        </div>
                         <div class="form-group col-md-3">
                             <label for="ei-p3d">Point 3 DoD</label>
                             <input type="number" step="any" class="form-control" name="ei-p3d" placeholder="default value?">
                         </div>
                         <div class="form-group col-md-3">
-                            <label for="ei-p4c">Point 4 Cycles</label>
-                            <input type="number" step="any" class="form-control" name="ei-p4c" placeholder="default value?">
+                            <label for="ei-p3c">Point 3 Cycles</label>
+                            <input type="number" step="any" class="form-control" name="ei-p3c" placeholder="default value?">
                         </div>
                         <div class="form-group col-md-3">
                             <label for="ei-p4d">Point 4 DoD</label>
                             <input type="number" step="any" class="form-control" name="ei-p4d" placeholder="default value?">
                         </div>                        
+                        <div class="form-group col-md-3">
+                            <label for="ei-p4c">Point 4 Cycles</label>
+                            <input type="number" step="any" class="form-control" name="ei-p4c" placeholder="default value?">
+                        </div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group col-md-3">
-                            <label for="ei-p5c">Point 5 Cycles</label>
-                            <input type="number" step="any" class="form-control" name="ei-p5c" placeholder="default value?">
-                        </div>
                         <div class="form-group col-md-3">
                             <label for="ei-p5d">Point 5 DoD</label>
                             <input type="number" step="any" class="form-control" name="ei-p5d" placeholder="default value?">
                         </div>
                         <div class="form-group col-md-3">
-                            <label for="ei-p6c">Point 6 Cycles</label>
-                            <input type="number" step="any" class="form-control" name="ei-p6c" placeholder="default value?">
+                            <label for="ei-p5c">Point 5 Cycles</label>
+                            <input type="number" step="any" class="form-control" name="ei-p5c" placeholder="default value?">
                         </div>
                         <div class="form-group col-md-3">
                             <label for="ei-p6d">Point 6 DoD</label>
                             <input type="number" step="any" class="form-control" name="ei-p6d" placeholder="default value?">
-                        </div>                        
-                    </div>                                        
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="ei-p6c">Point 6 Cycles</label>
+                            <input type="number" step="any" class="form-control" name="ei-p6c" placeholder="default value?">
+                        </div>
+                    </div>
+                    <canvas id="dodprofile"></canvas>                                  
                 </div>
             </div>    
             <button type="submit" id="submitBtn" class="btn btn-primary">Save</button>
@@ -154,6 +162,7 @@
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <script src="../js/ess.js"></script>
 </body>
 

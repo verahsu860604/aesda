@@ -19,8 +19,6 @@ const barColor = {
 }
 
 // Dropdown control
-
-
 var curMarket
 var marketDropdownItem = document.querySelectorAll("#market .dropdown-item")
 var marketDropdownMenu = document.querySelector("#market #dropdownMenuLink")
@@ -213,6 +211,7 @@ function editMarketElem(marketType, marketData) {
 }
 
 function createEssElem(args) {
+  
     var essType = args[0]
     var essId = args[1]
     var essData = args[2]

@@ -20,6 +20,7 @@ var ess = {
     'ei-selfDischareRatio': 'Self Discharge Ratio',
     'ei-dimen': 'Dimension',
     'ei-cost': 'Cost',
+    'ei-othercost': 'Other Cost',
     'ei-inEffi': 'Input Efficiency',
     'ei-outEffi': 'Output Efficiency',
     'ei-maxpin': 'Max Power Input',
