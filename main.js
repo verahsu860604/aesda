@@ -84,14 +84,13 @@ function createEssWindow(args) {
     essWindow.on('closed', () => {
         essWindow = null
     })
-
+    
     essWindow.webContents.on('did-finish-load', () => {
         essWindow.webContents.send('essType', args)
     })
 }
 
 function createDatapointWindow(args) {
-    console.log("ipc on data click" + args);
     datapointWindow = new BrowserWindow({
         parent: mainWindow,
         modal: true,
@@ -108,10 +107,10 @@ function createDatapointWindow(args) {
     datapointWindow.on('closed', () => {
         datapointWindow = null
     })
-
     datapointWindow.webContents.on('did-finish-load', () => {
-        datapointWindow.webContents.send('essType', args)
+        datapointWindow.webContents.send('datapoint', args)
     })
+
 }
 
 // ipc
@@ -143,6 +142,10 @@ ipc.on('editEsstObj', (event, args) => {
 })
 ipc.on('dataPointClick', (event, args) => {
     createDatapointWindow(args)
+})
+ipc.on('compareData', (event, args) => {
+    console.log(args)
+    mainWindow.webContents.send('addDataToCompare', args)
 })
 
 // create menu template

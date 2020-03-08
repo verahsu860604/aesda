@@ -13,30 +13,36 @@ const defaultVal = {
         'di-batteryLife': 1
     }
 }
-
-ipc.on('marketType', (event, args) => {
-    marketType = args[0]
-    marketData = args[1]
-    
-    document.getElementById('marketType').innerHTML = marketType
-    if(marketData !== "") {
-        marketData.forEach(e => {
-            document.getElementById('marketForm').elements[e['name']].value = e['value']
-        });
-    }else {
-        // todo: add default value
-        setDefault(defaultVal[marketType])
-    }
+var data;
+ipc.on('datapoint', (event, args) => {
+    data = args;
+    console.log(data);
+    document.getElementById('irr').innerHTML = "IRR: " + data['x']
+    document.getElementById('profit').innerHTML = "Profit: " + data['profit']
+    // document.getElementById('marketType').innerHTML = marketType
+    // if(marketData !== "") {
+    //     marketData.forEach(e => {
+    //         document.getElementById('marketForm').elements[e['name']].value = e['value']
+    //     });
+    // }else {
+    //     // todo: add default value
+    //     setDefault(defaultVal[marketType])
+    // }
 })
 
 
 document.querySelector("#downloadBtn").addEventListener('click', function() {
-    if(curEss !== undefined) ipc.send("download", [curEss, essObjNum])
+    console.log(document.getElementById('irr').defaultValue);
+    document.getElementById('irr').value = data['x']
+    console.log(data);
+    ipc.send("download", data)
 })
 
 document.querySelector("#compareBtn").addEventListener('click', function() {
-    if(curEss !== undefined) ipc.send("createDataElement", [curEss, essObjNum])
+    ipc.send("compareData", data)
+    remote.getCurrentWindow().close()
 })
 
-
-
+document.getElementById('cancelBtn').addEventListener('click', (event) => {
+    remote.getCurrentWindow().close();
+})

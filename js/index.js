@@ -10,6 +10,7 @@ let marketObjList = {}
 // number of ess objects
 let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
 let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
+let dataCompList = {}
 
 const barColor = {
   'mi-planning': 'bg-warning',
@@ -277,15 +278,79 @@ function createElement(type, ...args) {
     }
     return ele
 }
+
+
+function createDataElem(args) {
+    console.log(args['x'])
+    var data = args
+    console.log(data['x'])
+    var downloadbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'dataDownloadBtn')
+    downloadbtn.innerHTML = 'Download'
+    var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
+    deletebtn.innerHTML = 'Delete'
+    
+    var cardBody = createElement('div', 'class=card-body')
+    var cardHeadText = document.createTextNode(data)
+
+    var card = createElement('div', 'class=card mb-3', 'id='+data)
+    var cardiv = createElement('div', 'class=col-sm-4')
+   
+  
+    var p = createElement('p', 'class=mb-1')
+    p.innerHTML = 'IRR: ' + data['x']
+    cardBody.appendChild(p)
+    p = createElement('p', 'class=mb-1')
+    p.innerHTML = 'PRP: ' + data['prp']
+    cardBody.appendChild(p)
+    p = createElement('p', 'class=mb-1')
+    p.innerHTML = 'Remaining Years: ' + data['y']
+    cardBody.appendChild(p)
+
+    // for(var i = 0; i < 10; i++) {
+    //     var p = createElement('p', 'class=mb-1')
+    //     p.innerHTML = strMap.eiStrMap(essData[i]['name']) + ": " + essData[i]['value']
+    //     cardBody.appendChild(p)
+    // }
+
+    var dataDisplay = document.getElementById('dataComparison')
+    if(dataDisplay.childElementCount === 0){
+    // if(essdisplay.childElementCount === 0 || (essdisplay.lastElementChild !== null && essdisplay.lastElementChild.childElementCount === 3)){
+        var row = createElement('div', 'class=row')
+        dataDisplay.appendChild(row)   
+    }
+
+    cardBody.appendChild(downloadbtn)
+    cardBody.appendChild(deletebtn)
+    card.appendChild(cardBody)
+    cardiv.appendChild(card)
+    dataDisplay.lastElementChild.appendChild(cardiv)
+
+
+    downloadbtn.addEventListener('click', function(e) {
+      ipc.send('editEsstObj', [essType, essId, essObjList[essType][essId]])
+    })
+    deletebtn.addEventListener('click', function(e) {
+        // delete dataCompList[data[id]]
+        cardiv.remove()
+    }) 
+
+}
+ipc.on('addDataToCompare', (event, args) => {
+  console.log(args)
+  createDataElem(args);
+  
+})
+
+
 var paretoChart;
 function handleClick(evt){
   var activeElement = paretoChart.getElementAtEvent(evt);
   if(activeElement.length>0){
     console.log(paretoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index]);
-    
+    args = paretoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index];
     // console.log(activeElement[0]);
-    ipc.send("dataPointClick", paretoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index]);
-    
+    ipc.send("dataPointClick", args);
+    ipc.send("datapoint", args);
   }
 }
 
@@ -359,11 +424,11 @@ function generateResultChart() {
         borderWidth: 2,
         fill: false,
         data: [ 
-          { x: 0.009, y: 0.985, r: 1},    
-          { x: 0.712, y: 0.967, r: 1},
-          { x: 0.813, y: 0.959, r: 1},
-          { x: 0.949, y: 0.499, r: 1},
-          { x: 0.973, y: 0.246, r: 1} 
+          { x: 0.009, y: 0.985, prp: 1, profit: 1, id: 0},    
+          { x: 0.712, y: 0.967, prp: 1, profit: 1, id: 1},
+          { x: 0.813, y: 0.959, prp: 1, profit: 1, id: 2},
+          { x: 0.949, y: 0.499, prp: 1, profit: 1, id: 3},
+          { x: 0.973, y: 0.246, prp: 1, profit: 1, id: 4} 
         ],
         borderWidth: 2.5,
         tension: 1,
@@ -377,10 +442,12 @@ function generateResultChart() {
       tooltips: {
         callbacks: {
           label: function(tooltipItem, data) {
-              var prp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['r']
-              return [['SoH: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['x']],
-              ['Profit: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['y']],
-              ['PRP: ' + (prp?prp:0)]];
+              var prp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['prp'];
+              var profit = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['profit'];
+              return [['Battery Life: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['x']],
+              ['IRR: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['y']],
+              ['PRP: ' + (prp?prp:0)],
+              ['Profit: '+ (profit?profit:0)]];
           }
         },
         bodyFontSize: 14,
@@ -403,7 +470,7 @@ function generateResultChart() {
           display: true,
           scaleLabel: {
             display: true,
-            labelString: 'State of Health',
+            labelString: 'Remaining Battery Life',
             fontSize: 20
           }
         }],
@@ -414,7 +481,7 @@ function generateResultChart() {
           display: true,
           scaleLabel: {
             display: true,
-            labelString: 'Profit',
+            labelString: 'Internal Rate of Return',
             fontSize: 20
           }
         }]
