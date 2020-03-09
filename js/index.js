@@ -85,7 +85,7 @@ ipc.on('createMarketObj', (event, args) => {
         editMarketElem(marketType, marketData)
     }else {
         marketObjList[marketType] = marketData
-        createMarketElem(args) 
+        createMarketElem(marketType, marketData) 
         clearDropdownMenu('market')
         toggleMarketItem(marketType)
     }
@@ -95,14 +95,17 @@ ipc.on('createEssObj', (event, args) => {
     var essType = args[0]
     var essId = args[1]
     var essData = args[2]
+    var socprofile = args[3]
+    var dodprofile = args[4]
+
     if(essObjNum[essType] >= essId) {
         essObjList[essType][essId] = essData
-        editEssElement(essType, essId, essData)
+        editEssElement(essType, essId, essData, socprofile, dodprofile)
     } else {
         essId = essObjNum[essType] + 1
         essObjNum[essType] = essId    
         essObjList[essType][essId] = essData
-        createEssElem([essType, essId, essData])
+        createEssElem(essType, essId, essData, socprofile, dodprofile)
         clearDropdownMenu('ess')
     }
     
@@ -114,11 +117,8 @@ ipc.on('generateResult', (event, args) => {
 }) 
 
 // functions
-function createMarketElem(args) {
+function createMarketElem(marketType, marketData) {
     
-    var marketType = args[0]
-    var marketData = args[1]
-
     var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'id=marketEditBtn')
     editbtn.innerHTML = 'Edit'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
@@ -210,31 +210,41 @@ function editMarketElem(marketType, marketData) {
 
 }
 
-function createEssElem(args) {
+function createEssElem(essType, essId, essData, socprofile, dodprofile) {
   
-    var essType = args[0]
-    var essId = args[1]
-    var essData = args[2]
-
     var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'essEditBtn')
     editbtn.innerHTML = 'Edit'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
     deletebtn.innerHTML = 'Delete'
     
-    var cardBody = createElement('div', 'class=card-body')
+    var cardBody = createElement('div', 'class=card-body row')
     var cardHead = createElement('H5', 'class=card-header')
-    var cardHeadText = document.createTextNode(essType + "-" + essId)
+    var cardHeadText = document.createTextNode(essType + "-" + essId + " (Quantity: " + essData[0]['value'] + ")")
     cardHead.appendChild(cardHeadText)
 
     var card = createElement('div', 'class=card mb-3', 'id='+essType+"-"+essId)
-    var cardiv = createElement('div', 'class=col-sm-4')
-   
-    for(var i = 0; i < 10; i++) {
+    var cardiv = createElement('div', 'class=col-md-12')
+
+    var cardtext = createElement('div', 'class=col-md-4')
+    console.log(essData)
+    for(var i = 1; i < 7; i++) {
         var p = createElement('p', 'class=mb-1')
         p.innerHTML = strMap.eiStrMap(essData[i]['name']) + ": " + essData[i]['value']
-        cardBody.appendChild(p)
+        // cardBody.appendChild(p)
+        cardtext.appendChild(p)
     }
+        
+    var chart1div = createElement('div', 'class=col-md-4')
+    var cardchart1 = createElement('canvas', 'id=soc'+essType+essId)
+    chart1div.appendChild(cardchart1)
 
+    var chart2div = createElement('div', 'class=col-md-4')
+    var cardchart2 = createElement('canvas', 'id=dod'+essType+essId)
+    chart2div.appendChild(cardchart2)
+
+    cardBody.appendChild(cardtext)
+    cardBody.appendChild(chart1div)
+    cardBody.appendChild(chart2div)
     var essdisplay = document.getElementById('esss')
     if(essdisplay.childElementCount === 0){
     // if(essdisplay.childElementCount === 0 || (essdisplay.lastElementChild !== null && essdisplay.lastElementChild.childElementCount === 3)){
@@ -258,14 +268,31 @@ function createEssElem(args) {
         cardiv.remove()
     }) 
 
+    socprofile.config['options']['responsive'] = true
+    socprofile.config['options']['maintainAspectRatio'] = false
+    dodprofile.config['options']['responsive'] = true    
+    dodprofile.config['options']['maintainAspectRatio'] = false
+    cardchart1.style.height = "100%"
+    cardchart2.style.height = "100%"
+    var socchart = new Chart(cardchart1, socprofile.config)
+    var dodchart = new Chart(cardchart2, dodprofile.config)
+
 }
 
-function editEssElement(essType, essId, essData) {
+function editEssElement(essType, essId, essData, socprofile, dodprofile) {
     var cardObject = document.getElementById(essType+"-"+essId)
     var pObject = cardObject.querySelectorAll('p')
-    for(var i = 0; i < 10; i++) {
-      pObject[i].innerHTML = strMap.eiStrMap(essData[i]['name']) + ": " + essData[i]['value']
+    
+    for(var i = 0; i < 6; i++) {
+      pObject[i].innerHTML = strMap.eiStrMap(essData[i+1]['name']) + ": " + essData[i+1]['value']
     }
+
+    cardObject.querySelector('h5').innerHTML = essType + "-" + essId + "  (Quantity: " + essData[0]['value'] + ")"
+    
+    // cardObject.socchart.data = socprofile.data
+    // cardObject.dodchart.data = dodprofile.data
+    var socchart = new Chart(document.getElementById("soc"+essType+essId), socprofile.config)
+    var dodchart = new Chart(document.getElementById("dod"+essType+essId), dodprofile.config)
 }
 
 function createElement(type, ...args) {
@@ -400,7 +427,6 @@ function generateResultChart() {
   
   var ctx = document.getElementById("paretoChart").getContext("2d");
   var pareto = Chart.Scatter(ctx, config);
-
 
 }
 
