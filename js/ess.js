@@ -18,10 +18,10 @@ const defaultVal = {
         'ei-maxpout': 10,
         'ei-minsoc': 0,
         'ei-maxsoc': 40,
-        // 'ei-p1c': ,
-        // 'ei-p1d': ,
-        // 'ei-p2c': ,
-        // 'ei-p2d': ,
+        'ei-p1c': 10,
+        'ei-p1d': 0,
+        'ei-p2c': 10,
+        'ei-p2d': 10,
         // 'ei-p3c': ,
         // 'ei-p3d': ,
         // 'ei-p4c': ,
@@ -124,7 +124,7 @@ ipc.on('essType', (event, args) => {
     essType = args[0];
     essId = args[1]
     essData = args[2]
-
+    
     document.getElementById('essType').innerHTML = essType + "-" + essId
 
     if (essData !== '') {
@@ -146,6 +146,10 @@ ipc.on('essType', (event, args) => {
         dodData[i - 1][c] = parseInt(e.value)
         dodprofile.data.datasets[0].data = dodData
         dodprofile.update()
+
+        if(essType === "Power Flow Battery" && i > 2) {
+            e.disabled = true
+        }
     })
 
     dimen_input.addEventListener('input', () => {
