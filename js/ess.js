@@ -135,8 +135,8 @@ ipc.on('essType', (event, args) => {
         setDefault(defaultVal[essType])
     }
 
-    genDod()
-    genSoc()
+    generageDodChart()
+    generageSocChart()
     updateSocProfile()
 
     document.querySelectorAll('#dodInput input').forEach(e => {
@@ -185,7 +185,7 @@ function setDefault(val) {
     })
 }
 
-function genSoc() {
+function generageSocChart() {
     socprofile = new Chart(document.getElementById('socprofile'), {
         type: 'line',
         data: {
@@ -228,7 +228,7 @@ function genSoc() {
     })
 }
 
-function genDod() {
+function generageDodChart() {
     dodprofile = new Chart(document.getElementById('dodprofile'), {
         type: 'scatter',
         data: {
