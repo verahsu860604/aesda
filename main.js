@@ -107,6 +107,7 @@ ipc.on('submitMarketObj', (event, args) => {
 })
 
 ipc.on('submitEssObj', (event, args) => {
+    console.log(args)
     mainWindow.webContents.send('createEssObj', args)
 })
 

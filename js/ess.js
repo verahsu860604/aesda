@@ -11,17 +11,17 @@ const defaultVal = {
         'ei-selfDischareRatio': 0,
         'ei-dimen': 40,
         'ei-cost': 470,
-        // 'ei-othercost': 100,
+        'ei-othercost': 0,
         'ei-inEffi': 0.78,
         'ei-outEffi': 0.78,
         'ei-maxpin': 10,
         'ei-maxpout': 10,
         'ei-minsoc': 0,
         'ei-maxsoc': 40,
-        // 'ei-p1c': ,
-        // 'ei-p1d': ,
-        // 'ei-p2c': ,
-        // 'ei-p2d': ,
+        'ei-p1c': 10,
+        'ei-p1d': 0,
+        'ei-p2c': 10,
+        'ei-p2d': 10,
         // 'ei-p3c': ,
         // 'ei-p3d': ,
         // 'ei-p4c': ,
@@ -35,7 +35,7 @@ const defaultVal = {
         'ei-selfDischareRatio': 0,
         'ei-dimen': 20,
         'ei-cost': 310,
-        // 'ei-othercost': 
+        'ei-othercost': 0, 
         'ei-inEffi': 0.95,
         'ei-outEffi': 0.95,
         'ei-maxpin': 10,
@@ -59,7 +59,7 @@ const defaultVal = {
         'ei-selfDischareRatio': 0,
         'ei-dimen': 2,
         'ei-cost': 3100,
-        // 'ei-othercost': 
+        'ei-othercost': 0, 
         'ei-inEffi': 0.95,
         'ei-outEffi': 0.95,
         'ei-maxpin': 10,
@@ -115,12 +115,10 @@ var max_power_input = document.getElementsByName('ei-maxpin')[0]
 var max_power_output = document.getElementsByName('ei-maxpout')[0]
 
 var soc_x_data = [0, 0, 0, 0];
-var soc_y_data_charge = [0,0,0,undefined];
-var soc_y_data_discharge = [undefined,0,0,0];
+var soc_y_data_charge = [0, 0, 0, undefined];
+var soc_y_data_discharge = [undefined, 0, 0, 0];
 
-
-var dodData = [{x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}]
-
+var dodData = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }]
 
 ipc.on('essType', (event, args) => {
     essType = args[0];
@@ -129,11 +127,11 @@ ipc.on('essType', (event, args) => {
     
     document.getElementById('essType').innerHTML = essType + "-" + essId
 
-    if(essData !== '') {
+    if (essData !== '') {
         essData.forEach(e => {
             document.getElementById('essForm').elements[e['name']].value = e['value']
         });
-    }else {
+    } else {
         setDefault(defaultVal[essType])
     }
 
@@ -145,11 +143,15 @@ ipc.on('essType', (event, args) => {
         e.addEventListener('input', updateDodProfile)
         var i = e.name[4]
         var c = (e.name[5] === 'c') ? 'y' : 'x'
-        dodData[i-1][c] = parseInt(e.value) 
+        dodData[i - 1][c] = parseInt(e.value)
         dodprofile.data.datasets[0].data = dodData
         dodprofile.update()
+
+        if(essType === "Power Flow Battery" && i > 2) {
+            e.disabled = true
+        }
     })
-    
+
     dimen_input.addEventListener('input', () => {
         updateSocProfile()
     })
@@ -168,7 +170,7 @@ ipc.on('essType', (event, args) => {
 })
 
 document.getElementById('submitBtn').addEventListener('click', (event) => {
-    ipc.send('submitEssObj', [essType, essId, $('form').serializeArray()]);
+    ipc.send('submitEssObj', [essType, essId, $('form').serializeArray(), socprofile, dodprofile]);
     remote.getCurrentWindow().close();
 })
 
@@ -186,7 +188,7 @@ function setDefault(val) {
 function genSoc() {
     socprofile = new Chart(document.getElementById('socprofile'), {
         type: 'line',
-        data:  {
+        data: {
             labels: soc_x_data,
             datasets: [{
                 label: "Charge",
@@ -194,20 +196,20 @@ function genSoc() {
                 borderColor: "#3e95cd",
                 fill: false,
                 lineTension: 0
-             },
-             {
+            },
+            {
                 label: "Discharge",
                 data: soc_y_data_discharge,
                 borderColor: "#8e5ea2",
                 fill: false,
                 lineTension: 0
-             }]
+            }]
         },
         options: {
             title: {
                 display: true,
                 text: 'SoC Profile'
-            }, 
+            },
             scales: {
                 yAxes: [{
                     scaleLabel: {
@@ -229,18 +231,18 @@ function genSoc() {
 function genDod() {
     dodprofile = new Chart(document.getElementById('dodprofile'), {
         type: 'scatter',
-        data:  {
+        data: {
             datasets: [{
                 label: "DoD",
                 data: dodData,
                 showLine: true
-             }]
+            }]
         },
         options: {
             title: {
                 display: true,
                 text: 'DoD Profile'
-            }, 
+            },
             scales: {
                 yAxes: [{
                     scaleLabel: {
@@ -260,23 +262,24 @@ function genDod() {
 }
 
 function updateSocProfile() {
-    soc_x_data[1] = parseInt(dimen_input.value) * (parseInt(minsoc_input.value)/100.0)
-    soc_x_data[2]= parseInt(dimen_input.value) * (parseInt(maxsoc_input.value)/100.0) 
+    soc_x_data[1] = parseInt(dimen_input.value) * (parseInt(minsoc_input.value) / 100.0)
+    soc_x_data[2] = parseInt(dimen_input.value) * (parseInt(maxsoc_input.value) / 100.0)
     soc_x_data[3] = parseInt(dimen_input.value)
-    soc_y_data_charge[1] = parseInt(max_power_input.value) 
-    soc_y_data_charge[2] = parseInt(max_power_input.value) 
-    soc_y_data_discharge[1] = parseInt(max_power_output.value) 
-    soc_y_data_discharge[2] = parseInt(max_power_output.value) 
+    soc_y_data_charge[1] = parseInt(max_power_input.value)
+    soc_y_data_charge[2] = parseInt(max_power_input.value)
+    soc_y_data_discharge[1] = parseInt(max_power_output.value)
+    soc_y_data_discharge[2] = parseInt(max_power_output.value)
     socprofile.data.labels = soc_x_data
     socprofile.data.datasets[0].data = soc_y_data_charge
     socprofile.data.datasets[1].data = soc_y_data_discharge
     socprofile.update()
 }
 
-const updateDodProfile = function(e) {
+const updateDodProfile = function (e) {
     var i = e.target.name[4]
     var c = (e.target.name[5] === 'c') ? 'y' : 'x'
-    dodData[i-1][c] = parseInt(e.target.value) 
+    dodData[i - 1][c] = parseInt(e.target.value)
+    // dodData.sort((a, b) => a.x - b.x)
     dodprofile.data.datasets[0].data = dodData
     dodprofile.update()
 }
