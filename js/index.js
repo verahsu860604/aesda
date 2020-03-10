@@ -212,17 +212,23 @@ function editMarketElem(marketType, marketData) {
 
 function createEssElem(essType, essId, essData, socprofile, dodprofile) {
   
+    
+
+    var btndiv = createElement('div', 'class=ml-3')
     var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'essEditBtn')
     editbtn.innerHTML = 'Edit'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
     deletebtn.innerHTML = 'Delete'
     
-    var cardBody = createElement('div', 'class=card-body row')
-    var cardHead = createElement('H5', 'class=card-header')
-    var cardHeadText = document.createTextNode(essType + "-" + essId + " (Quantity: " + essData[0]['value'] + ")")
-    cardHead.appendChild(cardHeadText)
+    btndiv.appendChild(editbtn)
+    btndiv.appendChild(deletebtn)
+    var cardBody = createElement('div', 'class=card-body row collapse', 'id=body'+essType.replace(/\s+/g, "")+"-"+essId, 'aria-labelledby='+essType.replace(/\s+/g, "")+"-"+essId, 'data-parent=#head'+essType.replace(/\s+/g, "")+"-"+essId)
+    var cardHeadBtn = createElement('button', 'class=btn btn-link collapsed p-0', 'data-toggle=collapse', 'data-target=#body'+essType.replace(/\s+/g, "")+"-"+essId, 'aria-expanded=false', 'aria-controls='+essType.replace(/\s+/g, "")+"-"+essId)
+    cardHeadBtn.innerHTML = essType + "-" + essId + " (Quantity: " + essData[0]['value'] + ")"
+    var cardHead = createElement('H5', 'class=card-header', 'id=head'+essType.replace(/\s+/g, "")+"-"+essId)
+    cardHead.appendChild(cardHeadBtn)
 
-    var card = createElement('div', 'class=card mb-3', 'id='+essType+"-"+essId)
+    var card = createElement('div', 'class=card mb-3', 'id='+essType.replace(/\s+/g, "")+"-"+essId)
     var cardiv = createElement('div', 'class=col-md-12')
 
     var cardtext = createElement('div', 'class=col-md-4')
@@ -252,8 +258,9 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
         essdisplay.appendChild(row)   
     }
 
-    cardBody.appendChild(editbtn)
-    cardBody.appendChild(deletebtn)
+    // cardBody.appendChild(editbtn)
+    // cardBody.appendChild(deletebtn)
+    cardBody.appendChild(btndiv)
     card.appendChild(cardHead)
     card.appendChild(cardBody)
     cardiv.appendChild(card)
@@ -272,8 +279,8 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
     socprofile.config['options']['maintainAspectRatio'] = false
     dodprofile.config['options']['responsive'] = true    
     dodprofile.config['options']['maintainAspectRatio'] = false
-    cardchart1.style.height = "100%"
-    cardchart2.style.height = "100%"
+    cardchart1.style.height = "168px"
+    cardchart2.style.height = "168px"
     var socchart = new Chart(cardchart1, socprofile.config)
     var dodchart = new Chart(cardchart2, dodprofile.config)
 
@@ -287,10 +294,13 @@ function editEssElement(essType, essId, essData, socprofile, dodprofile) {
       pObject[i].innerHTML = strMap.eiStrMap(essData[i+1]['name']) + ": " + essData[i+1]['value']
     }
 
-    cardObject.querySelector('h5').innerHTML = essType + "-" + essId + "  (Quantity: " + essData[0]['value'] + ")"
+    cardObject.querySelector('button').innerHTML = essType + "-" + essId + "  (Quantity: " + essData[0]['value'] + ")"
     
-    // cardObject.socchart.data = socprofile.data
-    // cardObject.dodchart.data = dodprofile.data
+
+    socprofile.config['options']['responsive'] = true
+    socprofile.config['options']['maintainAspectRatio'] = false
+    dodprofile.config['options']['responsive'] = true    
+    dodprofile.config['options']['maintainAspectRatio'] = false
     var socchart = new Chart(document.getElementById("soc"+essType+essId), socprofile.config)
     var dodchart = new Chart(document.getElementById("dod"+essType+essId), dodprofile.config)
 }
@@ -429,4 +439,9 @@ function generateResultChart() {
   var pareto = Chart.Scatter(ctx, config);
 
 }
+
+$(document).ready(function() {
+
+})
+
 
