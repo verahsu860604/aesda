@@ -11,10 +11,6 @@ let marketObjList = {}
 let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
 let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
 
-document.getElementById('runBtn').addEventListener('click', (event) => {
-  document.querySelector('#result .alert').style.display = "none"
-  generateResultChart()
-})
 
 const barColor = {
   'mi-planning': 'bg-warning',
@@ -346,7 +342,7 @@ function createDataElem(args) {
 
 }
 ipc.on('addDataToCompare', (event, args) => {
-  console.log(args)
+  // console.log(args)
   createDataElem(args);
 })
 
@@ -356,16 +352,13 @@ function handleClick(evt){
   var activeElement = paretoChart.getElementAtEvent(evt);
   if(activeElement.length>0){
     args = paretoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index];
-    console.log(args);
-    // ipc.send("dataPointClick", args);
+    // console.log(args);
     createDataElem(args );
 
   }
 }
 
 function generateResultChart() {
-  isRunning = true
-  document.getElementById('runBtn').innerHTML = "Continue"
   window.chartColors = {
     red: 'rgb(255, 99, 132)',
     orange: 'rgb(255, 159, 64)',
@@ -502,7 +495,7 @@ function generateResultChart() {
   
   var ctx = document.getElementById("paretoChart").getContext("2d");
   paretoChart = new Chart.Scatter(ctx, config);
-  console.log(paretoChart);
+  // console.log(paretoChart);
   // var canv = document.getElementById("paretoChart");
   // canv.addEventListener('click', handleClick, false);
 
