@@ -2,15 +2,21 @@ html, body{
     height: 100%;
 }
 
+#runBtn{
+    margin-top: 100px;
+}
+
 #sidebar{
     background-color: #313E50;
     padding-right: 0px;
+    padding-left: 0px;
 }
 
 #sidebar a{
     color: white;
     padding: 16px 16px 16px 20px;
 }
+
 
 #sidebar li .active{
     background-color: #2D70A3;

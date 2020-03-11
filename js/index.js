@@ -10,7 +10,11 @@ let marketObjList = {}
 // number of ess objects
 let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
 let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
-let dataCompList = {}
+
+document.getElementById('runBtn').addEventListener('click', (event) => {
+  document.querySelector('#result .alert').style.display = "none"
+  generateResultChart()
+})
 
 const barColor = {
   'mi-planning': 'bg-warning',
@@ -112,6 +116,7 @@ ipc.on('createEssObj', (event, args) => {
 })
 
 ipc.on('generateResult', (event, args) => {
+    // isRunning = true; 
     document.querySelector('#result .alert').style.display = "none"
     generateResultChart()
 }) 
@@ -174,12 +179,12 @@ function createMarketElem(args) {
     editbtn.addEventListener('click', function(e) {
         ipc.send('editMarketObj', [marketType, marketObjList[marketType]])
     })
-
+ 
     deletebtn.addEventListener('click', function(e) {
         toggleMarketItem(marketType)
         delete marketObjList[marketType]
         card.remove()
-    })   
+    })  
 }
 
 function editMarketElem(marketType, marketData) {
@@ -279,11 +284,10 @@ function createElement(type, ...args) {
     return ele
 }
 
-
 function createDataElem(args) {
-    console.log(args['x'])
     var data = args
-    console.log(data['x'])
+    var id = data['id']
+    delete data['id']
     var downloadbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'dataDownloadBtn')
     downloadbtn.innerHTML = 'Download'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
@@ -292,25 +296,31 @@ function createDataElem(args) {
     var cardBody = createElement('div', 'class=card-body')
     var cardHeadText = document.createTextNode(data)
 
-    var card = createElement('div', 'class=card mb-3', 'id='+data)
+    var card = createElement('div', 'class=card mb-1', 'id='+data)
     var cardiv = createElement('div', 'class=col-sm-4')
    
   
-    var p = createElement('p', 'class=mb-1')
-    p.innerHTML = 'IRR: ' + data['x']
-    cardBody.appendChild(p)
-    p = createElement('p', 'class=mb-1')
-    p.innerHTML = 'PRP: ' + data['prp']
-    cardBody.appendChild(p)
-    p = createElement('p', 'class=mb-1')
-    p.innerHTML = 'Remaining Years: ' + data['y']
-    cardBody.appendChild(p)
+    for (const [key, value] of Object.entries(data)) {
+      var p;
+      if(key === 'y'){
+        p = createElement('p', 'class=mb-1 ')
+        p.innerHTML = (strMap.diStrMap(key) + ": ").bold()
+      } else if(key === 'x'){
+        p = createElement('p', 'class=mb-1 ')
+        p.innerHTML = (strMap.diStrMap(key) + ": " + value).bold()
+      } else if(key === 'ess'){
+        for (const [keyEss, valueEss] of Object.entries(value)) {
+          p = createElement('p', 'class=mb-1 ')
+          p.innerHTML = (keyEss + ": " + valueEss).bold()
+          cardBody.appendChild(p)
+        }
+      }else{
+        p = createElement('p', 'class=mb-1')
+        p.innerHTML = strMap.diStrMap(key) + ": " + value
+      }
+      cardBody.appendChild(p)
+    }
 
-    // for(var i = 0; i < 10; i++) {
-    //     var p = createElement('p', 'class=mb-1')
-    //     p.innerHTML = strMap.eiStrMap(essData[i]['name']) + ": " + essData[i]['value']
-    //     cardBody.appendChild(p)
-    // }
 
     var dataDisplay = document.getElementById('dataComparison')
     if(dataDisplay.childElementCount === 0){
@@ -338,7 +348,6 @@ function createDataElem(args) {
 ipc.on('addDataToCompare', (event, args) => {
   console.log(args)
   createDataElem(args);
-  
 })
 
 
@@ -346,15 +355,17 @@ var paretoChart;
 function handleClick(evt){
   var activeElement = paretoChart.getElementAtEvent(evt);
   if(activeElement.length>0){
-    console.log(paretoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index]);
     args = paretoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index];
-    // console.log(activeElement[0]);
-    ipc.send("dataPointClick", args);
-    ipc.send("datapoint", args);
+    console.log(args);
+    // ipc.send("dataPointClick", args);
+    createDataElem(args );
+
   }
 }
 
 function generateResultChart() {
+  isRunning = true
+  document.getElementById('runBtn').innerHTML = "Continue"
   window.chartColors = {
     red: 'rgb(255, 99, 132)',
     orange: 'rgb(255, 159, 64)',
@@ -424,11 +435,11 @@ function generateResultChart() {
         borderWidth: 2,
         fill: false,
         data: [ 
-          { x: 0.009, y: 0.985, prp: 1, profit: 1, id: 0},    
-          { x: 0.712, y: 0.967, prp: 1, profit: 1, id: 1},
-          { x: 0.813, y: 0.959, prp: 1, profit: 1, id: 2},
-          { x: 0.949, y: 0.499, prp: 1, profit: 1, id: 3},
-          { x: 0.973, y: 0.246, prp: 1, profit: 1, id: 4} 
+          { x: 0.009, y: 0.985, ess:{'Power Flow Battery':0.985 , 'Custom':5}, prp: 1, profit: 1, id: 0},    
+          { x: 0.712, y: 0.967, ess:{'Power Flow Battery':0.967}, prp: 1, profit: 1, id: 1},
+          { x: 0.813, y: 0.959, ess:{'Power Flow Battery':0.959 }, prp: 1, profit: 1, id: 2},
+          { x: 0.949, y: 0.499, ess:{'Power Flow Battery':0.499}, prp: 1, profit: 1, id: 3},
+          { x: 0.973, y: 0.246, ess:{'Custom':0.246}, prp: 1, profit: 1, id: 4} 
         ],
         borderWidth: 2.5,
         tension: 1,
