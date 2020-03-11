@@ -84,10 +84,33 @@ function createEssWindow(args) {
     essWindow.on('closed', () => {
         essWindow = null
     })
-
+    
     essWindow.webContents.on('did-finish-load', () => {
         essWindow.webContents.send('essType', args)
     })
+}
+
+function createDatapointWindow(args) {
+    datapointWindow = new BrowserWindow({
+        parent: mainWindow,
+        modal: true,
+        webPreferences: {
+            nodeIntegration: true
+        },
+    })
+    datapointWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'html/datapoint.html'),
+        protocol: 'file',
+        slashes: true
+    }))
+    
+    datapointWindow.on('closed', () => {
+        datapointWindow = null
+    })
+    datapointWindow.webContents.on('did-finish-load', () => {
+        datapointWindow.webContents.send('datapoint', args)
+    })
+
 }
 
 // ipc
@@ -119,7 +142,13 @@ ipc.on('editMarketObj', (event, args) => {
 ipc.on('editEsstObj', (event, args) => {
     createEssWindow(args)
 })
-
+ipc.on('dataPointClick', (event, args) => {
+    createDatapointWindow(args)
+})
+ipc.on('compareData', (event, args) => {
+    console.log(args)
+    mainWindow.webContents.send('addDataToCompare', args)
+})
 
 // create menu template
 const mainMenuTemplate = [
