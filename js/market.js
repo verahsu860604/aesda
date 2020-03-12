@@ -8,50 +8,50 @@ const ipc = electron.ipcRenderer
 // To be modified
 const defaultVal = {
     'Primary Reserve': {
-        'mi-upItv': 1,
-        'mi-dwnItv': 1,
+        'mi-upItv': 1, // missing
+        'mi-dwnItv': 1, // missing
         'mi-spUpdate': 1,
-        'mi-twDelivery': 1,
-        'mi-upMinPrice': 1,
-        'mi-upMaxPrice': 1,
-        'mi-dwnMinPrice': 1,
-        'mi-dwnMaxPrice': 1,
-        'mi-planning': 1,
-        'mi-schedule': 1,
-        'mi-selection': 1,
-        'mi-delivery': 1,
-        'mi-upPenalty': 1,
-        'mi-dwnPenalty': 1
+        'mi-twDelivery': 4,
+        'mi-upMinPrice': 0,
+        'mi-upMaxPrice': 10,
+        'mi-dwnMinPrice': 0,
+        'mi-dwnMaxPrice': 100,
+        'mi-planning': 20,
+        'mi-schedule': 20,
+        'mi-selection': 20,
+        'mi-delivery': 20,
+        'mi-upPenalty': 1, // missing
+        'mi-dwnPenalty': 1 // missing
     }, 'Secondary Reserve': {
-        'mi-upItv': 2,
-        'mi-dwnItv': 2,
+        'mi-upItv': 1, // missing
+        'mi-dwnItv': 1, // missing
         'mi-spUpdate': 1,
-        'mi-twDelivery': 1,
-        'mi-upMinPrice': 1,
-        'mi-upMaxPrice': 1,
-        'mi-dwnMinPrice': 1,
-        'mi-dwnMaxPrice': 1,
-        'mi-planning': 1,
-        'mi-schedule': 1,
-        'mi-selection': 1,
-        'mi-delivery': 1,
-        'mi-upPenalty': 1,
-        'mi-dwnPenalty': 1
+        'mi-twDelivery': 4,
+        'mi-upMinPrice': 0,
+        'mi-upMaxPrice': 10,
+        'mi-dwnMinPrice': 0,
+        'mi-dwnMaxPrice': 100,
+        'mi-planning': 20,
+        'mi-schedule': 20,
+        'mi-selection': 20,
+        'mi-delivery': 20,
+        'mi-upPenalty': 1, // missing
+        'mi-dwnPenalty': 1 // missing
     }, 'Tertiary Reserve': {
-        'mi-upItv': 3,
-        'mi-dwnItv': 3,
+        'mi-upItv': 1, // missing
+        'mi-dwnItv': 1, // missing
         'mi-spUpdate': 1,
-        'mi-twDelivery': 1,
-        'mi-upMinPrice': 1,
-        'mi-upMaxPrice': 1,
-        'mi-dwnMinPrice': 1,
-        'mi-dwnMaxPrice': 1,
-        'mi-planning': 1,
-        'mi-schedule': 1,
-        'mi-selection': 1,
-        'mi-delivery': 1,
-        'mi-upPenalty': 1,
-        'mi-dwnPenalty': 1
+        'mi-twDelivery': 4,
+        'mi-upMinPrice': 0,
+        'mi-upMaxPrice': 10,
+        'mi-dwnMinPrice': 0,
+        'mi-dwnMaxPrice': 100,
+        'mi-planning': 20,
+        'mi-schedule': 20,
+        'mi-selection': 20,
+        'mi-delivery': 20,
+        'mi-upPenalty': 1, // missing
+        'mi-dwnPenalty': 1 // missing
     }
 }
 
