@@ -213,10 +213,10 @@ function editMarketElem(marketType, marketData) {
 }
 
 function createEssElem(essType, essId, essData, socprofile, dodprofile) {
-  
-    
 
-    var btndiv = createElement('div', 'class=ml-3')
+    essTypeId = essType.replace(/\s+/g, "")
+
+    var btndiv = createElement('div', 'class=ml-3 mt-1 mb-1')
     var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'essEditBtn')
     editbtn.innerHTML = 'Edit'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
@@ -224,18 +224,17 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
     
     btndiv.appendChild(editbtn)
     btndiv.appendChild(deletebtn)
-    var cardBody = createElement('div', 'class=card-body row collapse', 'id=body'+essType.replace(/\s+/g, "")+"-"+essId, 'aria-labelledby='+essType.replace(/\s+/g, "")+"-"+essId, 'data-parent=#head'+essType.replace(/\s+/g, "")+"-"+essId)
-    var cardHeadBtn = createElement('button', 'class=btn btn-link collapsed p-0', 'data-toggle=collapse', 'data-target=#body'+essType.replace(/\s+/g, "")+"-"+essId, 'aria-expanded=false', 'aria-controls='+essType.replace(/\s+/g, "")+"-"+essId)
+    var cardBody = createElement('div', 'class=card-body row collapse', 'id=body'+essTypeId+"-"+essId, 'aria-labelledby='+essTypeId+"-"+essId, 'data-parent=#head'+essTypeId+"-"+essId)
+    var cardHeadBtn = createElement('button', 'class=btn btn-link collapsed p-0', 'data-toggle=collapse', 'data-target=#body'+essTypeId+"-"+essId, 'aria-expanded=false', 'aria-controls='+essTypeId+"-"+essId)
     cardHeadBtn.innerHTML = essType + "-" + essId + " (Quantity: " + essData[0]['value'] + ")"
-    var cardHead = createElement('H5', 'class=card-header', 'id=head'+essType.replace(/\s+/g, "")+"-"+essId)
+    var cardHead = createElement('H5', 'class=card-header', 'id=head'+essTypeId+"-"+essId)
     cardHead.appendChild(cardHeadBtn)
 
-    var card = createElement('div', 'class=card mb-3', 'id='+essType.replace(/\s+/g, "")+"-"+essId)
+    var card = createElement('div', 'class=card mb-3', 'id='+essTypeId+"-"+essId)
     var cardiv = createElement('div', 'class=col-md-12')
 
     var cardtext = createElement('div', 'class=col-md-4')
-    console.log(essData)
-    for(var i = 1; i < 7; i++) {
+    for(var i = 1; i < 8; i++) {
         var p = createElement('p', 'class=mb-1')
         p.innerHTML = strMap.eiStrMap(essData[i]['name']) + ": " + essData[i]['value']
         // cardBody.appendChild(p)
@@ -243,11 +242,11 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
     }
         
     var chart1div = createElement('div', 'class=col-md-4')
-    var cardchart1 = createElement('canvas', 'id=soc'+essType+essId)
+    var cardchart1 = createElement('canvas', 'id=soc'+essTypeId+essId)
     chart1div.appendChild(cardchart1)
 
     var chart2div = createElement('div', 'class=col-md-4')
-    var cardchart2 = createElement('canvas', 'id=dod'+essType+essId)
+    var cardchart2 = createElement('canvas', 'id=dod'+essTypeId+essId)
     chart2div.appendChild(cardchart2)
 
     cardBody.appendChild(cardtext)
@@ -260,8 +259,6 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
         essdisplay.appendChild(row)   
     }
 
-    // cardBody.appendChild(editbtn)
-    // cardBody.appendChild(deletebtn)
     cardBody.appendChild(btndiv)
     card.appendChild(cardHead)
     card.appendChild(cardBody)
@@ -289,22 +286,25 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
 }
 
 function editEssElement(essType, essId, essData, socprofile, dodprofile) {
-    var cardObject = document.getElementById(essType+"-"+essId)
+
+    essTypeId = essType.replace(/\s+/g, "")
+
+    var cardObject = document.getElementById(essTypeId+"-"+essId)
     var pObject = cardObject.querySelectorAll('p')
     
-    for(var i = 0; i < 6; i++) {
+    for(var i = 0; i < 7ok
+      ; i++) {
       pObject[i].innerHTML = strMap.eiStrMap(essData[i+1]['name']) + ": " + essData[i+1]['value']
     }
 
     cardObject.querySelector('button').innerHTML = essType + "-" + essId + "  (Quantity: " + essData[0]['value'] + ")"
-    
-
+  
     socprofile.config['options']['responsive'] = true
     socprofile.config['options']['maintainAspectRatio'] = false
     dodprofile.config['options']['responsive'] = true    
     dodprofile.config['options']['maintainAspectRatio'] = false
-    var socchart = new Chart(document.getElementById("soc"+essType+essId), socprofile.config)
-    var dodchart = new Chart(document.getElementById("dod"+essType+essId), dodprofile.config)
+    var socchart = new Chart(document.getElementById("soc"+essTypeId+essId), socprofile.config)
+    var dodchart = new Chart(document.getElementById("dod"+essTypeId+essId), dodprofile.config)
 }
 
 function createElement(type, ...args) {

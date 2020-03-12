@@ -40,7 +40,8 @@ function createWindow() {
 
     // build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate)
-    Menu.setApplicationMenu(mainMenu)
+    if(process.platform === 'darwin') Menu.setApplicationMenu(mainMenu)
+    else mainWindow.setMenu(mainMenu)
 }
 
 // args = [marketType, marketObjData]

@@ -23,6 +23,7 @@ var ess = {
     'ei-othercost': 'Other Cost',
     'ei-inEffi': 'Input Efficiency',
     'ei-outEffi': 'Output Efficiency',
+    'ei-threshold': 'Threshold',
     'ei-maxpin': 'Rated Power Input',
     'ei-maxpout': 'Rated Power Output',
     'ei-minsoc': 'Min SOC',
