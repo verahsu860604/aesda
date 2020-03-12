@@ -11,6 +11,10 @@ let marketObjList = {}
 let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
 let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
 
+const defaultVal = {
+  'ci-predic': 20, 
+}
+
 
 const barColor = {
   'mi-planning': 'bg-warning',
@@ -292,8 +296,7 @@ function editEssElement(essType, essId, essData, socprofile, dodprofile) {
     var cardObject = document.getElementById(essTypeId+"-"+essId)
     var pObject = cardObject.querySelectorAll('p')
     
-    for(var i = 0; i < 7ok
-      ; i++) {
+    for(var i = 0; i < 7; i++) {
       pObject[i].innerHTML = strMap.eiStrMap(essData[i+1]['name']) + ": " + essData[i+1]['value']
     }
 
@@ -536,9 +539,3 @@ function generateResultChart() {
   // canv.addEventListener('click', handleClick, false);
 
 }
-
-$(document).ready(function() {
-
-})
-
-

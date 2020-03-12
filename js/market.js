@@ -84,5 +84,3 @@ function setDefault(val) {
         document.getElementsByName(e)[0].defaultValue = val[e]
     })
 }
-
-
