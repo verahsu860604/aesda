@@ -234,7 +234,7 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
     var cardiv = createElement('div', 'class=col-md-12')
 
     var cardtext = createElement('div', 'class=col-md-4')
-    for(var i = 1; i < 7; i++) {
+    for(var i = 1; i < 8; i++) {
         var p = createElement('p', 'class=mb-1')
         p.innerHTML = strMap.eiStrMap(essData[i]['name']) + ": " + essData[i]['value']
         // cardBody.appendChild(p)
@@ -292,7 +292,8 @@ function editEssElement(essType, essId, essData, socprofile, dodprofile) {
     var cardObject = document.getElementById(essTypeId+"-"+essId)
     var pObject = cardObject.querySelectorAll('p')
     
-    for(var i = 0; i < 6; i++) {
+    for(var i = 0; i < 7ok
+      ; i++) {
       pObject[i].innerHTML = strMap.eiStrMap(essData[i+1]['name']) + ": " + essData[i+1]['value']
     }
 
