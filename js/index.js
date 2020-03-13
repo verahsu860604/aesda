@@ -372,7 +372,7 @@ function createDataElem(args) {
     downloadbtn.addEventListener('click', function(e) {
       let content = "temp";
       var filename;
-      filename = BrowserWindow.showSaveDialog({}
+      filename = dialog.showSaveDialog({}
         ).then(result => {
           filename = result.filePath;
           if (filename === undefined) {
