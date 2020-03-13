@@ -2,7 +2,8 @@ const electron = require("electron")
 const path = require("path")
 const url = require("url")
 const strMap = require("../js/string.js")
-
+const fs = require("fs")
+const {dialog} = require('electron').remote;
 const {BrowserWindow} = electron.remote
 const ipc = electron.ipcRenderer
 
@@ -320,7 +321,7 @@ function createDataElem(args) {
     var data = args
     var id = data['id']
     delete data['id']
-    var downloadbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'dataDownloadBtn')
+    var downloadbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'id=dataDownloadBtn')
     downloadbtn.innerHTML = 'Download'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
     deletebtn.innerHTML = 'Delete'
@@ -369,7 +370,25 @@ function createDataElem(args) {
 
 
     downloadbtn.addEventListener('click', function(e) {
-      ipc.send('editEsstObj', [essType, essId, essObjList[essType][essId]])
+      let content = "temp";
+      var filename;
+      filename = BrowserWindow.showSaveDialog({}
+        ).then(result => {
+          filename = result.filePath;
+          if (filename === undefined) {
+            alert("Filename invalid, file not created!")
+            return
+          }
+          fs.writeFile(filename, content, (err) => {
+            if (err) {
+              alert("An error ocurred creating the file " + err.message)
+              return
+            }
+            alert("Succesfully saved");
+          })
+        }).catch(err => {
+          alert(err)
+        })
     })
     deletebtn.addEventListener('click', function(e) {
         // delete dataCompList[data[id]]
@@ -536,9 +555,3 @@ function generateResultChart() {
   // canv.addEventListener('click', handleClick, false);
 
 }
-
-$(document).ready(function() {
-
-})
-
-
