@@ -292,8 +292,7 @@ function editEssElement(essType, essId, essData, socprofile, dodprofile) {
     var cardObject = document.getElementById(essTypeId+"-"+essId)
     var pObject = cardObject.querySelectorAll('p')
     
-    for(var i = 0; i < 7ok
-      ; i++) {
+    for(var i = 0; i < 7; i++) {
       pObject[i].innerHTML = strMap.eiStrMap(essData[i+1]['name']) + ": " + essData[i+1]['value']
     }
 
