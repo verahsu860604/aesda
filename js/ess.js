@@ -14,6 +14,7 @@ const defaultVal = {
         'ei-othercost': 0,
         'ei-inEffi': 0.78,
         'ei-outEffi': 0.78,
+        'ei-threshold': 0.2,
         'ei-maxpin': 10,
         'ei-maxpout': 10,
         'ei-minsoc': 0,
@@ -38,6 +39,7 @@ const defaultVal = {
         'ei-othercost': 0, 
         'ei-inEffi': 0.95,
         'ei-outEffi': 0.95,
+        'ei-threshold': 0.2,
         'ei-maxpin': 10,
         'ei-maxpout': 10,
         'ei-minsoc': 0,
@@ -62,6 +64,7 @@ const defaultVal = {
         'ei-othercost': 0, 
         'ei-inEffi': 0.95,
         'ei-outEffi': 0.95,
+        'ei-threshold': 0.2,
         'ei-maxpin': 10,
         'ei-maxpout': 10,
         'ei-minsoc': 0,
@@ -86,6 +89,7 @@ const defaultVal = {
         // 'ei-othercost': ,
         // 'ei-inEffi': ,
         // 'ei-outEffi': ,
+        // 'ei-threshold': 0.2,
         // 'ei-maxpin': ,
         // 'ei-maxpout': ,
         // 'ei-minsoc': ,
@@ -135,8 +139,8 @@ ipc.on('essType', (event, args) => {
         setDefault(defaultVal[essType])
     }
 
-    genDod()
-    genSoc()
+    generageDodChart()
+    generageSocChart()
     updateSocProfile()
 
     document.querySelectorAll('#dodInput input').forEach(e => {
@@ -185,7 +189,7 @@ function setDefault(val) {
     })
 }
 
-function genSoc() {
+function generageSocChart() {
     socprofile = new Chart(document.getElementById('socprofile'), {
         type: 'line',
         data: {
@@ -228,7 +232,7 @@ function genSoc() {
     })
 }
 
-function genDod() {
+function generageDodChart() {
     dodprofile = new Chart(document.getElementById('dodprofile'), {
         type: 'scatter',
         data: {

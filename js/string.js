@@ -23,8 +23,9 @@ var ess = {
     'ei-othercost': 'Other Cost',
     'ei-inEffi': 'Input Efficiency',
     'ei-outEffi': 'Output Efficiency',
-    'ei-maxpin': 'Max Power Input',
-    'ei-maxpout': 'Max Power Output',
+    'ei-threshold': 'Threshold',
+    'ei-maxpin': 'Rated Power Input',
+    'ei-maxpout': 'Rated Power Output',
     'ei-minsoc': 'Min SOC',
     'ei-maxsoc': 'Max SOC',
     'ei-p1c': 'Point 1 Cycles',
@@ -41,6 +42,19 @@ var ess = {
     'ei-p6d': 'Point 6 dod',
 }
 
+
+var data = {
+    'x': 'IRR ',
+    'y': 'Remaining years',
+    'ess0': '   Power Flow Battery',
+    'ess1': '   Lithium-ion Battery',
+    'ess2': '   Supercapacitor',
+    'ess3': '   Custom',
+    'prp': 'PBP',
+    'profit': 'Profit'
+}
+
+
 exports.miStrMap = function(str) {
     return market[str]
 }
@@ -49,3 +63,6 @@ exports.eiStrMap = function(str) {
     return ess[str]
 }
 
+exports.diStrMap = function(str) {
+    return data[str]
+}
