@@ -34,48 +34,14 @@ class CyclicCoordinate(object):
                 is_efficient[i] = True  # And keep self
         return is_efficient
 
-    # Faster than is_pareto_efficient_simple, but less readable.
-    def is_pareto_efficient(self, costs, return_mask = True):
-        """
-        Find the pareto-efficient points
-        :param costs: An (n_points, n_costs) array
-        :param return_mask: True to return a mask
-        :return: An array of indices of pareto-efficient points.
-            If return_mask is True, this will be an (n_points, ) boolean array
-            Otherwise it will be a (n_efficient_points, ) integer array of indices.
-        """
-        is_efficient = np.arange(costs.shape[0])
-        n_points = costs.shape[0]
-        next_point_index = 0  # Next index in the is_efficient array to search for
-        while next_point_index<len(costs):
-            nondominated_point_mask = np.any(costs<costs[next_point_index], axis=1)
-            nondominated_point_mask[next_point_index] = True
-            is_efficient = is_efficient[nondominated_point_mask]  # Remove dominated points
-            costs = costs[nondominated_point_mask]
-            next_point_index = np.sum(nondominated_point_mask[:next_point_index])+1
-        if return_mask:
-            is_efficient_mask = np.zeros(n_points, dtype = bool)
-            is_efficient_mask[is_efficient] = True
-            return is_efficient_mask
-        else:
-            return is_efficient
-
     def plot_pareto(self, data):
-        optimal_index = self.is_pareto_efficient(data)
+        optimal_index = self.is_pareto_efficient_simple(data)
         optimal_datapoints = data[optimal_index]
 
-        fig = plt.figure()
-        ax = fig.add_subplot(231, projection='3d')
-        ax.scatter(data[:, 0], data[:, 1], data[:, 2], marker='^')
-        ax.scatter(optimal_datapoints[:, 0], optimal_datapoints[:, 1], optimal_datapoints[:, 2], marker='o')
-        
-        ax2 = fig.add_subplot(232, projection='3d')
-        ax2.scatter(data[:, 0], data[:, 1], data[:, 3], marker='^')
-        ax2.scatter(optimal_datapoints[:, 0], optimal_datapoints[:, 1], optimal_datapoints[:, 3], marker='o')
-
-        ax3 = fig.add_subplot(233, projection='3d')
-        ax3.scatter(data[:, 1], data[:, 2], data[:, 3], marker='^')
-        ax3.scatter(optimal_datapoints[:, 1], optimal_datapoints[:, 2], optimal_datapoints[:, 3], marker='o')
+        plt.scatter(data[:, 0], data[:, 1])
+        plt.scatter(optimal_datapoints[:, 0], optimal_datapoints[:, 1], color='r')
+        plt.xlabel('Objective A')
+        plt.ylabel('Objective B')
         plt.show()
 
         # ax4 = fig.add_subplot(234)
@@ -135,7 +101,7 @@ class CyclicCoordinate(object):
             set_of_feasible_value[i+1]["-"]["min"] = market.min_feasible_power_output_percentage
             set_of_feasible_value[i+1]["+"]["max"] = market.max_feasible_power_input_percentage
             set_of_feasible_value[i+1]["+"]["min"] = market.min_feasible_power_input_percentage
-        j = 2
+        j = 2 # start from second market
         p = '-'
         #while (p == '-' and config.market[j].max_feasible_selling_price >= config.market[j].min_feasible_selling_price)
         while set_of_feasible_value[j][p]['max'] >= set_of_feasible_value[j][p]['min'] + 2:
