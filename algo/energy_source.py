@@ -1,74 +1,177 @@
 # TODO Check on min_soh, if min_soh, set battery disabled
-
+import numpy as np
+import matplotlib.pyplot as plt
+import random
 
 class SOHEstimator(object):
     """State of health Estimation
-    
+
     Calculates SOH change given SOC history data.
     """
 
-
-    def __init__(self, downward_change_th = 0.2, curve_a = 3.5, curve_b = 2, curve_c = 1e7):
+    def __init__(self, downward_change_th=0.2, dimension=20, dod_points=[2, 4, 17, 30, 60, 100],
+                 cycle_points=[10000000, 1000000, 100000, 40000, 10000, 3000], dod_profile=True, visualize=False):
         """SOHEstimator builder.
 
         Args:
-            downward_change_th (int/float): The threshold of how much soc loss is counted as a cycle.
-            curve_a (float): cycles = curve_a / (DoD ** curve_b) * curve_c # TODO 
-            curve_b (float): cycles = curve_a / (DoD ** curve_b) * curve_c
-            curve_c (float): cycles = curve_a / (DoD ** curve_b) * curve_c
+            dod_profile_change_th (float): The threshold that filters the small fluctuation of SOC profile.
+            dimension (int): MWh
+            dod_points (list or np.array(1d)): data points of Depth of Discharge to fit the DoD curve
+            cycle_points (list or np.array(1d)): data points of cycles to fit the DoD curve
+            dod_profile (bool): whether the ess has the dod profile
+            visualize (bool): display the visualization or not
         """
         self.downward_change_th = downward_change_th
-        self.curve_a = curve_a
-        self.curve_b = curve_b
-        self.curve_c = curve_c
-    
-        
-    def get_cycles(DoD):
+        self.dimension = dimension
+        self.dod_points = dod_points
+        self.cycle_points = cycle_points
+        self.dod_profile = dod_profile
+        self.visualize = visualize
+
+    def get_cycles(self, DoD):
         """Get Cycles by using a simple exponential curve function.
-
         Args:
-            DoD (float): Depth of discharge (On average)
-
+            DoD (list or np.array(1d)): dod points for estimation
         Returns:
-            Cycles (int): How many cycles can the battery be used in estimation, given the average DoD.
+            Estimated Cycles (list or np.array(1d)): How many cycles can the battery be used in estimation, given the curve and the DoD.
         """
-        return self.curve_a / (DoD ** self.curve_b) * self.curve_c
-        
+        f1 = np.polyfit(self.dod_points, self.cycle_points, 2)
+        estimated_cycles = np.polyval(f1, DoD)
+        return estimated_cycles
 
     def get_DoD_and_Cycles(self, soc_history):
-        """Get DoD and Cycles using simple counting algorithm.
-
-        Args:
-            soc_history (list or np.array(1d)): The history of state-of-charge.
-
-        Returns:
-            DoD(flat): The average depth of discharge.
-            Cycles (int): The number of cycles.
-        """
-        y = np.array(soc_history)
-        avg = y.mean()
-        std = y.std()
-        downwards = y[1:] - y[:-1] # Get gradient
-
-
-        cycles = []
-        cum = 0
-        for i in range(1, len(downwards)):
-            if downwards[i] < 0:
-                cum += abs(downwards[i]) # If downward, accumulate
+        soc_history = np.array(soc_history)
+        downwards = soc_history[1:] - soc_history[:-1]
+        DoD_estimated = range(1, 100, 1)
+        cycles = np.zeros(len(DoD_estimated))
+        min_down = [self.dimension + 1, 0]
+        max_up = [-1, 0]
+        down_cum = 0
+        up_cum = 0
+        up = 1
+        pair = False
+        d_cum_up = 0
+        d_cum_down = 0
+        up_i = 0
+        down_i = 0
+        real_cycle = []
+        real_time = []
+        real_cycle.append(soc_history[0])
+        real_time.append(0)
+        for i in range(len(downwards)):
+            d = downwards[i]
+            if d > 0:
+                up = 1
+                up_cum += d
+                d_cum_up += d
+                if pair == False and (
+                        (i + 1 < len(downwards) and up * downwards[i + 1] < 0) or i == len(downwards) - 1):
+                    a = float(min(d_cum_up, abs(down_cum)) / max(d_cum_up, abs(down_cum)))
+                    if d_cum_up * down_cum != 0 and float(min(d_cum_up, abs(down_cum)) / max(d_cum_up, abs(
+                            down_cum))) <= self.downward_change_th or np.round(
+                            max(abs(down_cum), up_cum) * 100 / self.dimension) < 1:
+                        if d_cum_up > abs(down_cum):
+                            up_i = i
+                            up_cum += down_cum
+                            d_cum_up += down_cum
+                            down_cum = 0
+                            d_cum_down = 0
+                            min_down[0] = self.dimension + 1
+                        else:
+                            if d_cum_up < abs(down_cum):
+                                up = -1
+                            down_cum += d_cum_up
+                            d_cum_down += d_cum_up
+                            up_cum -= d_cum_up
+                            d_cum_up = 0
+                            max_up[0] = -1
+                    else:
+                        up_i = i
+                else:
+                    up_i = i
+                if up == 1:
+                    if max_up[0] < soc_history[i + 1]:
+                        max_up[0] = soc_history[i + 1]
+                        max_up[1] = i + 1
             else:
-                if cum > self.downward_change_th: # If the downward is big enough
-                    cycles.append(cum)
-                    cum = 0
+                up = -1
+                down_cum += d
+                d_cum_down += d
+                if pair == False and (
+                        (i + 1 < len(downwards) and up * downwards[i + 1] < 0) or i == len(downwards) - 1):
+                    if d_cum_down * up_cum != 0 and float(min(abs(d_cum_down), up_cum) / max(abs(d_cum_down),
+                                                                                             up_cum)) <= self.downward_change_th or np.round(
+                            max(abs(down_cum), up_cum) * 100 / self.dimension) < 1:
+                        if abs(d_cum_down) > up_cum:
+                            down_i = i
+                            down_cum += up_cum
+                            d_cum_down += up_cum
+                            up_cum = 0
+                            d_cum_up = 0
+                            max_up[0] = -1
+                        else:
+                            if abs(d_cum_down) < up_cum:
+                                up = 1
+                            up_cum += d_cum_down
+                            d_cum_up += d_cum_down
+                            down_cum -= d_cum_down
+                            d_cum_down = 0
+                            min_down[0] = self.dimension + 1
+                    else:
+                        down_i = i
+                else:
+                    down_i = i
+                if up == -1:
+                    if min_down[0] > soc_history[i + 1]:
+                        min_down[0] = soc_history[i + 1]
+                        min_down[1] = i + 1
+            if up_cum * down_cum != 0 and float(
+                    min(up_cum, abs(down_cum)) / max(up_cum, abs(down_cum))) > self.downward_change_th and (
+                    (i + 1 < len(downwards) and up * downwards[i + 1] < 0) or i == len(downwards) - 1):
+                cum = max(abs(down_cum), up_cum)
+                cum_dod = np.round(cum * 100 / self.dimension)
+                if cum_dod >= 1:
+                    pair = True
+                    cycles[int(cum_dod) - 1] += 1
+                    if min_down[0] < soc_history[down_i + 1]:
+                        down_i = min_down[1] - 1
+                    if max_up[0] > soc_history[up_i + 1]:
+                        up_i = max_up[1] - 1
+                    if up == 1:
+                        real_cycle.append(soc_history[down_i + 1])
+                        real_cycle.append(soc_history[up_i + 1])
+                        real_time.append(down_i + 1)
+                        real_time.append(up_i + 1)
+                    else:
+                        real_cycle.append(soc_history[up_i + 1])
+                        real_cycle.append(soc_history[down_i + 1])
+                        real_time.append(up_i + 1)
+                        real_time.append(down_i + 1)
+                    down_cum = 0
+                    up_cum = 0
+                    d_cum_up = 0
+                    d_cum_down = 0
+                    min_down[0] = self.dimension + 1
+                    max_up[0] = -1
+                else:
+                    pair = False
+            else:
+                pair = False
+        if down_cum != 0 or up_cum != 0:
+            cum = max(abs(down_cum), up_cum)
+            cum_dod = np.round(cum * 100 / self.dimension)
+            if cum_dod >= 1:
+                cycles[int(cum_dod) - 1] += 1
+                if up == 1:
+                    real_cycle.append(real_cycle[-1] + up_cum)
+                    real_time.append(up_i + 1)
+                else:
+                    real_cycle.append(real_cycle[-1] + down_cum)
+                    real_time.append(down_i + 1)
 
-        if cum > self.downward_change_th:
-            cycles.append(cum)
-            cum = 0
-        cycles.append(cum)
-        return np.array(cycles).mean(), len(cycles)
+        return DoD_estimated, cycles, real_cycle, real_time
 
-
-    def get_battery_degradation(soc_history):
+    def get_battery_degradation(self, soc_history):
         """Get battery degradation estimation.
 
         Args:
@@ -77,61 +180,81 @@ class SOHEstimator(object):
         Returns:
             fh (float): The minus of state of health.
         """
-        DoD, cycles = get_DoD_and_Cycles(soc_history)
-        estimated_cycles = get_cycles(DoD)
-        return cycles / estimated_cycles
-
+        battery_power = self.dimension
+        DoD, cycles, real_cycles, real_time = self.get_DoD_and_Cycles(soc_history)
+        if self.visualize:
+            plt.plot(range(len(soc_history)), soc_history, label='type3')
+            plt.plot(real_time, real_cycles, label='type1', linewidth=1)
+            plt.show()
+        res = 0
+        if self.dod_profile:
+            estimated_cycles = self.get_cycles(DoD)
+            for i in range(DoD.__len__()):
+                if cycles[i] != 0 and self.visualize:
+                    print('DoD:{}, cycles:{}, estimated:{}'.format(i + 1, cycles[i], estimated_cycles[i]))
+                res += cycles[i] / estimated_cycles[i] * DoD[i] * 0.01
+            return res / DoD.__len__()
+        else:
+            res = sum(cycles)
+            return 0.1 * res / 10000
 
 
 class EnergySource(object):
     """Energy Source
-    
+
     Handles parameters and state-of-health calculation.
     """
-    def __init__(self, energy_type ='Lithium-Ion', self_discharge_ratio = 0.0, 
-                soc_profile_energy_scale = 1000,
-                soc_profile_max_soc = 1.0, soc_profile_min_soc = 0.0, 
-                soc_profile_max_output_th = 0.9, soc_profile_min_output_th = 0.1,
-                soc_profile_max_power_upward = 100, soc_profile_max_power_downward = 100, 
-                soc_profile_max_change_upward = 100, soc_profile_max_change_downward = 100, 
-                efficiency_upward = 1 / 0.95, efficiency_downward = 0.95, 
-                min_degradation_para = 1.0, max_degradation_para = 1.0,
-                max_soh = 1.0, min_soh = 0.1,
-                dod_profile_change_th = 0.2,
-                dod_profile_curve_a = 3.5,
-                dod_profile_curve_b = 2,
-                dod_profile_curve_c = 1e7,
-            ):
+
+    def __init__(self, energy_type='Lithium-Ion', self_discharge_ratio=0.0,
+                 soc_profile_energy_scale=20,
+                 soc_profile_max_soc=1.0, soc_profile_min_soc=0.0,
+                 soc_profile_max_input_th=1, soc_profile_min_output_th=0,
+                 soc_profile_max_power_upward=10, soc_profile_max_power_downward=10,
+                 soc_profile_max_change_upward=100, soc_profile_max_change_downward=100,
+                 efficiency_upward=1 / 0.95, efficiency_downward=0.95,
+                 min_degradation_para=0.0, max_degradation_para=1.0,
+                 tuning_parameter=1.0 / 60,
+                 max_soh=1.0, min_soh=0.8, cost=310,
+                 dod_profile_change_th=0.2,
+                 dod_points=[2, 4, 17, 30, 60, 100],
+                 cycle_points=[10000000, 1000000, 100000, 40000, 10000, 3000],
+                 dod_profile=True, visualize=False
+                 ):
         """Energy Source builder.
 
         Args:
             energy_type (str): Type of the energy ['Lithium-Ion', 'Flywheel']
             self_discharge_ratio (float): Self discharge Ratio every minute. Default 0.01
-            soc_profile_energy_scale (float): The scale for all E-related parameters, in kWh
+            soc_profile_energy_scale (float): The scale for all E-related parameters, in MWh
             soc_profile_max_soc (float): EM for SOC Profile, in proportion.
             soc_profile_min_soc (float): Em for SOC Profile, in proportion.
-            soc_profile_max_power_upward (float): P+, in kW.
-            soc_profile_max_power_downward (float): P-, in kW.
-            soc_profile_max_change_upward (float): MaxPChange+, in kW.
-            soc_profile_max_change_downward (float): MaxPChange-, in kW.
+            soc_profile_max_input_th (int): Max SOC for absorbing maximum power input  [percentage];
+            soc_profile_min_output_th (int): Min SOC for providing maximum power output  [percentage]
+            soc_profile_max_power_upward (float): P+, in MW.
+            soc_profile_max_power_downward (float): P-, in MW.
+            soc_profile_max_change_upward (float): MaxPChange+, in MW.
+            soc_profile_max_change_downward (float): MaxPChange-, in MW.
             efficiency_upward (float): Effi+. PG+(k) = P+(k) / Effi+ (SHOULD BE > 1)
             efficiency_downward (float): Effi+. PG-(k) = P-(k) * Effi- (SHOULD BE < 1)
             max_degradation_para (float): The value describing how state-of-health affect Max Energy. The larger the bigger.
             min_degradation_para (float): The value describing how state-of-health affect Min Energy. The larger the bigger.
+            tuning_parameter (float): The value related to the sampling time
             max_soh (float): Max state-of-health
             min_soh (float): Min state-of-health
-            dod_profile_change_th (int/float): The threshold of how much soc loss is counted as a cycle.
-            dod_profile_curve_a (float): cycles = curve_a / (DoD ** curve_b) * curve_c # TODO 
-            dod_profile_curve_b (float): cycles = curve_a / (DoD ** curve_b) * curve_c
-            dod_profile_curve_c (float): cycles = curve_a / (DoD ** curve_b) * curve_c
+            cost (int): euro/MWh
+            dod_profile_change_th (float): The threshold that filters the small fluctuation of SOC profile.
+            dod_points (list or np.array(1d)): data points of Depth of Discharge to fit the DoD curve
+            cycle_points (list or np.array(1d)): data points of cycles to fit the DoD curve
+            dod_profile (bool): whether the ess has the dod profile
+            visualize (bool): display the visualization or not
         """
-        
+
         self.energy_type = energy_type
         self.soc_profile_energy_scale = soc_profile_energy_scale
         self.self_discharge_ratio = self_discharge_ratio
         self.soc_profile_max_soc = soc_profile_max_soc
         self.soc_profile_min_soc = soc_profile_min_soc
-        self.soc_profile_max_output_th = soc_profile_max_output_th
+        self.soc_profile_max_input_th = soc_profile_max_input_th
         self.soc_profile_min_output_th = soc_profile_min_output_th
         self.soc_profile_max_power_upward = soc_profile_max_power_upward
         self.soc_profile_max_power_downward = soc_profile_max_power_downward
@@ -141,13 +264,17 @@ class EnergySource(object):
         self.efficiency_downward = efficiency_downward
         self.min_degradation_para = min_degradation_para
         self.max_degradation_para = max_degradation_para
+        self.tuning_parameter = tuning_parameter
         self.max_soh = max_soh
         self.min_soh = min_soh
+        self.cost = cost
         self.soh_estimator = SOHEstimator(
-            downward_change_th = dod_profile_change_th,
-            curve_a = dod_profile_curve_a,
-            curve_b = dod_profile_curve_b,
-            curve_c = dod_profile_curve_c,
+            downward_change_th=dod_profile_change_th,
+            dimension=soc_profile_energy_scale,
+            dod_points=dod_points,
+            cycle_points=cycle_points,
+            dod_profile=dod_profile,
+            visualize=visualize
         )
 
     def get_battery_degradation(self, soc_history):
@@ -160,3 +287,32 @@ class EnergySource(object):
             fh (float): The minus of state of health.
         """
         return self.soh_estimator.get_battery_degradation(soc_history)
+
+class Visualization(object):
+    """visualization
+
+    Visualize the effect of different threshold in cycle estimation
+    """
+    def __init__(self, dod_profile_change_th=0.2, dimension = 20,
+                 dod_points=[2, 4, 17, 30, 60, 100],
+                 cycle_points=[10000000, 1000000, 100000, 40000, 10000, 3000],
+                 dod_profile=True, visualize=True):
+
+        self.soh_estimator = SOHEstimator(
+            downward_change_th=dod_profile_change_th,
+            dimension=dimension,
+            dod_points=dod_points,
+            cycle_points=cycle_points,
+            dod_profile=dod_profile,
+            visualize=visualize
+        )
+
+    def threshold_test(self, soc_history):
+        
+        SOC = [20, 20, 20, 19.71, 19.77, 19.53, 19.75, 19.63, 19.34, 19.41, 19.13, 19.46, 19.21, 19.52, 19.46, 19.47, 19.21, 19.25, 18.92, 18.64, 18.52, 18.47, 18.55, 18.6, 18.69, 18.75, 18.43, 18.72, 18.56, 18.24, 17.99, 17.68, 17.63, 17.58, 17.52, 17.76, 17.91, 18.08, 18.24, 18.19, 18.44, 18.71, 18.46, 18.78, 18.59, 18.43, 18.3, 18.28, 18.42, 18.19, 18.33, 18.23, 17.98, 17.8, 17.55, 17.36, 17.3, 17.62, 17.88, 17.78, 17.67, 17.94, 17.7, 17.42, 17.7, 17.45, 17.47, 17.14, 17.26, 17.01, 17.09, 17.23, 17.33, 17.35, 17.12, 17.41, 17.46, 17.45, 17.29, 17.14, 17.16, 17.36, 17.65, 17.51, 17.7, 17.8, 17.68, 17.69, 17.98, 18.25, 18.55, 18.77, 18.86, 18.81, 19.02, 19.27, 19.18, 19.31, 19.63, 19.46, 19.3, 19.19, 18.93, 18.99, 18.87, 18.84, 18.99, 19.32, 18.99, 19.32, 19.08, 18.8, 19.12, 19.41, 19.66, 19.53, 19.52, 19.46, 19.39, 19.58, 19.84, 19.58, 19.79, 20, 19.73, 19.83, 19.63, 19.56, 19.5, 19.38, 19.33, 19.18, 19.44, 19.24, 19.14, 19.08, 19.08, 18.77, 18.62, 18.85, 18.89, 19.11, 19.21, 18.88, 19.18, 19.01, 18.96, 18.89, 18.84, 19.01, 19.24, 18.92, 19.07, 19.06, 18.94, 18.64, 18.45, 18.57, 18.46, 18.13, 18.12, 18.29, 18.16, 18.02, 17.8, 17.89, 18.05, 17.94, 17.67, 17.42, 17.3, 17.27, 17.16, 17.22, 16.99, 16.81, 16.79, 16.67, 16.95, 16.87, 17.0, 17.15, 17.2, 17.35, 17.58, 17.68, 17.39, 17.61, 17.5, 17.83, 17.93, 17.73, 17.81, 17.95, 18.28, 18.34, 18.41, 18.37, 18.55, 18.36, 18.46, 18.7, 18.71, 18.73, 18.88, 18.63, 18.94, 19.08, 19.24, 19.46, 19.21, 19.24, 19.57, 19.76, 19.61, 19.36, 19.54, 19.36, 19.08, 19.04, 18.8, 18.69, 18.74, 18.93, 18.71, 18.86, 18.93, 18.88, 18.95, 18.8, 18.84, 18.95, 18.65, 18.33, 18.49, 18.67, 19.0, 18.79, 18.46, 18.44]
+        diff = self.soh_estimator.get_battery_degradation(soc_history)
+        year = 0.2 / (diff * 52 * 42)
+        print('The SOH of the battery is {}. It can survive for {} years with the same usage'.format(1-diff, year))
+    
+    
+    
