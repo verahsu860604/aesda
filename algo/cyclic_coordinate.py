@@ -134,7 +134,7 @@ class CyclicCoordinate(object):
                             list_solutions = self.Algo4(percentages)
 
                             # Here we extend solutions
-                            solutions.extend([s + tuple(percentages) for s in list_solutions]) 
+                            solutions.extend([s + (tuple(percentages),) for s in list_solutions]) 
 
                             # Only keep the best one
                             epi_solutions.append((list_solutions[0][0], value_i))
