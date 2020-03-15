@@ -252,6 +252,7 @@ class MPCSolver(object):
             # Weekly update state of health
             if current_time % self.config.soh_update_interval == 0 and current_time > 0:
                 for i in range(self.num_energy_sources):
+
                     soh_change = self.energy_sources[i].get_battery_degradation([r['soc'][i] for r in self.records[last_update:]])
                     self.state['soh'][i] -= soh_change
                 last_update = current_time
@@ -297,7 +298,7 @@ class MPCSolver(object):
         soc_profile_max_power_upward = wrap_value('soc_profile_max_power_upward')
         soc_profile_max_power_downward = wrap_value('soc_profile_max_power_downward')
         soc_profile_min_output_th = wrap_value('soc_profile_min_output_th')
-        soc_profile_max_output_th = wrap_value('soc_profile_max_output_th')
+        soc_profile_max_input_th = wrap_value('soc_profile_max_input_th')
         soc_profile_max_change_downward = wrap_value('soc_profile_max_change_downward')
         soc_profile_max_change_upward = wrap_value('soc_profile_max_change_upward')
 
@@ -348,7 +349,7 @@ class MPCSolver(object):
         self.constraints += [
             self.variables['power_device_upward'] <= cp.multiply(expand(soc_profile_max_power_upward), \
                 cp.multiply(tmp_value_upward, expand(soc_profile_max_soc)) - self.variables['soc']) /\
-                cp.multiply(tmp_value_upward, expand(soc_profile_max_soc) - expand(soc_profile_max_output_th)),
+                cp.multiply(tmp_value_upward, expand(soc_profile_max_soc) - expand(soc_profile_max_input_th)),
                 
             self.variables['power_device_downward'] <= cp.multiply(expand(soc_profile_max_power_downward), \
                 cp.multiply(tmp_value_downward, expand(soc_profile_min_soc)) - self.variables['soc']) /\
