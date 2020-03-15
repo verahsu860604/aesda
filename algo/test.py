@@ -35,7 +35,8 @@ parameters = {
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": True
+            "test_mode": True,
+            "percentage_fixed": True
         },
         {
             "time_window_in_delivery": 4, # Primary
@@ -44,7 +45,8 @@ parameters = {
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": True
+            "test_mode": True,
+            "percentage_fixed": True
         },
         {
             "time_window_in_delivery": 4, # Primary
@@ -59,7 +61,7 @@ parameters = {
     'config':{
         'planning_horizon': 60,
         'soh_update_interval': 24 * 7 * 60,
-        'tot_timestamps': 60
+        'tot_timestamps': 2
     }
 }
 
@@ -76,4 +78,4 @@ mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy
 
 cc = cyclic_coordinate.CyclicCoordinate(markets, mpc)
 solutions = cc.Algo5()
-cc.plot_pareto(solutions)
+assert len(solutions) == 576

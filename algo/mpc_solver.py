@@ -148,7 +148,7 @@ class MPCSolver(object):
         tot = 100
         for j in range(self.num_markets):
             if percentages[j] != 'free':
-                assert type(percentages[j]) == float or type(percentages[j]) == int, 'Percentage format error'
+                # assert type(percentages[j]) == float or type(percentages[j]) == int, 'Percentage format error'
                 self.markets[j].update_percentage(percentages[j], is_fixed = True) # Fixed
                 tot -= percentages[j]
             else:
