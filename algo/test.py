@@ -78,4 +78,10 @@ mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy
 
 cc = cyclic_coordinate.CyclicCoordinate(markets, mpc)
 solutions = cc.Algo5()
+print(solutions[0])
+# tuple(Revenue, value_i(useless), soc_record, soh for each device, power record, prices, percentages)
+# (216.29629629629628, 2, array([[1.        , 1.        ], [0.95061731, 1.        ]]), 
+# (1.0, 1.0), array([[[ 0.,  0.], [24.,  0.]],[[ 0.,  0.],[ 0., 12.]]]), 
+# [2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469], 
+# (6.666666666666667, 10.0, 'free'))
 assert len(solutions) == 576
