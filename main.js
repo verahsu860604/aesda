@@ -152,7 +152,7 @@ ipc.on('run', (event, args) => {
     console.log(JSON.parse(JSON.stringify(args)))
     console.log(JSON.parse(JSON.stringify(args)).toString())
     let options = {
-        pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
+        // pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
         args: [JSON.stringify(args)]
     }
     PythonShell.run('algo.py', options, function (err, results) {

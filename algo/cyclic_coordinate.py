@@ -13,6 +13,7 @@ class CyclicCoordinate(object):
         self.markets = markets
         self.mpc_solver = mpc_solver
         self.really_run = really_run
+        self.global_id = 0
 
     def run_mpc(self, prices, percentages):
         """Run MPC.
@@ -74,8 +75,10 @@ class CyclicCoordinate(object):
                         revenue, soc, soh, storage = self.run_mpc(np.reshape(current_value_params, [-1, 2]).tolist(), percentage)
                         # Print results:
                         if self.really_run:
+                            self.global_id += 1
                             print(json.dumps(
                                 {
+                                    'id': self.global_id,
                                     'revenue': revenue,
                                     'soc': soc.tolist(),
                                     'soh': soh,
@@ -83,7 +86,7 @@ class CyclicCoordinate(object):
                                     'prices': np.reshape(current_value_params, [-1, 2]).tolist(),
                                     'percentages': percentage
                                 }
-                            ))
+                            ), flush=True)
                             
                         epi_solutions.append((revenue, value_i, soc, soh, storage, current_value_params[:]))
                     epi_solutions.sort(reverse=True, key=lambda x: x[0])
