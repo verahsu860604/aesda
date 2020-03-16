@@ -120,8 +120,9 @@ ipc.on('createMarketWindow', (event, args) => {
 })
 
 ipc.on('createEssWindow', (event, args) => {
+    var essType = args[0]
+    var essObjNum = args[1]
     createEssWindow([essType, essObjNum[essType]+1, ''])
-    
 })
 
 ipc.on('submitMarketObj', (event, args) => {

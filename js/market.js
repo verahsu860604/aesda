@@ -10,6 +10,7 @@ const defaultVal = {
     'Primary Reserve': {
         'mi-upItv': 1, // missing
         'mi-dwnItv': 1, // missing
+        'mi-minItv': 1, // missing
         'mi-spUpdate': 1,
         'mi-twDelivery': 4,
         'mi-upMinPrice': 0,
@@ -25,6 +26,7 @@ const defaultVal = {
     }, 'Secondary Reserve': {
         'mi-upItv': 1, // missing
         'mi-dwnItv': 1, // missing
+        'mi-minItv': 1, // missing
         'mi-spUpdate': 1,
         'mi-twDelivery': 4,
         'mi-upMinPrice': 0,
@@ -40,6 +42,7 @@ const defaultVal = {
     }, 'Tertiary Reserve': {
         'mi-upItv': 1, // missing
         'mi-dwnItv': 1, // missing
+        'mi-minItv': 1, // missing
         'mi-spUpdate': 1,
         'mi-twDelivery': 4,
         'mi-upMinPrice': 0,
