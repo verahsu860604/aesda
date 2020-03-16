@@ -23,7 +23,7 @@ ess_mapping = \
 
     'ei-selfDischareRatio'  :   'self_discharge_ratio',
     # TODO not found in python
-    # 'ei-dimen'              :   
+    'ei-dimen'              :   'soc_profile_energy_scale',
     'ei-cost'               :   'cost',
     # TODO not found in python
     # 'ei-othercost'          :
@@ -31,24 +31,12 @@ ess_mapping = \
     'ei-outEffi'            :   'efficiency_downward',
     # TODO mismatch
     # 'ei-threshold'          :   
-    # : soc_profile_max_input_th
-    # : soc_profile_min_output_th
     'ei-maxpin'             :   'soc_profile_max_power_upward',
     'ei-maxpout'            :   'soc_profile_max_power_downward',
-    'ei-minsoc'             :   'soc_profile_min_soc',
-    'ei-maxsoc'             :   'soc_profile_max_soc',
+    'ei-minsoc'             :   'soc_profile_min_output_th',
+    'ei-maxsoc'             :   'soc_profile_max_input_th',
 
     # TODO not found in UI
-    # : soc_profile_energy_scale
-    # : soc_profile_max_change_upward
-    # : soc_profile_max_change_downward
-    # : min_degradation_para
-    # : max_degradation_para
-    # : tuning_parameter
-    # : max_soh
-    # : min_soh
-    # : dod_profile_change_th
-    # : dod_profile
     # : visualize
     
     # dod, cycles
