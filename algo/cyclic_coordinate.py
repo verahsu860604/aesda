@@ -1,4 +1,5 @@
 import numpy as np
+import json
 
 
 class CyclicCoordinate(object):
@@ -8,9 +9,10 @@ class CyclicCoordinate(object):
     """
 
 
-    def __init__(self, markets, mpc_solver):
+    def __init__(self, markets, mpc_solver, really_run = True):
         self.markets = markets
         self.mpc_solver = mpc_solver
+        self.really_run = really_run
 
     def run_mpc(self, prices, percentages):
         """Run MPC.
@@ -19,10 +21,14 @@ class CyclicCoordinate(object):
             prices (List): List of Prices ([[buying_price, selling_price],]).
             percentages (List): List of float numbers (or 'free' for not fixed), representing market participation.
         """
+        if not self.really_run:
+            return 0, np.array([0, 0]), [0, 0], np.array([0, 0])
+
         results = self.mpc_solver.solve(prices, percentages)
         revenue = 0
         for time_k in range(len(results)):
             revenue += sum(results[time_k]['revenue'])
+
         return revenue, \
             np.array([results[time_k]['soc'] for time_k in range(len(results))]), \
             tuple(results[-1]['soh']), \
@@ -53,7 +59,7 @@ class CyclicCoordinate(object):
 
         # Cyclic Coordinate
         while True:
-            print('ALGO 4, value bounds: ', value_bounds)
+            # print('ALGO 4, value bounds: ', value_bounds)
             optimized = False
             for i in range(len(value_bounds)):
                 if value_bounds[i][1] - value_bounds[i][0] >= value_eps[i]: #TODO
@@ -66,6 +72,19 @@ class CyclicCoordinate(object):
                         current_value_params = value_best_so_far[:] # [:] means copying the list
                         current_value_params[i] = value
                         revenue, soc, soh, storage = self.run_mpc(np.reshape(current_value_params, [-1, 2]).tolist(), percentage)
+                        # Print results:
+                        if self.really_run:
+                            print(json.dumps(
+                                {
+                                    'revenue': revenue,
+                                    'soc': soc.tolist(),
+                                    'soh': soh,
+                                    'power': storage.tolist(),
+                                    'prices': np.reshape(current_value_params, [-1, 2]).tolist(),
+                                    'percentages': percentage
+                                }
+                            ))
+                            
                         epi_solutions.append((revenue, value_i, soc, soh, storage, current_value_params[:]))
                     epi_solutions.sort(reverse=True, key=lambda x: x[0])
                     best_value_i = epi_solutions[0][1]
@@ -111,7 +130,7 @@ class CyclicCoordinate(object):
 
         # Cyclic Coordinate
         while True:
-            print('ALGO 5, value bounds: ', value_bounds)
+            # print('ALGO 5, value bounds: ', value_bounds)
             optimized = False
             for i in range(len(value_bounds)):
                 if value_bounds[i][1] - value_bounds[i][0] >= value_eps[i]:
@@ -129,7 +148,7 @@ class CyclicCoordinate(object):
                                 percentages.append('free')
                             else:
                                 percentages.append(current_value_params.pop(0))
-                        print(percentages)
+                        # print(percentages)
                         if sum(current_value_params) <= 1:
                             list_solutions = self.Algo4(percentages)
 

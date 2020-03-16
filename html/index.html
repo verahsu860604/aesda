@@ -250,9 +250,23 @@
                         <span class="navbar-brand mb-0 h1">Result</span>
                     </nav>
                     <div class="container h-100" >
+
                         <div class="alert alert-danger" role="alert">
                             No results yet... Please run the simulation!
                         </div>
+
+                        <div id='progress' style="display:none">
+
+                            <p style="margin-top: 0.5rem;">
+                                <span class="h6" >Simulating: </span>
+                            </p>
+
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 0%" ></div>
+                            </div>
+                        </div>
+
+
                         <div class="card-body">
                             <div class="card ">
                                 <canvas id="paretoChart"></canvas>

@@ -6,6 +6,7 @@ const fs = require("fs")
 const {dialog} = require('electron').remote;
 const {BrowserWindow} = electron.remote
 const ipc = electron.ipcRenderer
+const {PythonShell} = require('python-shell')
 
 let marketObjList = {}
 // number of ess objects
@@ -113,10 +114,57 @@ ipc.on('createEssObj', (event, args) => {
     
 })
 
+
 ipc.on('generateResult', (event, args) => {
     // isRunning = true; 
     document.querySelector('#result .alert').style.display = "none"
+    document.querySelector('#progress').style.display = ""
+
+    progressBar = document.querySelector('#progress .progress .progress-bar')
+    progressBar.style = "width: 10%"
+
     generateResultChart()
+
+    parameters = JSON.stringify(getParameters())
+
+    let pyshell = new PythonShell('algo/interface.py');
+    let totl = 1
+    
+
+    // sends a message to the Python script via stdin
+    pyshell.send(parameters);
+    cnt = 0
+    // shell.on('stderr', function (stderr) {
+    //   // handle stderr (a line of text from stderr)
+    // });
+    pyshell.on('message', function (message) {
+      // received a message sent from the Python script (a simple "print" statement)
+      if (message !== 'Long-step dual simplex will be used'){
+        console.log(message)
+        message = message.replace('Long-step dual simplex will be used', '')
+        console.log(message)
+        if (message.substring(0, 6) === 'totl: ') {
+          totl = parseInt(message.substring(6, message.length), 10)
+          console.log(totl)
+        }
+        else {
+          data = JSON.parse(message)
+          cnt ++
+          console.log(cnt)
+          progressBar.style = "width: " + Math.round( 10 + 90 * cnt / totl ) + "%"
+        }
+      }
+    });
+
+    // end the input stream and allow the process to exit
+    pyshell.end(function (err, code, signal) {
+      if (err) throw err;
+      console.log('The exit code was: ' + code);
+      console.log('The exit signal was: ' + signal);
+      console.log('finished');
+    });
+
+
 }) 
 
 // functions
@@ -410,6 +458,72 @@ function handleClick(evt){
     createDataElem(args );
 
   }
+}
+function getParameters(){
+  parameters = {
+    'energy_sources': [
+        {
+            'energy_type': 'Lithium-Ion',
+            'soc_profile_energy_scale': 8.1,
+            'efficiency_upward': 1 / 0.25, 
+            'efficiency_downward': 0.25, 
+            'self_discharge_ratio': 0
+        },
+        {
+            'energy_type': 'PowerFlow',
+            'self_discharge_ratio': 0,
+            'soc_profile_energy_scale': 8.1,
+            'efficiency_upward': 1 / 0.5, 
+            'efficiency_downward': 0.5, 
+        }
+    ],
+    'markets': [
+        {
+            "time_window_in_delivery": 4,
+            "planning_phase_length": 60,
+            "selection_phase_length": 60,
+            "schedule_phase_length": 60,
+            "delivery_phase_length": 60,
+            "setpoint_interval": 1,
+            "test_mode": true,
+            "percentage_fixed": true,
+            "price_cyclic_eps_upward": 5,
+            "price_cyclic_eps_downward": 5,
+            "percentage_cyclic_eps": 5,
+        },
+        {
+            "time_window_in_delivery": 4,
+            "planning_phase_length": 60,
+            "selection_phase_length": 60,
+            "schedule_phase_length": 60,
+            "delivery_phase_length": 60,
+            "setpoint_interval": 1,
+            "test_mode": true,
+            "percentage_fixed": true,
+            "price_cyclic_eps_upward": 5,
+            "price_cyclic_eps_downward": 5,
+            "percentage_cyclic_eps": 5,
+        },
+        {
+            "time_window_in_delivery": 4,
+            "planning_phase_length": 60,
+            "selection_phase_length": 60,
+            "schedule_phase_length": 60,
+            "delivery_phase_length": 60,
+            "setpoint_interval": 1,
+            "test_mode": true,
+            "price_cyclic_eps_upward": 5,
+            "price_cyclic_eps_downward": 5,
+            "percentage_cyclic_eps": 5,
+        },
+    ],
+    'config':{
+        'planning_horizon': 60,
+        'soh_update_interval': 24 * 7 * 60,
+        'tot_timestamps': 2
+    }
+  }
+  return parameters
 }
 
 function generateResultChart() {
