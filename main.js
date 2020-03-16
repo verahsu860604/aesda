@@ -4,6 +4,7 @@ const url = require("url")
 
 const {app, BrowserWindow, Menu} = electron
 const ipc = electron.ipcMain
+const {PythonShell} = require('python-shell') 
 
 let mainWindow, marketWindow, essWindow
 
@@ -31,12 +32,14 @@ function createWindow() {
         app.quit()
     })
 
-    let {PythonShell} = require('python-shell')
-    PythonShell.run('algo.py', null, function (err, results) {
-        if (err) throw err;
-        console.log('finished');
-        console.log(results)
-      });
+    // PythonShell.run('algo.py', null, function (err, results) {
+    //     if (err) {
+    //         console.log('ERROR!');
+    //         throw err;
+    //     }
+    //     console.log('finished');
+    //     console.log(results)
+    // });
 
     // build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate)
@@ -130,7 +133,6 @@ ipc.on('submitMarketObj', (event, args) => {
 })
 
 ipc.on('submitEssObj', (event, args) => {
-    console.log(args)
     mainWindow.webContents.send('createEssObj', args)
 })
 
@@ -142,11 +144,32 @@ ipc.on('editMarketObj', (event, args) => {
 ipc.on('editEsstObj', (event, args) => {
     createEssWindow(args)
 })
+
+ipc.on('run', (event, args) => {
+    console.log('Start running')
+    console.log(args)
+    console.log(JSON.stringify(args))
+    console.log(JSON.parse(JSON.stringify(args)))
+    console.log(JSON.parse(JSON.stringify(args)).toString())
+    let options = {
+        pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
+        args: [JSON.stringify(args)]
+    }
+    PythonShell.run('algo.py', options, function (err, results) {
+        if (err) {
+            console.log('ERROR!')
+            throw err;
+        }
+        console.log('finished')
+        console.log(results)
+        console.log(results[0])
+    });
+})
+
 ipc.on('dataPointClick', (event, args) => {
     createDatapointWindow(args)
 })
 ipc.on('compareData', (event, args) => {
-    console.log(args)
     mainWindow.webContents.send('addDataToCompare', args)
 })
 
