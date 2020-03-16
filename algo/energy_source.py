@@ -217,7 +217,7 @@ class EnergySource(object):
     def __init__(self, energy_type='Lithium-Ion', self_discharge_ratio=0.0,
                  soc_profile_energy_scale=20,
                  soc_profile_max_soc=1.0, soc_profile_min_soc=0.0,
-                 soc_profile_max_input_th=1, soc_profile_min_output_th=0,
+                 soc_profile_max_input_th=1.0, soc_profile_min_output_th=0.0,
                  soc_profile_max_power_upward=10, soc_profile_max_power_downward=10,
                  soc_profile_max_change_upward=100, soc_profile_max_change_downward=100,
                  efficiency_upward=1 / 0.95, efficiency_downward=0.95,
@@ -346,7 +346,7 @@ class EnergySource(object):
         return last_p_buy, last_p_sell
 
 
-    def tunning_parameter(self):
+    def tuning_parameter_fit(self):
         """Use simulation data in one month to tune the two parameters min_degradation_para and max_degradation_para.
         """
         SOH = self.max_soh
