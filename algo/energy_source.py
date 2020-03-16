@@ -1,4 +1,5 @@
-# TODO Check on min_soh, if min_soh, set battery disabled
+# TODO Check on min_soh, if min_soh, set battery disabled. Fit the tuning parameters
+
 import numpy as np
 import matplotlib.pyplot as plt
 import random
