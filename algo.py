@@ -11,97 +11,15 @@ import numpy as np
 from time import sleep
 import cyclic_coordinate
 import pareto
-
-assert len(sys.argv) > 1
-
-
-
-parameters = {
-    'energy_sources': [
-        {
-            'energy_type': 'Lithium-Ion',
-            'soc_profile_energy_scale': 8.1,
-            'efficiency_upward': 1 / 0.25, 
-            'efficiency_downward': 0.25, 
-            'self_discharge_ratio': 0
-        },
-        {
-            'energy_type': 'PowerFlow',
-            'self_discharge_ratio': 0,
-            'soc_profile_energy_scale': 8.1,
-            'efficiency_upward': 1 / 0.5, 
-            'efficiency_downward': 0.5, 
-        }
-    ],
-    'markets': [
-        {
-            "time_window_in_delivery": 4, # Primary
-            "planning_phase_length": 60,
-            "selection_phase_length": 60,
-            "schedule_phase_length": 60,
-            "delivery_phase_length": 60,
-            "setpoint_interval": 1,
-            "test_mode": True,
-            "percentage_fixed": True
-        },
-        {
-            "time_window_in_delivery": 4, # Primary
-            "planning_phase_length": 60,
-            "selection_phase_length": 60,
-            "schedule_phase_length": 60,
-            "delivery_phase_length": 60,
-            "setpoint_interval": 1,
-            "test_mode": True,
-            "percentage_fixed": True
-        },
-        {
-            "time_window_in_delivery": 4, # Primary
-            "planning_phase_length": 60,
-            "selection_phase_length": 60,
-            "schedule_phase_length": 60,
-            "delivery_phase_length": 60,
-            "setpoint_interval": 1,
-            "test_mode": True
-        },
-    ],
-    'config':{
-        'planning_horizon': 60,
-        'soh_update_interval': 24 * 7 * 60,
-        'tot_timestamps': 2
-    }
-}
+import param_mapping
 
  
+assert len(sys.argv) > 1
 parameters_ui = json.loads(sys.argv[1])
 
-
-
-# print(parameters_ui)
-for item0 in parameters_ui.items():
-    print(item0[0])
-    if item0[0] == 'marketObjList':
-        # print(item0[0])
-        # print(item0[1])
-        # print(type(item0[1]))
-        d = item0[1]
-        for item1 in d.items():
-            print(item1[0])
-            for v in item1[1]:
-                print(v)
-
-    # for v in item0[1]:
-    #     print(v)
-    
-    print('____________________________________')
+data = param_mapping.map_param(parameters_ui)
+print(data)
 sys.stdout.flush()
-
-
-
-
-# def get_parameters():
-#     return parameters
-
-# data = get_parameters()
 
 # config = config.Config(**data['config'])
 # energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energy_sources']]
@@ -110,9 +28,9 @@ sys.stdout.flush()
 
 # cc = cyclic_coordinate.CyclicCoordinate(markets, mpc)
 # solutions = cc.Algo5()
-# print(solutions[0])
-# pe = pareto.ParetoEfficient(solutions)
-# inefficient_list, efficient_list = pe.pareto_analysis()
+# # print(solutions[0])
+# # pe = pareto.ParetoEfficient(solutions)
+# # inefficient_list, efficient_list = pe.pareto_analysis()
 # # tuple(Revenue, value_i(useless), soc_record, soh for each device, power record, prices, percentages)
 # # (216.29629629629628, 2, array([[1.        , 1.        ], [0.95061731, 1.        ]]), 
 # # (1.0, 1.0), array([[[ 0.,  0.], [24.,  0.]],[[ 0.,  0.],[ 0., 12.]]]), 

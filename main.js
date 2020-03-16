@@ -146,13 +146,13 @@ ipc.on('editEsstObj', (event, args) => {
 })
 
 ipc.on('run', (event, args) => {
-    console.log('Start running')
-    console.log(args)
-    console.log(JSON.stringify(args))
-    console.log(JSON.parse(JSON.stringify(args)))
-    console.log(JSON.parse(JSON.stringify(args)).toString())
     let options = {
+<<<<<<< HEAD
         // pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
+=======
+        // machine specific
+        // pythonPath: 'C:/Users/XXX/Anaconda3/python.exe',
+>>>>>>> 6f6f3e5ae1b708e000f7f6d262c4352f00031eeb
         args: [JSON.stringify(args)]
     }
     PythonShell.run('algo.py', options, function (err, results) {
@@ -162,7 +162,6 @@ ipc.on('run', (event, args) => {
         }
         console.log('finished')
         console.log(results)
-        console.log(results[0])
     });
 })
 
