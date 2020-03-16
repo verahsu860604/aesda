@@ -12,19 +12,23 @@ let marketObjList = {}
 let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
 let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
 
-const defaultVal = {
-  'ci-predic': 20, 
-  'ci-maxpIn': 0, // missing
-  'ci-minpIn': 0 // missing
-}
-
-
 const barColor = {
   'mi-planning': 'bg-warning',
   'mi-schedule': 'bg-success',
   'mi-selection': 'bg-info',
   'mi-delivery': 'bg-danger',
 }
+
+// init config
+const defaultVal = {
+  'ci-predic': 20, 
+  'ci-maxpIn': 0, // missing
+  'ci-maxpOut': 0 // missing
+}
+
+Object.keys(defaultVal).forEach(e => {
+  document.getElementsByName(e)[0].defaultValue = defaultVal[e]
+})
 
 // Dropdown control
 var curMarket
