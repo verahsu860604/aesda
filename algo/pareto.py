@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class ParetoEfficient(object):
     """Pareto Efficient Algorithm
     
@@ -50,5 +49,4 @@ class ParetoEfficient(object):
             else:
                 inefficient_list.append(self.solutions[i])
                 
-
         return inefficient_list, efficient_list

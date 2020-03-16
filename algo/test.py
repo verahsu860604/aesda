@@ -8,6 +8,7 @@ import json
 import numpy as np
 from time import sleep
 import cyclic_coordinate
+import pareto
 
 
 parameters = {
@@ -79,6 +80,8 @@ mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy
 cc = cyclic_coordinate.CyclicCoordinate(markets, mpc)
 solutions = cc.Algo5()
 print(solutions[0])
+pe = pareto.ParetoEfficient(solutions)
+inefficient_list, efficient_list = pe.pareto_analysis()
 # tuple(Revenue, value_i(useless), soc_record, soh for each device, power record, prices, percentages)
 # (216.29629629629628, 2, array([[1.        , 1.        ], [0.95061731, 1.        ]]), 
 # (1.0, 1.0), array([[[ 0.,  0.], [24.,  0.]],[[ 0.,  0.],[ 0., 12.]]]), 

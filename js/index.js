@@ -114,7 +114,8 @@ ipc.on('createEssObj', (event, args) => {
 })
 
 ipc.on('generateResult', (event, args) => {
-    // isRunning = true; 
+    var configForm = $("form").serializeArray()
+    ipc.send('run', {configForm, marketObjList, essObjList})
     document.querySelector('#result .alert').style.display = "none"
     generateResultChart()
 }) 
@@ -333,7 +334,7 @@ function createDataElem(args) {
    
   
     for (const [key, value] of Object.entries(data)) {
-      var p;
+      var p
       if(key === 'y'){
         p = createElement('p', 'class=mb-1 ')
         p.innerHTML = (strMap.diStrMap(key) + ": ").bold()
@@ -369,11 +370,11 @@ function createDataElem(args) {
 
 
     downloadbtn.addEventListener('click', function(e) {
-      let content = "temp";
-      var filename;
+      let content = "temp"
+      var filename
       filename = dialog.showSaveDialog({}
         ).then(result => {
-          filename = result.filePath;
+          filename = result.filePath
           if (filename === undefined) {
             alert("Filename invalid, file not created!")
             return
@@ -383,31 +384,28 @@ function createDataElem(args) {
               alert("An error ocurred creating the file " + err.message)
               return
             }
-            alert("Succesfully saved");
+            alert("Succesfully saved")
           })
         }).catch(err => {
           alert(err)
         })
     })
     deletebtn.addEventListener('click', function(e) {
-        // delete dataCompList[data[id]]
         cardiv.remove()
     }) 
 
 }
 ipc.on('addDataToCompare', (event, args) => {
-  // console.log(args)
-  createDataElem(args);
+  createDataElem(args)
 })
 
 
-var paretoChart;
+var paretoChart
 function handleClick(evt){
-  var activeElement = paretoChart.getElementAtEvent(evt);
+  var activeElement = paretoChart.getElementAtEvent(evt)
   if(activeElement.length>0){
-    args = paretoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index];
-    // console.log(args);
-    createDataElem(args );
+    args = paretoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index]
+    createDataElem(args )
 
   }
 }
@@ -421,7 +419,7 @@ function generateResultChart() {
     blue: 'rgb(54, 162, 235)',
     purple: 'rgb(153, 102, 255)',
     grey: 'rgb(231,233,237)'
-  };
+  }
   
   var config = {
     fontSize: 50,
@@ -500,12 +498,12 @@ function generateResultChart() {
       tooltips: {
         callbacks: {
           label: function(tooltipItem, data) {
-              var prp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['prp'];
-              var profit = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['profit'];
+              var prp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['prp']
+              var profit = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['profit']
               return [['Battery Life: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['x']],
               ['IRR: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['y']],
               ['PRP: ' + (prp?prp:0)],
-              ['Profit: '+ (profit?profit:0)]];
+              ['Profit: '+ (profit?profit:0)]]
           }
         },
         bodyFontSize: 14,
@@ -545,12 +543,8 @@ function generateResultChart() {
         }]
       }
     }
-  };
+  }
   
-  var ctx = document.getElementById("paretoChart").getContext("2d");
-  paretoChart = new Chart.Scatter(ctx, config);
-  // console.log(paretoChart);
-  // var canv = document.getElementById("paretoChart");
-  // canv.addEventListener('click', handleClick, false);
-
+  var ctx = document.getElementById("paretoChart").getContext("2d")
+  paretoChart = new Chart.Scatter(ctx, config)
 }
