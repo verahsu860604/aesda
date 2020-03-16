@@ -20,12 +20,22 @@ parameters = {
             'soc_profile_min_output_th': 0.0,
             'soc_profile_max_power_upward': 10,
             'soc_profile_max_power_downward': 10,
-            'efficiency_upward': 1 / 0.95,
+            'efficiency_upward': 0.95,
             'efficiency_downward': 0.95,
             'cost': 310,
             'dod_profile': True,
-            'dod_points':[2, 4, 17, 30, 60, 100],
-            'cycle_points':[10000000, 1000000, 100000, 40000, 10000, 3000]
+            'd1': 2,
+            'c1': 10000000,
+            'd2': 4,
+            'c2': 1000000,
+            'd3': 17,
+            'c3': 100000,
+            'd4': 30,
+            'c4': 40000,
+            'd5': 60,
+            'c5': 10000,
+            'd6': 100,
+            'c6': 3000   
         },
         {
             'energy_type': 'PowerFlow',
@@ -34,12 +44,22 @@ parameters = {
             'soc_profile_min_output_th': 0.3,
             'soc_profile_max_power_upward': 10,
             'soc_profile_max_power_downward': 10,
-            'efficiency_upward': 1 / 0.78,
+            'efficiency_upward': 0.78,
             'efficiency_downward': 0.78,
             'cost': 470,
             'dod_profile': False,
-            'dod_points':[2, 4, 17, 30, 60, 100],
-            'cycle_points':[0, 0, 0, 0, 0, 0]
+            'd1': 0,
+            'c1': 10,
+            'd2': 0,
+            'c2': 10,
+            'd3': 0,
+            'c3': 0,
+            'd4': 0,
+            'c4': 0,
+            'd5': 0,
+            'c5': 0,
+            'd6': 0,
+            'c6': 0
         }
     ],
     'markets': [
@@ -91,6 +111,12 @@ energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energ
 markets = [market.Market(**kwargs) for kwargs in data['markets']]
 mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources, test_mode=True)
 
+# Fake run
+cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, really_run=False)
+solutions_fake = cc.Algo5()
+print("totl: " + str(len(solutions_fake)))
+
+
 cc = cyclic_coordinate.CyclicCoordinate(markets, mpc)
 solutions = cc.Algo5()
 print(solutions[0])
@@ -101,4 +127,4 @@ print(solutions[0])
 # (1.0, 1.0), array([[[ 0.,  0.], [24.,  0.]],[[ 0.,  0.],[ 0., 12.]]]), 
 # [2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469], 
 # (6.666666666666667, 10.0, 'free'))
-assert len(solutions) == 576
+assert len(solutions) == 36

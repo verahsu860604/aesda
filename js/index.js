@@ -6,6 +6,7 @@ const fs = require("fs")
 const {dialog} = require('electron').remote;
 const {BrowserWindow} = electron.remote
 const ipc = electron.ipcRenderer
+const {PythonShell} = require('python-shell')
 
 let marketObjList = {}
 // number of ess objects
@@ -123,11 +124,61 @@ ipc.on('createEssObj', (event, args) => {
     
 })
 
+
 ipc.on('generateResult', (event, args) => {
     var configForm = $("form").serializeArray()
     ipc.send('run', {configForm, marketObjList, essObjList})
     document.querySelector('#result .alert').style.display = "none"
+    document.querySelector('#progress').style.display = ""
+
+    progressBar = document.querySelector('#progress .progress .progress-bar')
+    progressHint = document.querySelector('#progress-hint')
+    progressBar.style = "width: 10%"
+
     generateResultChart()
+
+    parameters = JSON.stringify(getParameters())
+
+    let pyshell = new PythonShell('algo/interface.py');
+    let totl = 1
+    
+
+    // sends a message to the Python script via stdin
+    pyshell.send(parameters);
+    let cnt = 0
+    // shell.on('stderr', function (stderr) {
+    //   // handle stderr (a line of text from stderr)
+    // });
+    pyshell.on('message', function (message) {
+      // received a message sent from the Python script (a simple "print" statement)
+      if (message !== 'Long-step dual simplex will be used' && message.length > 1){
+        console.log(message)
+        message = message.replace('Long-step dual simplex will be used', '')
+        console.log(message)
+        if (message.substring(0, 6) === 'totl: ') {
+          totl = parseInt(message.substring(6, message.length), 10)
+          console.log(totl)
+        }
+        else {
+          data = JSON.parse(message)
+          cnt = data['id']
+          console.log(cnt)
+          progressBar.style = "width: " + Math.round( 10 + 90 * cnt / totl ) + "%"
+          progressHint.innerHTML = 'Simulating... ' + 'Current Revenue = ' + data['revenue']
+          updateChartData(data['revenue'], data['soh'])
+        }
+      }
+    });
+
+    // end the input stream and allow the process to exit
+    pyshell.end(function (err, code, signal) {
+      if (err) throw err;
+      console.log('The exit code was: ' + code);
+      console.log('The exit signal was: ' + signal);
+      console.log('finished');
+    });
+
+
 }) 
 
 // functions
@@ -425,6 +476,94 @@ function handleClick(evt){
 
   }
 }
+function getParameters(){
+  parameters = {
+    'energy_sources': [
+        {
+            'energy_type': 'Lithium-Ion',
+            'soc_profile_energy_scale': 20,
+            'soc_profile_max_input_th': 1.0,
+            'soc_profile_min_output_th': 0.0,
+            'soc_profile_max_power_upward': 10,
+            'soc_profile_max_power_downward': 10,
+            'efficiency_upward': 1 / 0.95,
+            'efficiency_downward': 0.95,
+            'cost': 310,
+            'dod_profile': true,
+            'dod_points':[2, 4, 17, 30, 60, 100],
+            'cycle_points':[10000000, 1000000, 100000, 40000, 10000, 3000]
+        },
+        {
+            'energy_type': 'PowerFlow',
+            'soc_profile_energy_scale': 40,
+            'soc_profile_max_input_th': 0.7,
+            'soc_profile_min_output_th': 0.3,
+            'soc_profile_max_power_upward': 10,
+            'soc_profile_max_power_downward': 10,
+            'efficiency_upward': 1 / 0.78,
+            'efficiency_downward': 0.78,
+            'cost': 470,
+            'dod_profile': false,
+            'dod_points':[2, 4, 17, 30, 60, 100],
+            'cycle_points':[0, 0, 0, 0, 0, 0]
+        }
+    ],
+    'markets': [
+        {
+            "time_window_in_delivery": 4,
+            "planning_phase_length": 60,
+            "selection_phase_length": 60,
+            "schedule_phase_length": 60,
+            "delivery_phase_length": 60,
+            "setpoint_interval": 1,
+            "test_mode": true,
+            "percentage_fixed": true,
+            "price_cyclic_eps_upward": 1,
+            "price_cyclic_eps_downward": 1,
+            "percentage_cyclic_eps": 1,
+        },
+        {
+            "time_window_in_delivery": 4,
+            "planning_phase_length": 60,
+            "selection_phase_length": 60,
+            "schedule_phase_length": 60,
+            "delivery_phase_length": 60,
+            "setpoint_interval": 1,
+            "test_mode": true,
+            "percentage_fixed": true
+        },
+        {
+            "time_window_in_delivery": 4,
+            "planning_phase_length": 60,
+            "selection_phase_length": 60,
+            "schedule_phase_length": 60,
+            "delivery_phase_length": 60,
+            "setpoint_interval": 1,
+            "test_mode": true
+        },
+    ],
+    'config':{
+        'planning_horizon': 60,
+        'soh_update_interval': 24 * 7 * 60,
+        'tot_timestamps': 60
+    }}
+  return parameters
+}
+
+function updateChartData(revenue, soh) {
+  console.log(paretoChart.data.datasets[0].data)
+  paretoChart.data.datasets[0].data.push({
+    x: Math.random(),
+    y: revenue
+  })
+  //   ess:{'Power Flow Battery': 0.985, 'Custom':5}, 
+  //   prp: 1, 
+  //   profit: 1, 
+  //   id: 0,    
+  // })
+  paretoChart.update()
+}
+
 
 function generateResultChart() {
   window.chartColors = {
@@ -445,50 +584,51 @@ function generateResultChart() {
         borderColor: window.chartColors.red,
         borderWidth: 2,
         fill: false,
-        data: [ { x: 0.778, y: 0.686} ,
-          { x: 0.238, y: 0.548} ,
-          { x: 0.824, y: 0.138} ,
-          { x: 0.966, y: 0.099} ,
-          { x: 0.453, y: 0.152} ,
-          { x: 0.609, y: 0.926} ,
-          { x: 0.776, y: 0.680} ,
-          { x: 0.642, y: 0.238} ,
-          { x: 0.722, y: 0.569} ,
-          { x: 0.035, y: 0.557} ,
-          { x: 0.298, y: 0.073} ,
-          { x: 0.059, y: 0.840} ,
-          { x: 0.857, y: 0.405} ,
-          { x: 0.373, y: 0.145} ,
-          { x: 0.680, y: 0.191} ,
-          { x: 0.256, y: 0.491} ,
-          { x: 0.348, y: 0.712} ,
-          { x: 0.358, y: 0.875} ,
-          { x: 0.218, y: 0.107} ,
-          { x: 0.319, y: 0.913} ,
-          { x: 0.918, y: 0.365} ,
-          { x: 0.032, y: 0.227} ,
-          { x: 0.065, y: 0.872} ,
-          { x: 0.630, y: 0.136} ,
-          { x: 0.874, y: 0.236} ,
-          { x: 0.009, y: 0.595} ,
-          { x: 0.747, y: 0.564} ,
-          { x: 0.076, y: 0.453} ,
-          { x: 0.656, y: 0.129} ,
-          { x: 0.509, y: 0.761} ,
-          { x: 0.480, y: 0.202} ,
-          { x: 0.956, y: 0.176} ,
-          { x: 0.000, y: 0.437} ,
-          { x: 0.247, y: 0.340} ,
-          { x: 0.325, y: 0.143} ,
-          { x: 0.277, y: 0.845} ,
-          { x: 0.695, y: 0.669} ,
-          { x: 0.919, y: 0.109} ,
-          { x: 0.244, y: 0.088} ,
-          { x: 0.253, y: 0.194} ,
-          { x: 0.379, y: 0.082} ,
-          { x: 0.605, y: 0.269} ,
-          { x: 0.772, y: 0.650} ,
-          { x: 0.068, y: 0.547} ]
+        data: [{x: 0.778, y: 0.686}],
+        // { x: 0.778, y: 0.686} ,
+          // { x: 0.238, y: 0.548} ,
+          // { x: 0.824, y: 0.138} ,
+          // { x: 0.966, y: 0.099} ,
+          // { x: 0.453, y: 0.152} ,
+          // { x: 0.609, y: 0.926} ,
+          // { x: 0.776, y: 0.680} ,
+          // { x: 0.642, y: 0.238} ,
+          // { x: 0.722, y: 0.569} ,
+          // { x: 0.035, y: 0.557} ,
+          // { x: 0.298, y: 0.073} ,
+          // { x: 0.059, y: 0.840} ,
+          // { x: 0.857, y: 0.405} ,
+          // { x: 0.373, y: 0.145} ,
+          // { x: 0.680, y: 0.191} ,
+          // { x: 0.256, y: 0.491} ,
+          // { x: 0.348, y: 0.712} ,
+          // { x: 0.358, y: 0.875} ,
+          // { x: 0.218, y: 0.107} ,
+          // { x: 0.319, y: 0.913} ,
+          // { x: 0.918, y: 0.365} ,
+          // { x: 0.032, y: 0.227} ,
+          // { x: 0.065, y: 0.872} ,
+          // { x: 0.630, y: 0.136} ,
+          // { x: 0.874, y: 0.236} ,
+          // { x: 0.009, y: 0.595} ,
+          // { x: 0.747, y: 0.564} ,
+          // { x: 0.076, y: 0.453} ,
+          // { x: 0.656, y: 0.129} ,
+          // { x: 0.509, y: 0.761} ,
+          // { x: 0.480, y: 0.202} ,
+          // { x: 0.956, y: 0.176} ,
+          // { x: 0.000, y: 0.437} ,
+          // { x: 0.247, y: 0.340} ,
+          // { x: 0.325, y: 0.143} ,
+          // { x: 0.277, y: 0.845} ,
+          // { x: 0.695, y: 0.669} ,
+          // { x: 0.919, y: 0.109} ,
+          // { x: 0.244, y: 0.088} ,
+          // { x: 0.253, y: 0.194} ,
+          // { x: 0.379, y: 0.082} ,
+          // { x: 0.605, y: 0.269} ,
+          // { x: 0.772, y: 0.650} ,
+          // { x: 0.068, y: 0.547} ]
       },{
         label: 'Pareto Frontier',
         cubicInterpolationMode: 'monotone',
@@ -496,11 +636,11 @@ function generateResultChart() {
         borderWidth: 2,
         fill: false,
         data: [ 
-          { x: 0.009, y: 0.985, ess:{'Power Flow Battery':0.985 , 'Custom':5}, prp: 1, profit: 1, id: 0},    
-          { x: 0.712, y: 0.967, ess:{'Power Flow Battery':0.967}, prp: 1, profit: 1, id: 1},
-          { x: 0.813, y: 0.959, ess:{'Power Flow Battery':0.959 }, prp: 1, profit: 1, id: 2},
-          { x: 0.949, y: 0.499, ess:{'Power Flow Battery':0.499}, prp: 1, profit: 1, id: 3},
-          { x: 0.973, y: 0.246, ess:{'Custom':0.246}, prp: 1, profit: 1, id: 4} 
+          // { x: 0.009, y: 0.985, ess:{'Power Flow Battery':0.985 , 'Custom':5}, prp: 1, profit: 1, id: 0},    
+          // { x: 0.712, y: 0.967, ess:{'Power Flow Battery':0.967}, prp: 1, profit: 1, id: 1},
+          // { x: 0.813, y: 0.959, ess:{'Power Flow Battery':0.959 }, prp: 1, profit: 1, id: 2},
+          // { x: 0.949, y: 0.499, ess:{'Power Flow Battery':0.499}, prp: 1, profit: 1, id: 3},
+          // { x: 0.973, y: 0.246, ess:{'Custom':0.246}, prp: 1, profit: 1, id: 4} 
         ],
         borderWidth: 2.5,
         tension: 1,
