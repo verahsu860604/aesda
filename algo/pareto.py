@@ -5,12 +5,17 @@ class ParetoEfficient(object):
     
     Calculates IRR and remaining life of ESS, then run the pareto analysis
     """
-    def __init__(self, solutions):
+    def __init__(self, solutions, tot_timestamp):
         self.solutions = solutions
+        self.tot_timestamp = tot_timestamp
 
     def get_battery_life(self, soh):
-        #TODO
-        return 1
+        """Calculate the remaining years for the battery with the same usage
+        :param soh: State of health of the battery
+        :return: remaining years
+        """
+        number_of_week = tot_timestamp / (60.0 * 24.0 * 7.0)
+        return (soh - 0.8) / ((1 - soh) / number_of_week * 52)
 
     def get_irr(self, cash_flows):
         #TODO
