@@ -221,8 +221,8 @@ class EnergySource(object):
                 soc_profile_energy_scale=20,
                 soc_profile_max_soc=1.0, 
                 soc_profile_min_soc=0.0,
-                soc_profile_max_input_th=1.0, 
-                soc_profile_min_output_th=0.0,
+                soc_profile_max_input_th=100, 
+                soc_profile_min_output_th=0,
                 soc_profile_max_power_upward=10, 
                 soc_profile_max_power_downward=10,
                 soc_profile_max_change_upward=100, 
@@ -236,8 +236,18 @@ class EnergySource(object):
                 min_soh=0.8, 
                 cost=310,
                 dod_profile_change_th=0.2,
-                dod_points=[2, 4, 17, 30, 60, 100],
-                cycle_points=[10000000, 1000000, 100000, 40000, 10000, 3000],
+                d1=0,
+                c1=0,
+                d2=0,
+                c2=0,
+                d3=0,
+                c3=0,
+                d4=0,
+                c4=0,
+                d5=0,
+                c5=0,
+                d6=0,
+                c6=0,
                 dod_profile=True, 
                 visualize=False
                 ):
@@ -275,13 +285,13 @@ class EnergySource(object):
         self.self_discharge_ratio = self_discharge_ratio
         self.soc_profile_max_soc = soc_profile_max_soc
         self.soc_profile_min_soc = soc_profile_min_soc
-        self.soc_profile_max_input_th = soc_profile_max_input_th
-        self.soc_profile_min_output_th = soc_profile_min_output_th
+        self.soc_profile_max_input_th = soc_profile_max_input_th * 0.01
+        self.soc_profile_min_output_th = soc_profile_min_output_th * 0.01
         self.soc_profile_max_power_upward = soc_profile_max_power_upward
         self.soc_profile_max_power_downward = soc_profile_max_power_downward
         self.soc_profile_max_change_upward = soc_profile_max_change_upward
         self.soc_profile_max_change_downward = soc_profile_max_change_downward
-        self.efficiency_upward = efficiency_upward
+        self.efficiency_upward = 1 / efficiency_upward
         self.efficiency_downward = efficiency_downward
         self.min_degradation_para = min_degradation_para
         self.max_degradation_para = max_degradation_para
@@ -289,12 +299,16 @@ class EnergySource(object):
         self.max_soh = max_soh
         self.min_soh = min_soh
         self.cost = cost
+        self.dod_profile = dod_profile
+        if d5==0 and d6 == 0:
+            self.dod_profile = False
+
         self.soh_estimator = SOHEstimator(
             downward_change_th=dod_profile_change_th,
             dimension=soc_profile_energy_scale,
-            dod_points=dod_points,
-            cycle_points=cycle_points,
-            dod_profile=dod_profile,
+            dod_points=[d1, d2, d3, d4, d5, d6],
+            cycle_points=[c1, c2, c3, c4, c5, c6],
+            dod_profile=self.dod_profile,
             visualize=visualize
         )
 
