@@ -148,7 +148,7 @@ class MPCSolver(object):
         tot = 100
         for j in range(self.num_markets):
             if percentages[j] != 'free':
-                assert type(percentages[j]) == float or type(percentages[j]) == int, 'Percentage format error'
+                # assert type(percentages[j]) == float or type(percentages[j]) == int, 'Percentage format error'
                 self.markets[j].update_percentage(percentages[j], is_fixed = True) # Fixed
                 tot -= percentages[j]
             else:
@@ -237,7 +237,7 @@ class MPCSolver(object):
 
             # r = self.problem.solve(solver=cp.ECOS_BB)
             # print('ECOS timestamp:', current_time, 'setpoint revenue', r)
-            r = self.problem.solve(solver=cp.GUROBI)
+            r = self.problem.solve(solver=cp.GLPK_MI)
             print('timestamp:', current_time, 'setpoint revenue', r)
             # r = self.problem.solve(solver=cp.CPLEX)
             # print('CPLEX timestamp:', current_time, 'setpoint revenue', r)
@@ -252,6 +252,7 @@ class MPCSolver(object):
             # Weekly update state of health
             if current_time % self.config.soh_update_interval == 0 and current_time > 0:
                 for i in range(self.num_energy_sources):
+
                     soh_change = self.energy_sources[i].get_battery_degradation([r['soc'][i] for r in self.records[last_update:]])
                     self.state['soh'][i] -= soh_change
                 last_update = current_time
@@ -297,7 +298,7 @@ class MPCSolver(object):
         soc_profile_max_power_upward = wrap_value('soc_profile_max_power_upward')
         soc_profile_max_power_downward = wrap_value('soc_profile_max_power_downward')
         soc_profile_min_output_th = wrap_value('soc_profile_min_output_th')
-        soc_profile_max_output_th = wrap_value('soc_profile_max_output_th')
+        soc_profile_max_input_th = wrap_value('soc_profile_max_input_th')
         soc_profile_max_change_downward = wrap_value('soc_profile_max_change_downward')
         soc_profile_max_change_upward = wrap_value('soc_profile_max_change_upward')
 
@@ -348,7 +349,7 @@ class MPCSolver(object):
         self.constraints += [
             self.variables['power_device_upward'] <= cp.multiply(expand(soc_profile_max_power_upward), \
                 cp.multiply(tmp_value_upward, expand(soc_profile_max_soc)) - self.variables['soc']) /\
-                cp.multiply(tmp_value_upward, expand(soc_profile_max_soc) - expand(soc_profile_max_output_th)),
+                cp.multiply(tmp_value_upward, expand(soc_profile_max_soc) - expand(soc_profile_max_input_th)),
                 
             self.variables['power_device_downward'] <= cp.multiply(expand(soc_profile_max_power_downward), \
                 cp.multiply(tmp_value_downward, expand(soc_profile_min_soc)) - self.variables['soc']) /\

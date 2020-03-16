@@ -83,7 +83,7 @@ for time_k in range(len(results)):
     assert np.isclose(results[time_k]['power_market_upward'], 0.0).all()
 assert np.isclose(revenue, 1.81 * 60 * 3 * 2)
 
-
+exit(0)
 
 for key in results[0].keys():
     values = []

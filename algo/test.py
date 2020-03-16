@@ -35,7 +35,8 @@ parameters = {
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": True
+            "test_mode": True,
+            "percentage_fixed": True
         },
         {
             "time_window_in_delivery": 4, # Primary
@@ -44,7 +45,8 @@ parameters = {
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": True
+            "test_mode": True,
+            "percentage_fixed": True
         },
         {
             "time_window_in_delivery": 4, # Primary
@@ -59,7 +61,7 @@ parameters = {
     'config':{
         'planning_horizon': 60,
         'soh_update_interval': 24 * 7 * 60,
-        'tot_timestamps': 60
+        'tot_timestamps': 2
     }
 }
 
@@ -76,4 +78,10 @@ mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy
 
 cc = cyclic_coordinate.CyclicCoordinate(markets, mpc)
 solutions = cc.Algo5()
-cc.plot_pareto(solutions)
+print(solutions[0])
+# tuple(Revenue, value_i(useless), soc_record, soh for each device, power record, prices, percentages)
+# (216.29629629629628, 2, array([[1.        , 1.        ], [0.95061731, 1.        ]]), 
+# (1.0, 1.0), array([[[ 0.,  0.], [24.,  0.]],[[ 0.,  0.],[ 0., 12.]]]), 
+# [2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469], 
+# (6.666666666666667, 10.0, 'free'))
+assert len(solutions) == 576
