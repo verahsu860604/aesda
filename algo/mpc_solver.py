@@ -3,7 +3,7 @@ import cvxpy as cp #1.0.25
 import copy
 # import gurobipy
 import cplex
-
+import sys
 
 class MarketState(object):
     """ Market State stores the market decision of a phase of a market.
@@ -238,7 +238,7 @@ class MPCSolver(object):
             # r = self.problem.solve(solver=cp.ECOS_BB)
             # print('ECOS timestamp:', current_time, 'setpoint revenue', r)
             r = self.problem.solve(solver=cp.GLPK_MI)
-            print('timestamp:', current_time, 'setpoint revenue', r)
+            # print('timestamp:', current_time, 'setpoint revenue', r)
             # r = self.problem.solve(solver=cp.CPLEX)
             # print('CPLEX timestamp:', current_time, 'setpoint revenue', r)
 
