@@ -12,6 +12,8 @@ if True:
 
     config = config.Config(**data['config'])
     energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energy_sources']]
+    for energy_source in energy_sources:
+        energy_source.tunning_parameter()
     markets = [market.Market(**kwargs) for kwargs in data['markets']]
     algo2 = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources)
 
