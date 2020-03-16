@@ -215,21 +215,32 @@ class EnergySource(object):
     Handles parameters and state-of-health calculation.
     """
 
-    def __init__(self, energy_type='Lithium-Ion', self_discharge_ratio=0.0,
-                 soc_profile_energy_scale=20,
-                 soc_profile_max_soc=1.0, soc_profile_min_soc=0.0,
-                 soc_profile_max_input_th=1.0, soc_profile_min_output_th=0.0,
-                 soc_profile_max_power_upward=10, soc_profile_max_power_downward=10,
-                 soc_profile_max_change_upward=100, soc_profile_max_change_downward=100,
-                 efficiency_upward=1 / 0.95, efficiency_downward=0.95,
-                 min_degradation_para=0.0, max_degradation_para=1.0,
-                 tuning_parameter=1.0 / 60,
-                 max_soh=1.0, min_soh=0.8, cost=310,
-                 dod_profile_change_th=0.2,
-                 dod_points=[2, 4, 17, 30, 60, 100],
-                 cycle_points=[10000000, 1000000, 100000, 40000, 10000, 3000],
-                 dod_profile=True, visualize=False
-                 ):
+    def __init__(self, 
+                energy_type='Lithium-Ion', 
+                self_discharge_ratio=0.0,
+                soc_profile_energy_scale=20,
+                soc_profile_max_soc=1.0, 
+                soc_profile_min_soc=0.0,
+                soc_profile_max_input_th=1.0, 
+                soc_profile_min_output_th=0.0,
+                soc_profile_max_power_upward=10, 
+                soc_profile_max_power_downward=10,
+                soc_profile_max_change_upward=100, 
+                soc_profile_max_change_downward=100,
+                efficiency_upward=1 / 0.95, 
+                efficiency_downward=0.95,
+                min_degradation_para=0.0, 
+                max_degradation_para=1.0,
+                tuning_parameter=1.0 / 60,
+                max_soh=1.0, 
+                min_soh=0.8, 
+                cost=310,
+                dod_profile_change_th=0.2,
+                dod_points=[2, 4, 17, 30, 60, 100],
+                cycle_points=[10000000, 1000000, 100000, 40000, 10000, 3000],
+                dod_profile=True, 
+                visualize=False
+                ):
         """Energy Source builder.
 
         Args:

@@ -58,10 +58,10 @@ class Market(object):
                 schedule_phase_length = 20,
                 delivery_phase_length = 20,
 
-                max_feasible_selling_price = 20,
                 min_feasible_selling_price = 0,
-                max_feasible_buying_price = 10,
+                max_feasible_selling_price = 20,
                 min_feasible_buying_price = 0,
+                max_feasible_buying_price = 10,
 
                 max_feasible_power_percentage = 20,
                 min_feasible_power_percentage = 0,
@@ -128,7 +128,7 @@ class Market(object):
         self.price_cyclic_eps_downward = price_cyclic_eps_downward
         self.percentage_cyclic_eps = percentage_cyclic_eps
 
-        self.percentage_fixed = percentage_fixed
+        self.percentage_fixed = (self.min_feasible_power_percentage == self.max_feasible_power_percentage)
 
         self.test_mode = test_mode
         if test_mode:
