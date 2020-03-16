@@ -12,6 +12,12 @@ let marketObjList = {}
 let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
 let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
 
+const defaultVal = {
+  'ci-predic': 20, 
+  'ci-maxpIn': 0, // missing
+  'ci-minpIn': 0 // missing
+}
+
 
 const barColor = {
   'mi-planning': 'bg-warning',
@@ -122,6 +128,7 @@ ipc.on('generateResult', (event, args) => {
 
 // functions
 function createMarketElem(marketType, marketData) {
+    console.log(marketData);
     
     var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'id=marketEditBtn')
     editbtn.innerHTML = 'Edit'
@@ -139,24 +146,29 @@ function createMarketElem(marketType, marketData) {
     var bodyContent2 = createElement('div', 'class=progress m-2', 'style=height: 40px', 'id=cardbody2')
 
     var i = 0
+    var j = 0
     var totalPeriod = 0
 
     while(i < marketData.length) {
-      if(i !== 8) var pSec = createElement('div', 'class=col-md-4')
-      for(var j = 0; j < 4 && i < marketData.length; j++){
-        if(8 <= i && i <= 11) {
+      j = 0
+      var pSec = createElement('div', 'class=col-md-4')
+      while(j < 4) {
+        if(i >= marketData.length) break
+        if(9 <= i && i <= 12) {
           totalPeriod += parseInt(marketData[i]['value'])
+          i++
         } else {
           var p = createElement('p', 'class=mb-1')
           p.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']
           pSec.appendChild(p)
+          i++
+          j++
         }
-        i++
       }
       bodyContent1.appendChild(pSec)
     }
 
-    for(i = 8; i < 12; i++) {
+    for(i = 9; i < 13; i++) {
       var percentage = (marketData[i]['value'] / totalPeriod) * 100
       var pbar = createElement('div', 'class=progress-bar '+barColor[marketData[i]['name']], 'style=width:' + percentage + '%', 'role=progressbar', 'aria-valuenow='+(marketData[i]['value'] / totalPeriod) * 100, 'aria-valuemin=0',  'aria-valuemax=100')
       pbar.innerHTML = strMap.miStrMap(marketData[i]['name']).split(' ')[0] + ": " + marketData[i]['value'] 

@@ -1,6 +1,7 @@
 var market = {
     'mi-upItv': 'Upward Initial Interval',
     'mi-dwnItv': 'Downward Initial Interval',
+    'mi-minItv': 'Minimum Interval',
     'mi-spUpdate': 'Setpoint Update Interval',
     'mi-twDelivery': 'Delivery Time',
     'mi-upMinPrice': 'Upward Min Price',
