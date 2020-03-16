@@ -8,23 +8,38 @@ import json
 import numpy as np
 from time import sleep
 import cyclic_coordinate
+import pareto
 
 
 parameters = {
     'energy_sources': [
         {
             'energy_type': 'Lithium-Ion',
-            'soc_profile_energy_scale': 8.1,
-            'efficiency_upward': 1 / 0.25, 
-            'efficiency_downward': 0.25, 
-            'self_discharge_ratio': 0
+            'soc_profile_energy_scale': 20,
+            'soc_profile_max_input_th': 1.0,
+            'soc_profile_min_output_th': 0.0,
+            'soc_profile_max_power_upward': 10,
+            'soc_profile_max_power_downward': 10,
+            'efficiency_upward': 1 / 0.95,
+            'efficiency_downward': 0.95,
+            'cost': 310,
+            'dod_profile': True,
+            'dod_points':[2, 4, 17, 30, 60, 100],
+            'cycle_points':[10000000, 1000000, 100000, 40000, 10000, 3000]
         },
         {
             'energy_type': 'PowerFlow',
-            'self_discharge_ratio': 0,
-            'soc_profile_energy_scale': 8.1,
-            'efficiency_upward': 1 / 0.5, 
-            'efficiency_downward': 0.5, 
+            'soc_profile_energy_scale': 40,
+            'soc_profile_max_input_th': 0.7,
+            'soc_profile_min_output_th': 0.3,
+            'soc_profile_max_power_upward': 10,
+            'soc_profile_max_power_downward': 10,
+            'efficiency_upward': 1 / 0.78,
+            'efficiency_downward': 0.78,
+            'cost': 470,
+            'dod_profile': False,
+            'dod_points':[2, 4, 17, 30, 60, 100],
+            'cycle_points':[0, 0, 0, 0, 0, 0]
         }
     ],
     'markets': [
@@ -79,6 +94,8 @@ mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy
 cc = cyclic_coordinate.CyclicCoordinate(markets, mpc)
 solutions = cc.Algo5()
 print(solutions[0])
+# pe = pareto.ParetoEfficient(solutions)
+# inefficient_list, efficient_list = pe.pareto_analysis()
 # tuple(Revenue, value_i(useless), soc_record, soh for each device, power record, prices, percentages)
 # (216.29629629629628, 2, array([[1.        , 1.        ], [0.95061731, 1.        ]]), 
 # (1.0, 1.0), array([[[ 0.,  0.], [24.,  0.]],[[ 0.,  0.],[ 0., 12.]]]), 

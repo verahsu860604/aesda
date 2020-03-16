@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class ParetoEfficient(object):
     """Pareto Efficient Algorithm
     
@@ -15,13 +14,20 @@ class ParetoEfficient(object):
         :param soh: State of health of the battery
         :return: remaining years
         """
-        number_of_week = tot_timestamp / (60.0 * 24.0 * 7.0)
+        soh = min(soh)
+        number_of_week = self.tot_timestamp / (60.0 * 24.0 * 7.0)
         return (soh - 0.8) / ((1 - soh) / number_of_week * 52)
 
     def get_irr(self, cash_flows):
         #TODO
+        
         return 1
+    
+    def get_pbp(self, cash_flows):
+        #TODO
 
+        return 1
+    
     def get_pareto_filter(self, costs):
         """
         Find the pareto-efficient points
@@ -43,9 +49,9 @@ class ParetoEfficient(object):
         """
         pareto_cost = []
         for sol in self.solutions:
-           pareto_cost.append([get_irr(sol[0]), get_battery_life(sol[3])])
+           pareto_cost.append([self.get_irr(sol[0]), self.get_battery_life(sol[3])])
         pareto_cost = np.array(pareto_cost)
-        efficient_filter = get_pareto_filter(pareto_cost)
+        efficient_filter = self.get_pareto_filter(pareto_cost)
 
         inefficient_list = []
         efficient_list = []
@@ -55,5 +61,4 @@ class ParetoEfficient(object):
             else:
                 inefficient_list.append(self.solutions[i])
                 
-
         return inefficient_list, efficient_list
