@@ -22,21 +22,32 @@ ess_mapping = \
 
 
     'ei-selfDischareRatio'  :   'self_discharge_ratio',
-    # TODO not found in python
     'ei-dimen'              :   'soc_profile_energy_scale',
     'ei-cost'               :   'cost',
     # TODO not found in python
     # 'ei-othercost'          :
+    
     'ei-inEffi'             :   'efficiency_upward',
     'ei-outEffi'            :   'efficiency_downward',
     # TODO mismatch
     # 'ei-threshold'          :   
+
     'ei-maxpin'             :   'soc_profile_max_power_upward',
     'ei-maxpout'            :   'soc_profile_max_power_downward',
     'ei-minsoc'             :   'soc_profile_min_output_th',
     'ei-maxsoc'             :   'soc_profile_max_input_th',
 
     # TODO not found in UI
+    # : soc_profile_energy_scale
+    # : soc_profile_max_change_upward
+    # : soc_profile_max_change_downward
+    # : min_degradation_para
+    # : max_degradation_para
+    # : tuning_parameter
+    # : max_soh
+    # : min_soh
+    # : dod_profile_change_th
+    # : dod_profile
     # : visualize
     
     # dod, cycles
@@ -128,15 +139,19 @@ def map_param(param_ui):
             param['energy_sources'] = []
             for battery_type, battery_type_dict in v.items():
                 for type_num, type_list in battery_type_dict.items():
-                    param['energy_sources'].append({})
-                    for battery_dict in type_list:
-                        key = ess_mapping.get(battery_dict['name']) 
-                        if key: # if key exists in ess_mapping
-                            val = battery_dict['value']
-                            if val:
-                                val = ast.literal_eval(val)
-                            else:
-                                val = 0
-                            param['energy_sources'][-1][key] = val
+                    if len(type_list) > 1:
+                        num_of_ess = int(type_list[0]['value'])
+                        print(num_of_ess)
+                        for i in range(num_of_ess):
+                            param['energy_sources'].append({})
+                            for battery_dict in type_list[1:]:
+                                key = ess_mapping.get(battery_dict['name']) 
+                                if key: # if key exists in ess_mapping
+                                    val = battery_dict['value']
+                                    if val:
+                                        val = ast.literal_eval(val)
+                                    else:
+                                        val = 0
+                                    param['energy_sources'][-1][key] = val
 
     return param

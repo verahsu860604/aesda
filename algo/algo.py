@@ -1,5 +1,4 @@
 import sys
-sys.path.insert(1, './algo')
 import json
 import parameters
 import config

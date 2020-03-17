@@ -151,7 +151,8 @@ ipc.on('run', (event, args) => {
         pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
         args: [JSON.stringify(args)]
     }
-    PythonShell.run('algo.py', options, function (err, results) {
+    console.log(JSON.stringify(args))
+    PythonShell.run('algo/algo.py', options, function (err, results) {
         if (err) {
             console.log('ERROR!')
             throw err;
