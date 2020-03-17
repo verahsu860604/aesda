@@ -23,8 +23,8 @@ const barColor = {
 // init config
 const defaultVal = {
   'ci-predic': 20, 
-  'ci-maxpIn': 0, // missing
-  'ci-maxpOut': 0 // missing
+  'ci-totTimestamp': 300,
+  'ci-sohItv': 24*7*60
 }
 
 Object.keys(defaultVal).forEach(e => {
@@ -198,32 +198,43 @@ function createMarketElem(marketType, marketData) {
     var card = createElement('div', 'class=card mb-3', 'id='+marketType)
 
     var bodyContent1 = createElement('div', 'class=row', 'id=cardbody1')
-    var bodyContent2 = createElement('div', 'class=progress m-2', 'style=height: 40px', 'id=cardbody2')
+    var bodyContent2 = createElement('div', 'class=progress m-2', 'style=height: 30px', 'id=cardbody2')
 
     var i = 0
     var j = 0
     var totalPeriod = 0
-
-    while(i < marketData.length) {
-      j = 0
-      var pSec = createElement('div', 'class=col-md-4')
-      while(j < 4) {
-        if(i >= marketData.length) break
-        if(9 <= i && i <= 12) {
-          totalPeriod += parseInt(marketData[i]['value'])
-          i++
-        } else {
-          var p = createElement('p', 'class=mb-1')
-          p.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']
-          pSec.appendChild(p)
-          i++
-          j++
-        }
-      }
-      bodyContent1.appendChild(pSec)
+  
+    for(i = 0; i < 8; i++) {
+      if(i%4 === 0) var pSec = createElement('div', 'class=col-md-6')
+      var p = createElement('p', 'class=mb-1')
+      p.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']
+      pSec.appendChild(p)
+      if(i%4 === 0) bodyContent1.appendChild(pSec)
     }
 
-    for(i = 9; i < 13; i++) {
+    for(i = 14; i < 18; i++) totalPeriod += parseInt(marketData[i]['value'])
+
+    // while(i < marketData.length) {
+    //   j = 0
+    //   var pSec = createElement('div', 'class=col-md-4')
+    //   while(j < 4) {
+    //     if(i >= marketData.length) break
+    //     if(8 <= i && i <= 13) {i++}
+    //     if(14 <= i && i <= 17) {
+    //       totalPeriod += parseInt(marketData[i]['value'])
+    //       i++
+    //     } else {
+    //       var p = createElement('p', 'class=mb-1')
+    //       p.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']
+    //       pSec.appendChild(p)
+    //       i++
+    //       j++
+    //     }
+    //   }
+    //   bodyContent1.appendChild(pSec)
+    // }
+
+    for(i = 14; i < 18; i++) {
       var percentage = (marketData[i]['value'] / totalPeriod) * 100
       var pbar = createElement('div', 'class=progress-bar '+barColor[marketData[i]['name']], 'style=width:' + percentage + '%', 'role=progressbar', 'aria-valuenow='+(marketData[i]['value'] / totalPeriod) * 100, 'aria-valuemin=0',  'aria-valuemax=100')
       pbar.innerHTML = strMap.miStrMap(marketData[i]['name']).split(' ')[0] + ": " + marketData[i]['value'] 
@@ -259,7 +270,6 @@ function editMarketElem(marketType, marketData) {
     var pObject = body1.querySelectorAll('p')
     
     pObject.forEach(e => {
-      if(i === 8) i = 12
       e.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']  
       i++
     })
@@ -268,11 +278,11 @@ function editMarketElem(marketType, marketData) {
     var barElem = body2.querySelectorAll('.progress-bar')
     var totalPeriod = 0
     
-    for(var j = 8; j < 12; j++) {
+    for(var j = 14; j < 18; j++) {
       totalPeriod += parseInt(marketData[j]['value'])
     } 
 
-    for(var j = 8; j < 12; j++) {
+    for(var j = 14; j < 18; j++) {
       var percentage = (marketData[j]['value'] / totalPeriod) * 100
       barElem[i].style.width = percentage+'%'
       barElem[i].innerHTML = strMap.miStrMap(marketData[j]['name']).split(' ')[0] + ": " + marketData[j]['value'] 

@@ -22,20 +22,6 @@
                 <div class="card-body">
                     <h5 class="card-title">Time Structure</h5>
                     <div class="form-row">
-                        <div class="form-group col-md-4">
-                            <label for="mi-upItv">Upward Initial Interval</label>
-                            <input required type="number" step="any" class="form-control" name="mi-upItv">
-                        </div>     
-                        <div class="form-group col-md-4">
-                            <label for="mi-dwnItv">Downward Initial Interval</label>
-                            <input required type="number" step="any" class="form-control" name="mi-dwnItv">
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label for="mi-minItv">Minimum Interval</label>
-                            <input required type="number" step="any" class="form-control" name="mi-minItv">
-                        </div>                        
-                    </div>
-                    <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="mi-spUpdate">Setpoint Update (Min)</label>
                             <input required type="number" step="any" class="form-control" name="mi-spUpdate">
@@ -47,6 +33,21 @@
                     </div>
                 </div>
             </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Power</h5>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="mi-max_feasible_power_percentage">Max Feasable Power Percentage</label>
+                            <input required type="number" step="any" class="form-control" name="mi-max_feasible_power_percentage">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="mi-min_feasible_power_percentage">Min Feasable Power Percentage</label>
+                            <input required type="number" step="any" class="form-control" name="mi-min_feasible_power_percentage">
+                        </div>
+                    </div>
+                </div>
+            </div> 
             <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Price</h5>
@@ -68,6 +69,39 @@
                         <div class="form-group col-md-6">
                             <label for="mi-dwnMaxPrice">Downward Max Price</label>
                             <input required type="number" step="any" class="form-control" name="mi-dwnMaxPrice">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Cyclic Coordinate Configuration</h5>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="mi-price_cyclic_n_upward">Upward Price Number of Interval</label>
+                            <input required type="number" step="any" class="form-control" name="mi-price_cyclic_n_upward">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="mi-price_cyclic_n_downward">Downward Price Number of Interval</label>
+                            <input required type="number" step="any" class="form-control" name="mi-price_cyclic_n_downward">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="mi-percentage_cyclic_n">Percentage Number of Interval</label>
+                            <input required type="number" step="any" class="form-control" name="mi-percentage_cyclic_n">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="mi-price_cyclic_eps_upward">Upward Price Min Interval</label>
+                            <input required type="number" step="any" class="form-control" name="mi-price_cyclic_eps_upward">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="mi-price_cyclic_eps_downward">Downward Price Min Interval</label>
+                            <input required type="number" step="any" class="form-control" name="mi-price_cyclic_eps_downward">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="mi-percentage_cyclic_eps">Percentage Min Interval</label>
+                            <input required type="number" step="any" class="form-control" name="mi-percentage_cyclic_eps">
                         </div>
                     </div>
                 </div>
