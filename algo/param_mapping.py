@@ -2,15 +2,9 @@ import sys
 import ast
 config_mapping = \
 {
-    'ci-predic' : 'planning_horizon',
-    
-    # TODO should be moved to market
-    # 'ci-maxpIn'
-    # 'ci-maxpOut'
-    
-    # TODO not found in UI
-    # : 'soh_update_interval'
-    # : 'tot_timestamps'
+    'ci-predic'       : 'planning_horizon',
+    'ci-sohItv'       : 'soh_update_interval'
+    'ci-totTimestamp' : 'tot_timestamps'
     
 }
 
@@ -67,18 +61,15 @@ ess_mapping = \
 
 market_mapping = \
 {
-    # TODO interval mismatch
-    # 'mi-upItv'      :    
-    # 'mi-dwnItv'     :   
-    # 'mi-minItv'     :   
-    # : max_feasible_power_percentage
-    # : min_feasible_power_percentage
-    # : price_cyclic_n_upward
-    # : price_cyclic_n_downward
-    # : percentage_cyclic_n
-    # : price_cyclic_eps_upward
-    # : price_cyclic_eps_downward
-    # : percentage_cyclic_eps
+    
+    'max_feasible_power_percentage' : 'max_feasible_power_percentage '
+    'min_feasible_power_percentage' : 'min_feasible_power_percentage' 
+    'price_cyclic_n_upward'         : 'price_cyclic_n_upward'
+    'price_cyclic_n_downward'       : 'price_cyclic_n_downward'
+    'percentage_cyclic_n'           : 'percentage_cyclic_n' 
+    'price_cyclic_eps_upward'       : 'price_cyclic_eps_upward' 
+    'price_cyclic_eps_downward'     : 'price_cyclic_eps_downward'
+    'percentage_cyclic_eps'         : 'percentage_cyclic_eps' 
     # : percentage_fixed
 
     'mi-spUpdate'   :   'setpoint_interval',
