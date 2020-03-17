@@ -137,46 +137,46 @@ ipc.on('generateResult', (event, args) => {
 
     generateResultChart()
 
-    parameters = JSON.stringify(getParameters())
+    // parameters = JSON.stringify(getParameters())
 
-    let pyshell = new PythonShell('algo/interface.py');
-    let totl = 1
+    // let pyshell = new PythonShell('algo/interface.py');
+    // let totl = 1
     
 
-    // sends a message to the Python script via stdin
-    pyshell.send(parameters);
-    let cnt = 0
-    // shell.on('stderr', function (stderr) {
-    //   // handle stderr (a line of text from stderr)
+    // // sends a message to the Python script via stdin
+    // pyshell.send(parameters);
+    // let cnt = 0
+    // // shell.on('stderr', function (stderr) {
+    // //   // handle stderr (a line of text from stderr)
+    // // });
+    // pyshell.on('message', function (message) {
+    //   // received a message sent from the Python script (a simple "print" statement)
+    //   if (message !== 'Long-step dual simplex will be used' && message.length > 1){
+    //     console.log(message)
+    //     message = message.replace('Long-step dual simplex will be used', '')
+    //     console.log(message)
+    //     if (message.substring(0, 6) === 'totl: ') {
+    //       totl = parseInt(message.substring(6, message.length), 10)
+    //       console.log(totl)
+    //     }
+    //     else {
+    //       data = JSON.parse(message)
+    //       cnt = data['id']
+    //       console.log(cnt)
+    //       progressBar.style = "width: " + Math.round( 10 + 90 * cnt / totl ) + "%"
+    //       progressHint.innerHTML = 'Simulating... ' + 'Current Revenue = ' + data['revenue']
+    //       updateChartData(data['revenue'], data['soh'])
+    //     }
+    //   }
     // });
-    pyshell.on('message', function (message) {
-      // received a message sent from the Python script (a simple "print" statement)
-      if (message !== 'Long-step dual simplex will be used' && message.length > 1){
-        console.log(message)
-        message = message.replace('Long-step dual simplex will be used', '')
-        console.log(message)
-        if (message.substring(0, 6) === 'totl: ') {
-          totl = parseInt(message.substring(6, message.length), 10)
-          console.log(totl)
-        }
-        else {
-          data = JSON.parse(message)
-          cnt = data['id']
-          console.log(cnt)
-          progressBar.style = "width: " + Math.round( 10 + 90 * cnt / totl ) + "%"
-          progressHint.innerHTML = 'Simulating... ' + 'Current Revenue = ' + data['revenue']
-          updateChartData(data['revenue'], data['soh'])
-        }
-      }
-    });
 
-    // end the input stream and allow the process to exit
-    pyshell.end(function (err, code, signal) {
-      if (err) throw err;
-      console.log('The exit code was: ' + code);
-      console.log('The exit signal was: ' + signal);
-      console.log('finished');
-    });
+    // // end the input stream and allow the process to exit
+    // pyshell.end(function (err, code, signal) {
+    //   if (err) throw err;
+    //   console.log('The exit code was: ' + code);
+    //   console.log('The exit signal was: ' + signal);
+    //   console.log('finished');
+    // });
 
 
 }) 

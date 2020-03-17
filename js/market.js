@@ -14,7 +14,7 @@ const defaultVal = {
         'mi-upMaxPrice': 10,
         'mi-dwnMinPrice': 0,
         'mi-dwnMaxPrice': 100,
-        'mi-max_feasible_power_percentage' : 20,
+        'mi-max_feasible_power_percentage' : 40,
         'mi-min_feasible_power_percentage' : 0,
         'mi-price_cyclic_n_upward'         : 2,
         'mi-price_cyclic_n_downward'       : 2,

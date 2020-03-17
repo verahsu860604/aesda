@@ -148,17 +148,26 @@ ipc.on('editEsstObj', (event, args) => {
 ipc.on('run', (event, args) => {
     let options = {
         // machine specific
-        // pythonPath: 'C:/Users/XXX/Anaconda3/python.exe',
+        pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
         args: [JSON.stringify(args)]
     }
-    PythonShell.run('algo.py', options, function (err, results) {
-        if (err) {
-            console.log('ERROR!')
-            throw err;
-        }
-        console.log('finished')
-        console.log(results)
+    
+    console.log(JSON.stringify(args))
+    let pyshell = new PythonShell('algo/algo.py', options, {
+
     });
+    
+    pyshell.on('message', function (message) {
+        console.log(message)
+    });
+    // PythonShell.run('algo/algo.py', options, function (err, results) {
+    //     if (err) {
+    //         console.log('ERROR!')
+    //         throw err;
+    //     }
+    //     console.log('finished')
+    //     console.log(results)
+    // });
 })
 
 ipc.on('dataPointClick', (event, args) => {
