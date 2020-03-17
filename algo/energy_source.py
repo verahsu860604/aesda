@@ -249,7 +249,9 @@ class EnergySource(object):
                 d6=0,
                 c6=0,
                 dod_profile=True, 
-                visualize=False
+                visualize=False,
+                dod_points=[2, 4, 17, 30, 60, 100],
+                cycle_points=[10000000, 1000000, 100000, 40000, 10000, 3000]
                 ):
         """Energy Source builder.
 
