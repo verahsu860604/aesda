@@ -52,7 +52,7 @@ class SOHEstimator(object):
         """
         soc_history = np.array(soc_history)
         downwards = soc_history[1:] - soc_history[:-1]
-        DoD_estimated = range(1, 100, 1)
+        DoD_estimated = range(1, 101, 1)
         cycles = np.zeros(len(DoD_estimated))
         min_down = [self.dimension + 1, 0]
         max_up = [-1, 0]
@@ -227,11 +227,10 @@ class EnergySource(object):
                 soc_profile_max_power_downward=10,
                 soc_profile_max_change_upward=100, 
                 soc_profile_max_change_downward=100,
-                efficiency_upward=1 / 0.95, 
+                efficiency_upward=0.95, 
                 efficiency_downward=0.95,
                 min_degradation_para=0.0, 
                 max_degradation_para=1.0,
-                tuning_parameter=1.0 / 60,
                 max_soh=1.0, 
                 min_soh=0.8, 
                 cost=310,
@@ -250,8 +249,6 @@ class EnergySource(object):
                 c6=0,
                 dod_profile=True, 
                 visualize=False,
-                dod_points=[2, 4, 17, 30, 60, 100],
-                cycle_points=[10000000, 1000000, 100000, 40000, 10000, 3000]
                 ):
         """Energy Source builder.
 
@@ -271,15 +268,24 @@ class EnergySource(object):
             efficiency_downward (float): Effi+. PG-(k) = P-(k) * Effi- (SHOULD BE < 1)
             max_degradation_para (float): The value describing how state-of-health affect Max Energy. The larger the bigger.
             min_degradation_para (float): The value describing how state-of-health affect Min Energy. The larger the bigger.
-            tuning_parameter (float): The value related to the sampling time
             max_soh (float): Max state-of-health
             min_soh (float): Min state-of-health
             cost (int): euro/MWh
             dod_profile_change_th (float): The threshold that filters the small fluctuation of SOC profile.
-            dod_points (list or np.array(1d)): data points of Depth of Discharge to fit the DoD curve
-            cycle_points (list or np.array(1d)): data points of cycles to fit the DoD curve
+            d1 (int): The data points to fit the DoD curve
+            c1 (int): The data points to fit the DoD curve
+            d2 (int): The data points to fit the DoD curve
+            c2 (int): The data points to fit the DoD curve
+            d3 (int): The data points to fit the DoD curve
+            c3 (int): The data points to fit the DoD curve
+            d4 (int): The data points to fit the DoD curve
+            c4 (int): The data points to fit the DoD curve
+            d5 (int): The data points to fit the DoD curve
+            c5 (int): The data points to fit the DoD curve
+            d6 (int): The data points to fit the DoD curve
+            c6 (int): The data points to fit the DoD curve
             dod_profile (bool): whether the ess has the dod profile
-            visualize (bool): display the visualization or not
+            visualize (bool): display the visualization or not. Defalut value as False
         """
 
         self.energy_type = energy_type
@@ -297,12 +303,11 @@ class EnergySource(object):
         self.efficiency_downward = efficiency_downward
         self.min_degradation_para = min_degradation_para
         self.max_degradation_para = max_degradation_para
-        self.tuning_parameter = tuning_parameter
         self.max_soh = max_soh
         self.min_soh = min_soh
         self.cost = cost
         self.dod_profile = dod_profile
-        if d5==0 and d6 == 0:
+        if d5==0 and d6 == 0 and c5 == 0 and c6 == 0:
             self.dod_profile = False
 
         self.soh_estimator = SOHEstimator(
@@ -327,6 +332,9 @@ class EnergySource(object):
 
     def load_power(self):
         """Generated random data to simulate the power strategy
+
+        Returns:
+            power (list): The minus of state of health.
         """
         power = []
         for _ in range(10080):
@@ -346,15 +354,13 @@ class EnergySource(object):
         """
         last_p_buy = 0
         last_p_sell = 0
-        if (self.soc_profile_energy_scale * (
-                1 - self.soc_profile_max_input_th)) != 0 and SOC > self.soc_profile_energy_scale * self.soc_profile_max_input_th:
+        if self.soc_profile_max_soc - self.soc_profile_max_input_th != 0 and SOC > self.soc_profile_energy_scale * self.soc_profile_max_input_th:
             upper_bound_p_buy = (self.max_degradation_para * SOH * self.soc_profile_energy_scale - SOC) / (
-                        self.max_degradation_para * SOH * (
-                            self.soc_profile_energy_scale * (1 - self.soc_profile_max_input_th))) * self.soc_profile_max_power_upward
+                        self.max_degradation_para * SOH * (self.soc_profile_energy_scale * (self.soc_profile_max_soc - self.soc_profile_max_input_th))) * self.soc_profile_max_power_upward
         else:
             upper_bound_p_buy = float('inf')
 
-        if (self.soc_profile_energy_scale * self.soc_profile_min_soc - self.soc_profile_energy_scale * self.soc_profile_min_output_th) != 0 and SOC < self.soc_profile_energy_scale * self.soc_profile_min_output_th:
+        if self.soc_profile_min_soc - self.soc_profile_min_output_th != 0 and SOC < self.soc_profile_energy_scale * self.soc_profile_min_output_th:
             upper_bound_p_sell = ((1 + self.min_degradation_para * (self.max_soh - SOH))
                                   * self.soc_profile_energy_scale * self.soc_profile_min_soc - SOC) / (
                                              (1 + self.min_degradation_para * (self.max_soh - SOH)) * (
@@ -392,23 +398,24 @@ class EnergySource(object):
 
             if SOC_history[i] > self.soc_profile_energy_scale * self.soc_profile_max_input_th:
                 c_max_max = self.soc_profile_max_power_upward * SOC_history[i] / (SOH * (
-                            self.soc_profile_energy_scale * self.soc_profile_max_input_th * self.soc_profile_max_power_upward - last_p_buy * self.soc_profile_energy_scale * (
-                                self.soc_profile_max_input_th - 1)))
+                            self.soc_profile_energy_scale * self.soc_profile_max_soc * self.soc_profile_max_power_upward - last_p_buy * self.soc_profile_energy_scale * (
+                            self.soc_profile_max_soc - self.soc_profile_max_input_th)))
                 c_max_arr.append(c_max_max)
             if SOC_history[i] < self.soc_profile_energy_scale * self.soc_profile_min_output_th and self.max_soh - SOH != 0:
-                tmp = (self.soc_profile_max_change_downward * SOC_history[i]) / (
-                        self.soc_profile_max_change_downward * self.soc_profile_energy_scale * self.soc_profile_min_output_th - last_p_sell * (
-                        self.soc_profile_min_soc * self.soc_profile_energy_scale - self.soc_profile_energy_scale * self.soc_profile_min_output_th)) - 1
-                c_min_min = tmp / (self.max_soh - SOH)
-                c_min_arr.append(c_min_min)
+                a = (self.soc_profile_max_power_downward * self.soc_profile_energy_scale * self.soc_profile_min_soc - last_p_sell * (
+                        self.soc_profile_energy_scale * (self.soc_profile_min_soc - self.soc_profile_min_output_th)))
+                if a != 0:
+                    tmp = (self.soc_profile_max_power_downward * SOC_history[i]) / a - 1
+                    c_min_min = tmp / (self.max_soh - SOH)
+                    c_min_arr.append(c_min_min)
             if c_max_arr:
-                self.max_degradation_para = min(min(c_max_arr), self.max_degradation_para)
+                self.max_degradation_para = max(max(c_max_arr), self.max_degradation_para)
             if c_min_arr:
                 self.min_degradation_para = min(min(c_min_arr), self.min_degradation_para)
             for i in range(start + 1, start + 10080):
                 new_i = i - start
                 SOC = round(
-                    (1 - self.self_discharge_ratio * 1) * SOC_history[i - 1] + 1 * self.tuning_parameter * (
+                    (1 - self.self_discharge_ratio * 1) * SOC_history[i - 1] + 1 * 1.0 / 60.0 * (
                                 last_p_buy - last_p_sell), 2)
                 # check constraints for SOC
                 if SOC > upper_bound_SOC:
@@ -422,17 +429,19 @@ class EnergySource(object):
                 last_p_buy, last_p_sell = self.set_constraints_p(SOC_history[i], SOH, proposed_power_t[new_i])
                 if SOC_history[i] > self.soc_profile_energy_scale * self.soc_profile_max_input_th:
                     c_max_max = self.soc_profile_max_power_upward * SOC_history[i] / (SOH * (
-                                self.soc_profile_energy_scale * self.soc_profile_max_input_th * self.soc_profile_max_power_upward - last_p_buy * self.soc_profile_energy_scale * (
-                                    self.soc_profile_max_input_th - 1)))
+                            self.soc_profile_energy_scale * self.soc_profile_max_soc * self.soc_profile_max_power_upward - last_p_buy * self.soc_profile_energy_scale * (
+                            self.soc_profile_max_soc - self.soc_profile_max_input_th)))
                     c_max_arr.append(c_max_max)
                 if SOC_history[i] < self.soc_profile_energy_scale * self.soc_profile_min_output_th and self.max_soh - SOH != 0:
-                    tmp = (self.soc_profile_max_change_downward * SOC_history[i]) / (
-                            self.soc_profile_max_change_downward * self.soc_profile_energy_scale * self.soc_profile_min_output_th - last_p_sell * (
-                            self.soc_profile_min_soc * self.soc_profile_energy_scale - self.soc_profile_energy_scale * self.soc_profile_min_output_th)) - 1
-                    c_min_min = tmp / (self.max_soh - SOH)
-                    c_min_arr.append(c_min_min)
+                    a = (self.soc_profile_max_power_downward * self.soc_profile_energy_scale * self.soc_profile_min_soc - last_p_sell * (
+                            self.soc_profile_energy_scale * (
+                                self.soc_profile_min_soc - self.soc_profile_min_output_th)))
+                    if a != 0:
+                        tmp = (self.soc_profile_max_power_downward * SOC_history[i]) / a - 1
+                        c_min_min = tmp / (self.max_soh - SOH)
+                        c_min_arr.append(c_min_min)
                 if c_max_arr:
-                    self.max_degradation_para = min(min(c_max_arr), self.max_degradation_para)
+                    self.max_degradation_para = max(max(c_max_arr), self.max_degradation_para)
                 if c_min_arr:
                     self.min_degradation_para = min(min(c_min_arr), self.min_degradation_para)
             diff = self.get_battery_degradation(SOC_history[start:])

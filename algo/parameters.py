@@ -3,8 +3,8 @@ parameters = {
         {
             'energy_type': 'Lithium-Ion',
             'soc_profile_energy_scale': 20,
-            'soc_profile_max_input_th': 1.0,
-            'soc_profile_min_output_th': 0.0,
+            'soc_profile_max_input_th': 100,
+            'soc_profile_min_output_th': 0,
             'soc_profile_max_power_upward': 10,
             'soc_profile_max_power_downward': 10,
             'efficiency_upward': 0.95,
@@ -27,8 +27,8 @@ parameters = {
         {
             'energy_type': 'PowerFlow',
             'soc_profile_energy_scale': 40,
-            'soc_profile_max_input_th': 0.7,
-            'soc_profile_min_output_th': 0.3,
+            'soc_profile_max_input_th': 70,
+            'soc_profile_min_output_th': 30,
             'soc_profile_max_power_upward': 10,
             'soc_profile_max_power_downward': 10,
             'efficiency_upward': 0.78,
