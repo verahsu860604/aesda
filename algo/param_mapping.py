@@ -3,7 +3,7 @@ import ast
 config_mapping = \
 {
     'ci-predic'       : 'planning_horizon',
-    'ci-sohItv'       : 'soh_update_interval'
+    'ci-sohItv'       : 'soh_update_interval',
     'ci-totTimestamp' : 'tot_timestamps'
     
 }
@@ -24,25 +24,12 @@ ess_mapping = \
     'ei-inEffi'             :   'efficiency_upward',
     'ei-outEffi'            :   'efficiency_downward',
     # TODO mismatch
-    # 'ei-threshold'          :   
+    'ei-threshold'          :   'dod_profile_change_th',
 
     'ei-maxpin'             :   'soc_profile_max_power_upward',
     'ei-maxpout'            :   'soc_profile_max_power_downward',
     'ei-minsoc'             :   'soc_profile_min_output_th',
     'ei-maxsoc'             :   'soc_profile_max_input_th',
-
-    # TODO not found in UI
-    # : soc_profile_energy_scale
-    # : soc_profile_max_change_upward
-    # : soc_profile_max_change_downward
-    # : min_degradation_para
-    # : max_degradation_para
-    # : tuning_parameter
-    # : max_soh
-    # : min_soh
-    # : dod_profile_change_th
-    # : dod_profile
-    # : visualize
     
     # dod, cycles
     'ei-p1d' : 'd1',
@@ -62,14 +49,14 @@ ess_mapping = \
 market_mapping = \
 {
     
-    'max_feasible_power_percentage' : 'max_feasible_power_percentage '
-    'min_feasible_power_percentage' : 'min_feasible_power_percentage' 
-    'price_cyclic_n_upward'         : 'price_cyclic_n_upward'
-    'price_cyclic_n_downward'       : 'price_cyclic_n_downward'
-    'percentage_cyclic_n'           : 'percentage_cyclic_n' 
-    'price_cyclic_eps_upward'       : 'price_cyclic_eps_upward' 
-    'price_cyclic_eps_downward'     : 'price_cyclic_eps_downward'
-    'percentage_cyclic_eps'         : 'percentage_cyclic_eps' 
+    'mi-max_feasible_power_percentage' : 'max_feasible_power_percentage',
+    'mi-min_feasible_power_percentage' : 'min_feasible_power_percentage',
+    'mi-price_cyclic_n_upward'         : 'price_cyclic_n_upward',
+    'mi-price_cyclic_n_downward'       : 'price_cyclic_n_downward',
+    'mi-percentage_cyclic_n'           : 'percentage_cyclic_n',
+    'mi-price_cyclic_eps_upward'       : 'price_cyclic_eps_upward',
+    'mi-price_cyclic_eps_downward'     : 'price_cyclic_eps_downward',
+    'mi-percentage_cyclic_eps'         : 'percentage_cyclic_eps',
     # : percentage_fixed
 
     'mi-spUpdate'   :   'setpoint_interval',
@@ -80,7 +67,7 @@ market_mapping = \
     'mi-dwnMaxPrice':   'max_feasible_selling_price',
     'mi-planning'   :   'planning_phase_length',
     'mi-schedule'   :   'selection_phase_length',
-    'mi-selection'  :   'schedule_phase_length ',
+    'mi-selection'  :   'schedule_phase_length',
     'mi-delivery'   :   'delivery_phase_length'
     
     # TODO no penalty in python
@@ -94,9 +81,9 @@ market_mapping = \
 
 
 def map_param(param_ui):
-    print(config_mapping)
-    print(market_mapping)
-    print(ess_mapping)
+    # print(config_mapping)
+    # print(market_mapping)
+    # print(ess_mapping)
     sys.stdout.flush()
     param = {}
     for k, v in param_ui.items():
@@ -132,7 +119,7 @@ def map_param(param_ui):
                 for type_num, type_list in battery_type_dict.items():
                     if len(type_list) > 1:
                         num_of_ess = int(type_list[0]['value'])
-                        print(num_of_ess)
+                        # print(num_of_ess)
                         for i in range(num_of_ess):
                             param['energy_sources'].append({})
                             for battery_dict in type_list[1:]:

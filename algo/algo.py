@@ -20,19 +20,25 @@ data = param_mapping.map_param(parameters_ui)
 print(data)
 sys.stdout.flush()
 
-# config = config.Config(**data['config'])
-# energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energy_sources']]
-# markets = [market.Market(**kwargs) for kwargs in data['markets']]
-# mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources, test_mode=True)
+config = config.Config(**data['config'])
+energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energy_sources']]
+markets = [market.Market(**kwargs) for kwargs in data['markets']]
+mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources, test_mode=True)
 
-# cc = cyclic_coordinate.CyclicCoordinate(markets, mpc)
-# solutions = cc.Algo5()
-# # print(solutions[0])
-# # pe = pareto.ParetoEfficient(solutions)
-# # inefficient_list, efficient_list = pe.pareto_analysis()
-# # tuple(Revenue, value_i(useless), soc_record, soh for each device, power record, prices, percentages)
-# # (216.29629629629628, 2, array([[1.        , 1.        ], [0.95061731, 1.        ]]), 
-# # (1.0, 1.0), array([[[ 0.,  0.], [24.,  0.]],[[ 0.,  0.],[ 0., 12.]]]), 
-# # [2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469], 
-# # (6.666666666666667, 10.0, 'free'))
-# assert len(solutions) == 576
+# Fake run
+cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, really_run=False)
+solutions_fake = cc.Algo5()
+print("totl: " + str(len(solutions_fake)))
+
+
+cc = cyclic_coordinate.CyclicCoordinate(markets, mpc)
+solutions = cc.Algo5()
+print(solutions)
+# pe = pareto.ParetoEfficient(solutions)
+# inefficient_list, efficient_list = pe.pareto_analysis()
+# tuple(Revenue, value_i(useless), soc_record, soh for each device, power record, prices, percentages)
+# (216.29629629629628, 2, array([[1.        , 1.        ], [0.95061731, 1.        ]]), 
+# (1.0, 1.0), array([[[ 0.,  0.], [24.,  0.]],[[ 0.,  0.],[ 0., 12.]]]), 
+# [2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469], 
+# (6.666666666666667, 10.0, 'free'))
+# assert len(solutions) == 36

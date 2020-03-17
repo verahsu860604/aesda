@@ -151,15 +151,23 @@ ipc.on('run', (event, args) => {
         pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
         args: [JSON.stringify(args)]
     }
+    
     console.log(JSON.stringify(args))
-    PythonShell.run('algo/algo.py', options, function (err, results) {
-        if (err) {
-            console.log('ERROR!')
-            throw err;
-        }
-        console.log('finished')
-        console.log(results)
+    let pyshell = new PythonShell('algo/algo.py', options, {
+
     });
+    
+    pyshell.on('message', function (message) {
+        console.log(message)
+    });
+    // PythonShell.run('algo/algo.py', options, function (err, results) {
+    //     if (err) {
+    //         console.log('ERROR!')
+    //         throw err;
+    //     }
+    //     console.log('finished')
+    //     console.log(results)
+    // });
 })
 
 ipc.on('dataPointClick', (event, args) => {
