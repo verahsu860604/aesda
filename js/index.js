@@ -13,6 +13,7 @@ let marketObjList = {}
 let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
 let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
 
+generateResultChart()
 const barColor = {
   'mi-planning': 'bg-warning',
   'mi-schedule': 'bg-success',
@@ -84,6 +85,10 @@ document.querySelector("#essBtn").addEventListener('click', function() {
     if(curEss !== undefined) ipc.send("createEssWindow", [curEss, essObjNum])
 })
 
+document.querySelector("#resetChartBtn").addEventListener('click', function() {
+    paretoChart.resetZoom()
+})
+
 // switch control
 // var p = document.getElementById('paretoSwitch').checked
 // var f = document.getElementById('fileSwitch').checked
@@ -124,62 +129,34 @@ ipc.on('createEssObj', (event, args) => {
     
 })
 
+var progressBar = document.querySelector('#progress .progress .progress-bar')
+var progressHint = document.querySelector('#progress-hint')
+progressBar.style = "width: 10%"
 
 ipc.on('generateResult', (event, args) => {
+	progressBar.classList = "progress-bar progress-bar-striped progress-bar-animated"
+	paretoChart.data.datasets[0].data = []
+	paretoChart.data.datasets[1].data = []
+	paretoChart.update()
+	paretoChart.resetZoom()
+	progressBar.style = "width: 0%"
     var configForm = $("form").serializeArray()
     ipc.send('run', {configForm, marketObjList, essObjList})
     document.querySelector('#result .alert').style.display = "none"
     document.querySelector('#progress').style.display = ""
 
-    progressBar = document.querySelector('#progress .progress .progress-bar')
-    progressHint = document.querySelector('#progress-hint')
-    progressBar.style = "width: 10%"
-
-    generateResultChart()
-
-    // parameters = JSON.stringify(getParameters())
-
-    // let pyshell = new PythonShell('algo/interface.py');
-    // let totl = 1
-    
-
-    // // sends a message to the Python script via stdin
-    // pyshell.send(parameters);
-    // let cnt = 0
-    // // shell.on('stderr', function (stderr) {
-    // //   // handle stderr (a line of text from stderr)
-    // // });
-    // pyshell.on('message', function (message) {
-    //   // received a message sent from the Python script (a simple "print" statement)
-    //   if (message !== 'Long-step dual simplex will be used' && message.length > 1){
-    //     console.log(message)
-    //     message = message.replace('Long-step dual simplex will be used', '')
-    //     console.log(message)
-    //     if (message.substring(0, 6) === 'totl: ') {
-    //       totl = parseInt(message.substring(6, message.length), 10)
-    //       console.log(totl)
-    //     }
-    //     else {
-    //       data = JSON.parse(message)
-    //       cnt = data['id']
-    //       console.log(cnt)
-    //       progressBar.style = "width: " + Math.round( 10 + 90 * cnt / totl ) + "%"
-    //       progressHint.innerHTML = 'Simulating... ' + 'Current Revenue = ' + data['revenue']
-    //       updateChartData(data['revenue'], data['soh'])
-    //     }
-    //   }
-    // });
-
-    // // end the input stream and allow the process to exit
-    // pyshell.end(function (err, code, signal) {
-    //   if (err) throw err;
-    //   console.log('The exit code was: ' + code);
-    //   console.log('The exit signal was: ' + signal);
-    //   console.log('finished');
-    // });
-
-
 }) 
+
+ipc.on('updateProgressBar', (event, args) => {
+	progressBar.style = "width: " + args[0] + "%"
+	progressHint.innerHTML = 'Simulating... <br />' + 'Current Revenue = ' + args[1]['revenue']
+	updateChartData(args[1])
+})
+
+ipc.on('doneProgressBar', (event, args) => {
+	progressBar.classList = "bg-success"
+	progressHint.innerHTML = progressHint.innerHTML.replace('Simulating...', 'Done!')
+})
 
 // functions
 function createMarketElem(marketType, marketData) {
@@ -361,7 +338,6 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
     cardchart2.style.height = "168px"
     var socchart = new Chart(cardchart1, socprofile.config)
     var dodchart = new Chart(cardchart2, dodprofile.config)
-
 }
 
 function editEssElement(essType, essId, essData, socprofile, dodprofile) {
@@ -414,21 +390,27 @@ function createDataElem(args) {
       var p
       if(key === 'y'){
         p = createElement('p', 'class=mb-1 ')
-        p.innerHTML = (strMap.diStrMap(key) + ": ").bold()
+		p.innerHTML = (strMap.diStrMap(key) + ": " + value).bold()
+		cardBody.appendChild(p)
       } else if(key === 'x'){
         p = createElement('p', 'class=mb-1 ')
-        p.innerHTML = (strMap.diStrMap(key) + ": " + value).bold()
-      } else if(key === 'ess'){
-        for (const [keyEss, valueEss] of Object.entries(value)) {
-          p = createElement('p', 'class=mb-1 ')
-          p.innerHTML = (keyEss + ": " + valueEss).bold()
-          cardBody.appendChild(p)
-        }
-      }else{
-        p = createElement('p', 'class=mb-1')
-        p.innerHTML = strMap.diStrMap(key) + ": " + value
-      }
-      cardBody.appendChild(p)
+		p.innerHTML = (strMap.diStrMap(key) + ": " + value).bold()
+		cardBody.appendChild(p)
+	  } 
+	//   else if(strMap.diStrMap(key) == 'undefined'){
+		
+	// 	continue
+	//   }else if(key === 'ess'){
+    //     for (const [keyEss, valueEss] of Object.entries(value)) {
+    //       p = createElement('p', 'class=mb-1 ')
+    //       p.innerHTML = (keyEss + ": " + valueEss).bold()
+    //       cardBody.appendChild(p)
+    //     }
+    //   }else{
+    //     p = createElement('p', 'class=mb-1')
+    //     p.innerHTML = strMap.diStrMap(key) + ": " + value
+    //   }
+    //   cardBody.appendChild(p)
     }
 
 
@@ -482,8 +464,7 @@ function handleClick(evt){
   var activeElement = paretoChart.getElementAtEvent(evt)
   if(activeElement.length>0){
     args = paretoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index]
-    createDataElem(args )
-
+    createDataElem(args)
   }
 }
 function getParameters(){
@@ -579,19 +560,48 @@ function getParameters(){
     }}
   return parameters
 }
+function compareData(a, b) {
+	if (a['x'] > b['x']) return 1;
+	if (a['x'] < b['x']) return -1;
+  
+	return 0;
+  }
+function updateChartData(data) {
+	// TODO soh is zero now, use random to show 
+	data['soh'] = Math.random()
+	data['x'] = data['soh']
+	delete data['soh']
+	data['y'] = data['revenue']
+	delete data['revenue']
+	if(paretoChart.data.datasets[0].data.length == 0 && paretoChart.data.datasets[1].data.length == 0){
+		paretoChart.data.datasets[1].data.push(data)
+	} else {
+		pushTo = 0
+		for( var i = 0; i < paretoChart.data.datasets[1].data.length; i++){
 
-function updateChartData(revenue, soh) {
-  console.log(paretoChart.data.datasets[0].data)
-  paretoChart.data.datasets[0].data.push({
-    x: Math.random(),
-    y: revenue
-  })
-  //   ess:{'Power Flow Battery': 0.985, 'Custom':5}, 
-  //   prp: 1, 
-  //   profit: 1, 
-  //   id: 0,    
-  // })
-  paretoChart.update()
+			if((data['x'] >= paretoChart.data.datasets[1].data[i]['x'] &&
+				data['y'] >= paretoChart.data.datasets[1].data[i]['y'])){
+					pushTo = 1
+					tmp = paretoChart.data.datasets[1].data.splice(i, 1)
+					paretoChart.data.datasets[0].data.push(tmp[0])
+					i--
+			} else if ((data['x'] > paretoChart.data.datasets[1].data[i]['x'] ||
+						data['y'] > paretoChart.data.datasets[1].data[i]['y'])){
+				pushTo = 1
+			} else if ((data['x'] < paretoChart.data.datasets[1].data[i]['x'] &&
+						data['y'] < paretoChart.data.datasets[1].data[i]['y'])){
+				pushTo = 0
+				break
+			}
+		}
+		
+		paretoChart.data.datasets[pushTo].data.push(data)
+		if(pushTo == 1){
+			paretoChart.data.datasets[1].data.sort(compareData)
+		}
+	}
+
+	paretoChart.update()
 }
 
 
@@ -614,64 +624,14 @@ function generateResultChart() {
         borderColor: window.chartColors.red,
         borderWidth: 2,
         fill: false,
-        data: [{x: 0.778, y: 0.686}],
-        // { x: 0.778, y: 0.686} ,
-          // { x: 0.238, y: 0.548} ,
-          // { x: 0.824, y: 0.138} ,
-          // { x: 0.966, y: 0.099} ,
-          // { x: 0.453, y: 0.152} ,
-          // { x: 0.609, y: 0.926} ,
-          // { x: 0.776, y: 0.680} ,
-          // { x: 0.642, y: 0.238} ,
-          // { x: 0.722, y: 0.569} ,
-          // { x: 0.035, y: 0.557} ,
-          // { x: 0.298, y: 0.073} ,
-          // { x: 0.059, y: 0.840} ,
-          // { x: 0.857, y: 0.405} ,
-          // { x: 0.373, y: 0.145} ,
-          // { x: 0.680, y: 0.191} ,
-          // { x: 0.256, y: 0.491} ,
-          // { x: 0.348, y: 0.712} ,
-          // { x: 0.358, y: 0.875} ,
-          // { x: 0.218, y: 0.107} ,
-          // { x: 0.319, y: 0.913} ,
-          // { x: 0.918, y: 0.365} ,
-          // { x: 0.032, y: 0.227} ,
-          // { x: 0.065, y: 0.872} ,
-          // { x: 0.630, y: 0.136} ,
-          // { x: 0.874, y: 0.236} ,
-          // { x: 0.009, y: 0.595} ,
-          // { x: 0.747, y: 0.564} ,
-          // { x: 0.076, y: 0.453} ,
-          // { x: 0.656, y: 0.129} ,
-          // { x: 0.509, y: 0.761} ,
-          // { x: 0.480, y: 0.202} ,
-          // { x: 0.956, y: 0.176} ,
-          // { x: 0.000, y: 0.437} ,
-          // { x: 0.247, y: 0.340} ,
-          // { x: 0.325, y: 0.143} ,
-          // { x: 0.277, y: 0.845} ,
-          // { x: 0.695, y: 0.669} ,
-          // { x: 0.919, y: 0.109} ,
-          // { x: 0.244, y: 0.088} ,
-          // { x: 0.253, y: 0.194} ,
-          // { x: 0.379, y: 0.082} ,
-          // { x: 0.605, y: 0.269} ,
-          // { x: 0.772, y: 0.650} ,
-          // { x: 0.068, y: 0.547} ]
+        data: [],
       },{
         label: 'Pareto Frontier',
         cubicInterpolationMode: 'monotone',
         borderColor: window.chartColors.blue,
         borderWidth: 2,
         fill: false,
-        data: [ 
-          // { x: 0.009, y: 0.985, ess:{'Power Flow Battery':0.985 , 'Custom':5}, prp: 1, profit: 1, id: 0},    
-          // { x: 0.712, y: 0.967, ess:{'Power Flow Battery':0.967}, prp: 1, profit: 1, id: 1},
-          // { x: 0.813, y: 0.959, ess:{'Power Flow Battery':0.959 }, prp: 1, profit: 1, id: 2},
-          // { x: 0.949, y: 0.499, ess:{'Power Flow Battery':0.499}, prp: 1, profit: 1, id: 3},
-          // { x: 0.973, y: 0.246, ess:{'Custom':0.246}, prp: 1, profit: 1, id: 4} 
-        ],
+        data: [],
         borderWidth: 2.5,
         tension: 1,
         showLine: true
@@ -679,7 +639,96 @@ function generateResultChart() {
     },
     options: {
       onClick: handleClick,
-      // events: ['mousemove', 'click', 'touchstart'],
+	  // events: ['mousemove', 'click', 'touchstart'],
+	  plugins: {
+		zoom: {
+			// Container for pan options
+			pan: {
+				// Boolean to enable panning
+				enabled: true,
+	
+				// Panning directions. Remove the appropriate direction to disable
+				// Eg. 'y' would only allow panning in the y direction
+				// A function that is called as the user is panning and returns the
+				// available directions can also be used:
+				//   mode: function({ chart }) {
+				//     return 'xy';
+				//   },
+				mode: 'xy',
+	
+				rangeMin: {
+					// Format of min pan range depends on scale type
+					x: null,
+					y: null
+				},
+				rangeMax: {
+					// Format of max pan range depends on scale type
+					x: null,
+					y: null
+				},
+	
+				// On category scale, factor of pan velocity
+				speed: 20,
+	
+				// Minimal pan distance required before actually applying pan
+				threshold: 10,
+	
+				// Function called while the user is panning
+				onPan: function({chart}) { console.log(`I'm panning!!!`); },
+				// Function called once panning is completed
+				onPanComplete: function({chart}) { console.log(`I was panned!!!`); }
+			},
+	
+			// Container for zoom options
+			zoom: {
+				// Boolean to enable zooming
+				enabled: true,
+	
+				// Enable drag-to-zoom behavior
+				drag: true,
+	
+				// Drag-to-zoom effect can be customized
+				// drag: {
+				// 	 borderColor: 'rgba(225,225,225,0.3)'
+				// 	 borderWidth: 5,
+				// 	 backgroundColor: 'rgb(225,225,225)',
+				// 	 animationDuration: 0
+				// },
+	
+				// Zooming directions. Remove the appropriate direction to disable
+				// Eg. 'y' would only allow zooming in the y direction
+				// A function that is called as the user is zooming and returns the
+				// available directions can also be used:
+				//   mode: function({ chart }) {
+				//     return 'xy';
+				//   },
+				mode: 'xy',
+	
+				rangeMin: {
+					// Format of min zoom range depends on scale type
+					x: null,
+					y: null
+				},
+				rangeMax: {
+					// Format of max zoom range depends on scale type
+					x: null,
+					y: null
+				},
+	
+				// Speed of zoom via mouse wheel
+				// (percentage of zoom on a wheel event)
+				speed: 0.1,
+	
+				// On category scale, minimal zoom level before actually applying zoom
+				sensitivity: 3,
+	
+				// Function called while the user is zooming
+				onZoom: function({chart}) { console.log(`I'm zooming!!!`); },
+				// Function called once zooming is completed
+				onZoomComplete: function({chart}) { console.log(`I was zoomed!!!`); }
+			}
+		}
+	},
       responsive: true,
       tooltips: {
         callbacks: {
@@ -712,7 +761,7 @@ function generateResultChart() {
           display: true,
           scaleLabel: {
             display: true,
-            labelString: 'Remaining Battery Life',
+            labelString: 'Remaining Battery Life (Year)',
             fontSize: 20
           }
         }],
@@ -723,7 +772,7 @@ function generateResultChart() {
           display: true,
           scaleLabel: {
             display: true,
-            labelString: 'Internal Rate of Return',
+            labelString: 'Internal Rate of Return (%)',
             fontSize: 20
           }
         }]
