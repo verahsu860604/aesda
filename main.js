@@ -151,14 +151,33 @@ ipc.on('run', (event, args) => {
         pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
         args: [JSON.stringify(args)]
     }
-    
-    console.log(JSON.stringify(args))
-    let pyshell = new PythonShell('algo/algo.py', options, {
+    let pyshell = new PythonShell('algo/algo.py', options, {});
 
-    });
-    
+    let totl = 1
     pyshell.on('message', function (message) {
-        console.log(message)
+        // received a message sent from the Python script (a simple "print" statement)
+        if (message.substring(0, 6) == 'totl: ') {
+            totl = parseInt(message.substring(6, message.length), 10)
+            console.log('TOTL: ' + totl)
+        }
+        if(message.indexOf('id') !== -1){
+            while(message.indexOf('Long-step') !== -1){
+                message = message.replace('Long-step dual simplex will be used', '')
+            }
+            data = JSON.parse(message)
+            cnt = data['id']
+            new_progress = Math.round( 10 + 90 * cnt / totl )
+            mainWindow.webContents.send('updateProgressBar', [new_progress, data])
+            
+        }
+    });
+    // end the input stream and allow the process to exit
+    pyshell.end(function (err, code, signal) {
+      if (err) throw err;
+      console.log('The exit code was: ' + code);
+      console.log('The exit signal was: ' + signal);
+      console.log('finished');
+      mainWindow.webContents.send('doneProgressBar')
     });
     // PythonShell.run('algo/algo.py', options, function (err, results) {
     //     if (err) {

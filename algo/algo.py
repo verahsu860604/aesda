@@ -17,8 +17,8 @@ assert len(sys.argv) > 1
 parameters_ui = json.loads(sys.argv[1])
 
 data = param_mapping.map_param(parameters_ui)
-print(data)
-sys.stdout.flush()
+# print(data)
+# sys.stdout.flush()
 
 config = config.Config(**data['config'])
 energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energy_sources']]
@@ -29,11 +29,11 @@ mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy
 cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, really_run=False)
 solutions_fake = cc.Algo5()
 print("totl: " + str(len(solutions_fake)))
-
+sys.stdout.flush()
 
 cc = cyclic_coordinate.CyclicCoordinate(markets, mpc)
 solutions = cc.Algo5()
-print(solutions)
+# print(solutions)
 # pe = pareto.ParetoEfficient(solutions)
 # inefficient_list, efficient_list = pe.pareto_analysis()
 # tuple(Revenue, value_i(useless), soc_record, soh for each device, power record, prices, percentages)
