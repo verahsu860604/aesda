@@ -13,7 +13,7 @@ parameters = {
         {
             'energy_type': 'Lithium-Ion',
             'soc_profile_energy_scale': 8.1,
-            'efficiency_upward': 1 / 0.25, 
+            'efficiency_upward': 0.25, 
             'efficiency_downward': 0.25, 
             'self_discharge_ratio': 0
         },
@@ -21,7 +21,7 @@ parameters = {
             'energy_type': 'PowerFlow',
             'self_discharge_ratio': 0,
             'soc_profile_energy_scale': 8.1,
-            'efficiency_upward': 1 / 0.5, 
+            'efficiency_upward': 0.5, 
             'efficiency_downward': 0.5, 
         }
     ],

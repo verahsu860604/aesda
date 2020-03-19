@@ -148,7 +148,7 @@ ipc.on('editEsstObj', (event, args) => {
 ipc.on('run', (event, args) => {
     let options = {
         // machine specific
-        pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
+        // pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
         args: [JSON.stringify(args)]
     }
     let pyshell = new PythonShell('algo/algo.py', options, {});

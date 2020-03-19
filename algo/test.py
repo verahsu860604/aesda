@@ -96,7 +96,7 @@ parameters = {
     'config':{
         'planning_horizon': 60,
         'soh_update_interval': 24 * 7 * 60,
-        'tot_timestamps': 2
+        'tot_timestamps': 60
     }
 }
 

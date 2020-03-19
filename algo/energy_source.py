@@ -264,7 +264,7 @@ class EnergySource(object):
             soc_profile_max_power_downward (float): P-, in MW.
             soc_profile_max_change_upward (float): MaxPChange+, in MW.
             soc_profile_max_change_downward (float): MaxPChange-, in MW.
-            efficiency_upward (float): Effi+. PG+(k) = P+(k) / Effi+ (SHOULD BE > 1)
+            efficiency_upward (float): Effi+. PG+(k) = P+(k) * Effi+ (SHOULD BE < 1)
             efficiency_downward (float): Effi+. PG-(k) = P-(k) * Effi- (SHOULD BE < 1)
             max_degradation_para (float): The value describing how state-of-health affect Max Energy. The larger the bigger.
             min_degradation_para (float): The value describing how state-of-health affect Min Energy. The larger the bigger.
