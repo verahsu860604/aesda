@@ -47,6 +47,30 @@ parameters = {
             'c5': 0,
             'd6': 0,
             'c6': 0
+        },
+        {
+            'energy_type': 'SuperCap',
+            'soc_profile_energy_scale': 2,
+            'soc_profile_max_input_th': 100,
+            'soc_profile_min_output_th': 0,
+            'soc_profile_max_power_upward': 10,
+            'soc_profile_max_power_downward': 10,
+            'efficiency_upward': 0.95,
+            'efficiency_downward': 0.95,
+            'cost': 3100,
+            'dod_profile': False,
+            'd1': 0,
+            'c1': 10,
+            'd2': 0,
+            'c2': 10,
+            'd3': 0,
+            'c3': 0,
+            'd4': 0,
+            'c4': 0,
+            'd5': 0,
+            'c5': 0,
+            'd6': 0,
+            'c6': 0
         }
     ],
     'markets': [
