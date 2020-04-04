@@ -307,7 +307,7 @@ class EnergySource(object):
         self.min_soh = min_soh
         self.cost = cost
         self.dod_profile = dod_profile
-        if d5==0 and d6 == 0 and c5 == 0 and c6 == 0:
+        if d5==0 or d6 == 0:
             self.dod_profile = False
 
         self.soh_estimator = SOHEstimator(
