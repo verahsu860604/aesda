@@ -12,6 +12,7 @@ let marketObjList = {}
 // number of ess objects
 let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
 let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
+let marketDataList = {}
 
 generateResultChart()
 const barColor = {
@@ -29,6 +30,8 @@ const defaultVal = {
 }
 
 Object.keys(defaultVal).forEach(e => {
+  console.log(e);
+  
   document.getElementsByName(e)[0].defaultValue = defaultVal[e]
 })
 
@@ -88,10 +91,6 @@ document.querySelector("#essBtn").addEventListener('click', function() {
 document.querySelector("#resetChartBtn").addEventListener('click', function() {
     paretoChart.resetZoom()
 })
-
-// switch control
-// var p = document.getElementById('paretoSwitch').checked
-// var f = document.getElementById('fileSwitch').checked
 
 // ipc
 ipc.on('createMarketObj', (event, args) => {
@@ -336,6 +335,8 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
     dodprofile.config['options']['maintainAspectRatio'] = false
     cardchart1.style.height = "168px"
     cardchart2.style.height = "168px"
+    // var socchart = new Chart(document.getElementById("soc"+essTypeId+essId), socprofile.config)
+    // var dodchart = new Chart(document.getElementById("dod"+essTypeId+essId), dodprofile.config)
     var socchart = new Chart(cardchart1, socprofile.config)
     var dodchart = new Chart(cardchart2, dodprofile.config)
 }
@@ -782,4 +783,15 @@ function generateResultChart() {
   
   var ctx = document.getElementById("paretoChart").getContext("2d")
   paretoChart = new Chart.Scatter(ctx, config)
+}
+
+// file
+document.querySelector('#primaryFile').addEventListener('change', uploadFile);
+document.querySelector('#secondaryFile').addEventListener('change', uploadFile);
+document.querySelector('#tertiaryFile').addEventListener('change', uploadFile);
+
+function uploadFile(e) {
+  console.log(e)
+  e.srcElement.innerHTML = e.target.files[0].name
+  marketDataList[e.target.id] = e.target.files[0].path
 }

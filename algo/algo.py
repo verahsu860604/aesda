@@ -15,7 +15,7 @@ import param_mapping
  
 assert len(sys.argv) > 1
 parameters_ui = json.loads(sys.argv[1])
-
+print(sys.argv)
 data = param_mapping.map_param(parameters_ui)
 # print(data)
 # sys.stdout.flush()
