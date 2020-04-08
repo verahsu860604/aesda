@@ -96,7 +96,7 @@ document.getElementById('submitBtn').addEventListener('click', (event) => {
         ipc.send('submitMarketObj', [marketType, $('form').serializeArray()])
         remote.getCurrentWindow().close()
     }else {
-        dialog.showErrorBox('Please fill all the input boxes!', 'Missing fields: ' + missing.toString())
+        dialog.showErrorBox('Please fill all the inputs!', 'Missing fields: ' + missing.toString())
     }
 })
 

@@ -100,6 +100,7 @@ ipc.on('createMarketObj', (event, args) => {
         editMarketElem(marketType, marketData)
     }else {
         marketObjList[marketType] = marketData
+        updateFileSetting()
         createMarketElem(marketType, marketData) 
         clearDropdownMenu('market')
         toggleMarketItem(marketType)
@@ -131,17 +132,21 @@ var progressHint = document.querySelector('#progress-hint')
 progressBar.style = "width: 10%"
 
 ipc.on('generateResult', (event, args) => {
-	progressBar.classList = "progress-bar progress-bar-striped progress-bar-animated"
-	paretoChart.data.datasets[0].data = []
-	paretoChart.data.datasets[1].data = []
-	paretoChart.update()
-	paretoChart.resetZoom()
-	progressBar.style = "width: 0%"
+  missing = formValidation()
+  if(missing.length === 0) { 
+    progressBar.classList = "progress-bar progress-bar-striped progress-bar-animated"
+    paretoChart.data.datasets[0].data = []
+    paretoChart.data.datasets[1].data = []
+    paretoChart.update()
+    paretoChart.resetZoom()
+    progressBar.style = "width: 0%"
     var configForm = $("form").serializeArray()
     ipc.send('run', {configForm, marketObjList, essObjList, marketDataList})
     document.querySelector('#result .alert').style.display = "none"
     document.querySelector('#progress').style.display = ""
-
+  } else {
+    dialog.showErrorBox('Please fill all the inputs!', 'Missing fields: ' + missing.toString())
+  }
 }) 
 
 ipc.on('updateProgressBar', (event, args) => {
@@ -229,6 +234,7 @@ function createMarketElem(marketType, marketData) {
     deletebtn.addEventListener('click', function(e) {
         toggleMarketItem(marketType)
         delete marketObjList[marketType]
+        updateFileSetting()
         card.remove()
     })  
 }
@@ -796,8 +802,25 @@ function uploadFile(e) {
   marketDataList[e.target.id] = e.target.files[0].path
 }
 
-function fileClicked(e) {
+function updateFileSetting(e) {
   document.querySelector('#primaryFile').disabled = ('Primary Reserve' in marketObjList) ? false : true
   document.querySelector('#secondaryFile').disabled = ('Secondary Reserve' in marketObjList) ? false : true
   document.querySelector('#tertiaryFile').disabled = ('Tertiary Reserve' in marketObjList) ? false : true
+}
+
+function formValidation() {
+  var inputs = document.getElementsByTagName('input')
+  var missing = []
+  for(var i = 0; i < inputs.length; i++) {
+    if(i < 3) {
+      if(inputs[i].value === null || inputs[i].value === "" && inputs[i].disabled === false) {
+        missing.push(strMap.ciStrMap(inputs[i].name))
+      }
+    } else {
+      if(inputs[i].files.length === 0 && inputs[i].disabled === false) {
+         missing.push(strMap.fiStrMap(inputs[i].id))
+      }
+    } 
+  }
+  return missing
 }

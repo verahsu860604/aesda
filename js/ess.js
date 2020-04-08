@@ -182,7 +182,7 @@ document.getElementById('submitBtn').addEventListener('click', (event) => {
         ipc.send('submitEssObj', [essType, essId, $('form').serializeArray(), socprofile, dodprofile]);
         remote.getCurrentWindow().close();
     }else {
-        dialog.showErrorBox('Please fill all the input boxes!', 'Missing fields: ' + missing.toString())
+        dialog.showErrorBox('Please fill all the inputs!', 'Missing fields: ' + missing.toString())
     }  
 })
 
