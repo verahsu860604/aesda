@@ -393,13 +393,13 @@ function createDataElem(args) {
       var p
       if(key === 'y'){
         p = createElement('p', 'class=mb-1 ')
-		p.innerHTML = (strMap.diStrMap(key) + ": " + value).bold()
-		cardBody.appendChild(p)
+        p.innerHTML = (strMap.diStrMap(key) + ": " + value.toPrecision(2)).bold()
+        cardBody.appendChild(p)
       } else if(key === 'x'){
         p = createElement('p', 'class=mb-1 ')
-		p.innerHTML = (strMap.diStrMap(key) + ": " + value).bold()
-		cardBody.appendChild(p)
-	  } 
+        p.innerHTML = (strMap.diStrMap(key) + ": " + value.toPrecision(2)).bold()
+        cardBody.appendChild(p)
+	    } 
 	//   else if(strMap.diStrMap(key) == 'undefined'){
 		
 	// 	continue
@@ -432,16 +432,81 @@ function createDataElem(args) {
 
 
     downloadbtn.addEventListener('click', function(e) {
+      var lineArray = ["IRR," + data['x'].toPrecision(2), "Year,"+data['y'].toPrecision(2)]
+      numOfBattery = data['soc'][0].length
+      numOfMarket = data['prices'][0].length
+      let title = ""
+      
+      for (i=0;i<numOfMarket;++i){
+        if(i==0)
+          title += "Primary Market Output Price, Primary Market Input Price, "
+        else if(i==1)
+          title += "Secondary Market Output Price, Secondary Market Input Price, "
+        else if(i==2)
+          title += "Tertiary Market Output Price, Tertiary Market Input Price, " 
+      }
+      title += "Power Output, Power Input, "
+      for (i=0;i<numOfBattery;++i){
+        title += "Battery " + (i+1)
+        if(i != numOfBattery - 1)
+          title += ',' 
+      }
+      lineArray.push(title)
+
+      for(i=0; i<data['soc'].length; ++i){
+        line = ""
+        
+        for (j=0;j<numOfMarket;++j){
+          if(i<data['prices'].length){
+            line += '' + data['prices'][i][j][0] + ',' + data['prices'][i][j][1] + ','
+          }else{
+            line += ',,'
+          }
+        }
+        // if(i<data['prices'].length){
+        //   line += '' + data['prices'][i][0] + ',' + data['prices'][i][1] + ',' 
+        // }else{
+        //   line += ',,'
+        // }
+        if(i<data['power'].length){
+          line += '' + data['power'][i][0] + ',' + data['power'][i][1] + ',' 
+        }else{
+          line += ',,'
+        }
+        for (j=0;j<numOfBattery;++j){
+          line += '' + data['soc'][i][j]
+          if(j != numOfBattery - 1)
+            line += ',' 
+        }
+        
+        lineArray.push(line)
+      }
+
+      let csvContent = lineArray.join('\n')
+      
+      console.log(data)
+      console.log(data['soc'][0].length)
+      console.log(data['soc'][1].length)
+      console.log(data['soc'][2].length)
+      console.log(data['power'][0].length)
+      console.log(data['power'][0].length)
+      console.log(data['power'][0].length)
+      console.log(data['prices'].length)
       let content = "temp"
       var filename
-      filename = dialog.showSaveDialog({}
+      filename = dialog.showSaveDialog({
+        filters: [{
+          name: 'CSV',
+          extensions: ['csv']
+        }]
+      }
         ).then(result => {
           filename = result.filePath
           if (filename === undefined) {
             alert("Filename invalid, file not created!")
             return
           }
-          fs.writeFile(filename, content, (err) => {
+          fs.writeFile(filename, csvContent, (err) => {
             if (err) {
               alert("An error ocurred creating the file " + err.message)
               return
@@ -571,10 +636,10 @@ function compareData(a, b) {
   }
 function updateChartData(data) {
 	// TODO soh is zero now, use random to show 
-	data['soh'] = Math.random()
+	data['soh'] = Math.random()*10
 	data['x'] = data['soh']
 	delete data['soh']
-	data['y'] = data['revenue']
+	data['y'] = data['revenue']/100
 	delete data['revenue']
 	if(paretoChart.data.datasets[0].data.length == 0 && paretoChart.data.datasets[1].data.length == 0){
 		paretoChart.data.datasets[1].data.push(data)
@@ -738,8 +803,8 @@ function generateResultChart() {
           label: function(tooltipItem, data) {
               var prp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['prp']
               var profit = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['profit']
-              return [['Battery Life: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['x']],
-              ['IRR: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['y']],
+              return [['Battery Life: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['x'].toPrecision(2)],
+              ['IRR: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['y'].toPrecision(2)],
               ['PRP: ' + (prp?prp:0)],
               ['Profit: '+ (profit?profit:0)]]
           }
