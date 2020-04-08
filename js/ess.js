@@ -1,6 +1,7 @@
 const electron = require("electron");
 const path = require("path");
 const url = require("url");
+const {PythonShell} = require('python-shell') 
 
 const remote = electron.remote;
 const ipc = electron.ipcRenderer;
@@ -111,18 +112,22 @@ const defaultVal = {
 
 var dodprofile;
 var socprofile;
+var thresholdestimation;
 
+var threshold = document.getElementsByName('ei-threshold')[0]
 var dimen_input = document.getElementsByName('ei-dimen')[0]
 var minsoc_input = document.getElementsByName('ei-minsoc')[0]
 var maxsoc_input = document.getElementsByName('ei-maxsoc')[0]
 var max_power_input = document.getElementsByName('ei-maxpin')[0]
 var max_power_output = document.getElementsByName('ei-maxpout')[0]
 
+var SoCData =[];
 var soc_x_data = [0, 0, 0, 0];
 var soc_y_data_charge = [0, 0, 0, undefined];
 var soc_y_data_discharge = [undefined, 0, 0, 0];
 
 var dodData = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }]
+
 
 ipc.on('essType', (event, args) => {
     essType = args[0];
@@ -139,9 +144,31 @@ ipc.on('essType', (event, args) => {
         setDefault(defaultVal[essType])
     }
 
+
+    generageThresholdChart()
     generageDodChart()
     generageSocChart()
     updateSocProfile()
+    updateThresholdEstimation(threshold.value)
+
+    $(document).ready(function(){
+        $('.single-slider').jRange({
+            from: 0.0,
+            to: 1.0,
+            step: 0.01,
+            scale: [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0],
+            format: '%s',
+            width: 500,
+            showLabels: true,
+            snap: true,
+            theme: 'theme-blue',
+            ondragend: function(val){
+                updateThresholdEstimation(val)
+            }
+        });
+    });
+
+
 
     document.querySelectorAll('#dodInput input').forEach(e => {
         e.addEventListener('input', updateDodProfile)
@@ -170,6 +197,7 @@ ipc.on('essType', (event, args) => {
     })
     max_power_output.addEventListener('input', () => {
         updateSocProfile()
+
     })
 })
 
@@ -189,6 +217,43 @@ function setDefault(val) {
     })
 }
 
+function generageThresholdChart() {
+    thresholdestimation = new Chart(document.getElementById('thresholdestimation'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: "SoC Estimated",
+                data: SoCData,
+                showLine: true,
+                borderColor: "#3e95cd",
+                fill: false,
+                lineTension: 0
+            }]
+        },
+        options: {
+            zoomEnabled: true,
+            animationEnabled: true,
+            title: {
+                display: true,
+                text: 'Estimated SoC Profile'
+            },
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'State of Charge'
+                    },
+                }],
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Time (min)'
+                    },
+                }]
+            }
+        }
+    })
+}
 function generageSocChart() {
     socprofile = new Chart(document.getElementById('socprofile'), {
         type: 'line',
@@ -265,6 +330,36 @@ function generageDodChart() {
     })
 }
 
+function updateThresholdEstimation(val) {
+    $('#threshold').val(val); 
+    let options = {
+        args: [val, dimen_input.value]
+    }
+    let pyshell = new PythonShell('__dirname/../algo/visual.py', options, {});
+
+    let totl = 1
+    pyshell.on('message', function (message) {
+        // received a message sent from the Python script (a simple "print" statement)
+        message = message.replace('[','')
+        message = message.replace(']','')
+        message = message.replace(',','')
+        var datapoint = message.split(" ")
+        SoCData.push({
+            x: parseInt(datapoint[0]),
+            y: parseFloat(datapoint[1])
+        });
+    });
+    pyshell.end(function (err) {
+        if (err) throw err;
+        thresholdestimation.data.datasets[0].data = SoCData
+        thresholdestimation.update()
+        SoCData = []
+    });
+    
+    
+
+}
+
 function updateSocProfile() {
     soc_x_data[1] = parseInt(dimen_input.value) * (parseInt(minsoc_input.value) / 100.0)
     soc_x_data[2] = parseInt(dimen_input.value) * (parseInt(maxsoc_input.value) / 100.0)
@@ -287,3 +382,5 @@ const updateDodProfile = function (e) {
     dodprofile.data.datasets[0].data = dodData
     dodprofile.update()
 }
+
+
