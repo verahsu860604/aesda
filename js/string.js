@@ -62,6 +62,17 @@ var data = {
     // 'soc'   :   
 }
 
+var file = {
+    'primaryFile'   : 'Primary Reserve Datafile',
+    'secondaryFile' : 'Secondary Reserve Datafile',
+    'tertiaryFile'  : 'Tertiary Reserve Datafile',
+}
+
+var config = {
+    'ci-predic'       : 'Prediction Horizon',
+    'ci-sohItv'       : 'SoH Update Interval',
+    'ci-totTimestamp' : 'Total Timestamp'
+}
 
 exports.miStrMap = function(str) {
     return market[str]
@@ -73,4 +84,12 @@ exports.eiStrMap = function(str) {
 
 exports.diStrMap = function(str) {
     return data[str]
+}
+
+exports.fiStrMap = function(str) {
+    return file[str]
+}
+
+exports.ciStrMap = function(str) {
+    return config[str]
 }

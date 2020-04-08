@@ -1,9 +1,12 @@
 const electron = require("electron")
+const {dialog} = require('electron').remote;
 const path = require("path")
 const url = require("url")
 
 const remote = electron.remote
 const ipc = electron.ipcRenderer
+
+const strMap = require("../js/string.js")
 
 // To be modified
 const defaultVal = {
@@ -88,8 +91,13 @@ ipc.on('marketType', (event, args) => {
 })
 
 document.getElementById('submitBtn').addEventListener('click', (event) => {
-    ipc.send('submitMarketObj', [marketType, $('form').serializeArray()])
-    remote.getCurrentWindow().close()
+    missing = formValidation()
+    if(missing.length === 0) {
+        ipc.send('submitMarketObj', [marketType, $('form').serializeArray()])
+        remote.getCurrentWindow().close()
+    }else {
+        dialog.showErrorBox('Please fill all the inputs!', 'Missing fields: ' + missing.toString())
+    }
 })
 
 document.getElementById('cancelBtn').addEventListener('click', (event) => {
@@ -101,4 +109,15 @@ function setDefault(val) {
     keys.forEach(e => {
         document.getElementsByName(e)[0].defaultValue = val[e]
     })
+}
+
+function formValidation() {
+    var inputs = document.getElementsByTagName('input')
+    var missing = []
+    for (let input of inputs) {
+        if(input.value === null || input.value === "") {
+            missing.push(strMap.miStrMap(input.name))
+        }
+    }
+    return missing
 }

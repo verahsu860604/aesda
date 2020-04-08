@@ -131,5 +131,7 @@ def map_param(param_ui):
                                     else:
                                         val = 0
                                     param['energy_sources'][-1][key] = val
-
+        elif k == 'marketDataList':
+            param['market_data_file'] = param_ui['marketDataList']
+            
     return param
