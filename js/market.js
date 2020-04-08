@@ -6,6 +6,8 @@ const url = require("url")
 const remote = electron.remote
 const ipc = electron.ipcRenderer
 
+const strMap = require("../js/string.js")
+
 // To be modified
 const defaultVal = {
     'Primary Reserve': {
@@ -89,13 +91,13 @@ ipc.on('marketType', (event, args) => {
 })
 
 document.getElementById('submitBtn').addEventListener('click', (event) => {
-    if(formValidation() === true) {
+    missing = formValidation()
+    if(missing.length === 0) {
         ipc.send('submitMarketObj', [marketType, $('form').serializeArray()])
         remote.getCurrentWindow().close()
     }else {
-        dialog.showErrorBox('Something is wrong!', 'Please fill all the boxes!')
+        dialog.showErrorBox('Please fill all the input boxes!', 'Missing fields: ' + missing.toString())
     }
-    
 })
 
 document.getElementById('cancelBtn').addEventListener('click', (event) => {
@@ -111,8 +113,11 @@ function setDefault(val) {
 
 function formValidation() {
     var inputs = document.getElementsByTagName('input')
+    var missing = []
     for (let input of inputs) {
-        if(input.value === null || input.value === "") return false
+        if(input.value === null || input.value === "") {
+            missing.push(strMap.miStrMap(input.name))
+        }
     }
-    return true
+    return missing
 }

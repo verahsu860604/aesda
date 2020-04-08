@@ -1,9 +1,12 @@
 const electron = require("electron");
+const {dialog} = require('electron').remote;
 const path = require("path");
 const url = require("url");
 
 const remote = electron.remote;
 const ipc = electron.ipcRenderer;
+
+const strMap = require("../js/string.js")
 
 const defaultVal = {
     'Power Flow Battery': {
@@ -174,8 +177,13 @@ ipc.on('essType', (event, args) => {
 })
 
 document.getElementById('submitBtn').addEventListener('click', (event) => {
-    ipc.send('submitEssObj', [essType, essId, $('form').serializeArray(), socprofile, dodprofile]);
-    remote.getCurrentWindow().close();
+    missing = formValidation()
+    if(missing.length === 0) {
+        ipc.send('submitEssObj', [essType, essId, $('form').serializeArray(), socprofile, dodprofile]);
+        remote.getCurrentWindow().close();
+    }else {
+        dialog.showErrorBox('Please fill all the input boxes!', 'Missing fields: ' + missing.toString())
+    }  
 })
 
 document.getElementById('cancelBtn').addEventListener('click', (event) => {
@@ -286,4 +294,16 @@ const updateDodProfile = function (e) {
     // dodData.sort((a, b) => a.x - b.x)
     dodprofile.data.datasets[0].data = dodData
     dodprofile.update()
+}
+
+
+function formValidation() {
+    var inputs = document.getElementsByTagName('input')
+    var missing = []
+    for (let input of inputs) {
+        if(input.value === null || input.value === "" && input.disabled === false) {
+            missing.push(strMap.eiStrMap(input.name))
+        }
+    }
+    return missing
 }
