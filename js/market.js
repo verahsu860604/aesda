@@ -1,4 +1,5 @@
 const electron = require("electron")
+const {dialog} = require('electron').remote;
 const path = require("path")
 const url = require("url")
 
@@ -88,8 +89,13 @@ ipc.on('marketType', (event, args) => {
 })
 
 document.getElementById('submitBtn').addEventListener('click', (event) => {
-    ipc.send('submitMarketObj', [marketType, $('form').serializeArray()])
-    remote.getCurrentWindow().close()
+    if(formValidation() === true) {
+        ipc.send('submitMarketObj', [marketType, $('form').serializeArray()])
+        remote.getCurrentWindow().close()
+    }else {
+        dialog.showErrorBox('Something is wrong!', 'Please fill all the boxes!')
+    }
+    
 })
 
 document.getElementById('cancelBtn').addEventListener('click', (event) => {
@@ -101,4 +107,12 @@ function setDefault(val) {
     keys.forEach(e => {
         document.getElementsByName(e)[0].defaultValue = val[e]
     })
+}
+
+function formValidation() {
+    var inputs = document.getElementsByTagName('input')
+    for (let input of inputs) {
+        if(input.value === null || input.value === "") return false
+    }
+    return true
 }

@@ -155,7 +155,7 @@ ipc.on('run', (event, args) => {
     let pyshell = new PythonShell('algo/algo.py', options, {});
 
     let totl = 1
-    pyshell.on('message', function (message) {);
+    pyshell.on('message', function (message) {
         
         // received a message sent from the Python script (a simple "print" statement)
         if (message.substring(0, 6) == 'totl: ') {
