@@ -151,10 +151,12 @@ ipc.on('run', (event, args) => {
         // pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
         args: [JSON.stringify(args)]
     }
+    
     let pyshell = new PythonShell('algo/algo.py', options, {});
 
     let totl = 1
     pyshell.on('message', function (message) {
+        
         // received a message sent from the Python script (a simple "print" statement)
         if (message.substring(0, 6) == 'totl: ') {
             totl = parseInt(message.substring(6, message.length), 10)

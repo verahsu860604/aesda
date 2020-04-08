@@ -77,7 +77,7 @@ class Market(object):
                 data_loader = None,
                 test_mode = False
             ):
-        """Market builder.
+        """Market builder.0;.p
 
         Args:
             time_window_in_delivery (int): Number of time windows in delivery phase.
@@ -128,7 +128,7 @@ class Market(object):
         self.price_cyclic_eps_downward = price_cyclic_eps_downward
         self.percentage_cyclic_eps = percentage_cyclic_eps
 
-        self.percentage_fixed = (self.min_feasible_power_percentage == self.max_feasible_power_percentage)
+        self.percentage_fixed = percentage_fixed
 
         self.test_mode = test_mode
         if test_mode:

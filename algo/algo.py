@@ -12,6 +12,9 @@ import cyclic_coordinate
 import pareto
 import param_mapping
 
+# file
+import chardet
+import pandas as pd
  
 assert len(sys.argv) > 1
 parameters_ui = json.loads(sys.argv[1])
@@ -26,6 +29,14 @@ for ess in energy_sources:
     ess.tuning_parameter_fit()
 markets = [market.Market(**kwargs) for kwargs in data['markets']]
 mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources, test_mode=True)
+
+# read file
+file_paths = data['market_data_file']
+for market in file_paths:
+    excel_data_df = pd.read_excel(file_paths[market])
+    print(excel_data_df.iloc[:3])
+    
+    # todo: connect real data to algorithms
 
 # Fake run
 cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, really_run=False)
@@ -44,3 +55,4 @@ solutions = cc.Algo5()
 # [2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469], 
 # (6.666666666666667, 10.0, 'free'))
 # assert len(solutions) == 36
+

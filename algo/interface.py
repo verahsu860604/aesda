@@ -8,6 +8,7 @@ import json
 import numpy as np
 from time import sleep
 import cyclic_coordinate
+import os
 
 data = input()
 data = json.loads(data)
@@ -31,3 +32,6 @@ solutions = cc.Algo5()
 # [2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469], 
 # (6.666666666666667, 10.0, 'free'))
 assert len(solutions) == len(solutions_fake)
+
+# print(os.path.dirname(os.path.dirname(__file__)))
+# os.path.join(os.path.dirname(os.path.dirname(__file__)), '')
