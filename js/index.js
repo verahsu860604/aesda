@@ -30,8 +30,6 @@ const defaultVal = {
 }
 
 Object.keys(defaultVal).forEach(e => {
-  console.log(e);
-  
   document.getElementsByName(e)[0].defaultValue = defaultVal[e]
 })
 
@@ -140,7 +138,7 @@ ipc.on('generateResult', (event, args) => {
 	paretoChart.resetZoom()
 	progressBar.style = "width: 0%"
     var configForm = $("form").serializeArray()
-    ipc.send('run', {configForm, marketObjList, essObjList})
+    ipc.send('run', {configForm, marketObjList, essObjList, marketDataList})
     document.querySelector('#result .alert').style.display = "none"
     document.querySelector('#progress').style.display = ""
 
@@ -159,8 +157,6 @@ ipc.on('doneProgressBar', (event, args) => {
 
 // functions
 function createMarketElem(marketType, marketData) {
-    console.log(marketData);
-    
     var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'id=marketEditBtn')
     editbtn.innerHTML = 'Edit'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
@@ -791,7 +787,17 @@ document.querySelector('#secondaryFile').addEventListener('change', uploadFile);
 document.querySelector('#tertiaryFile').addEventListener('change', uploadFile);
 
 function uploadFile(e) {
-  console.log(e)
-  e.srcElement.innerHTML = e.target.files[0].name
+  var labels = document.getElementsByTagName('LABEL');
+  for (var i = 0; i < labels.length; i++) {
+      if(labels[i].htmlFor === e.target.id) {
+        labels[i].innerHTML = e.target.files[0].name
+      }
+  }
   marketDataList[e.target.id] = e.target.files[0].path
+}
+
+function fileClicked(e) {
+  document.querySelector('#primaryFile').disabled = ('Primary Reserve' in marketObjList) ? false : true
+  document.querySelector('#secondaryFile').disabled = ('Secondary Reserve' in marketObjList) ? false : true
+  document.querySelector('#tertiaryFile').disabled = ('Tertiary Reserve' in marketObjList) ? false : true
 }
