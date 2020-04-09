@@ -12,6 +12,7 @@ let marketObjList = {}
 // number of ess objects
 let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
 let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
+let marketDataList = {}
 
 generateResultChart()
 const barColor = {
@@ -89,10 +90,6 @@ document.querySelector("#resetChartBtn").addEventListener('click', function() {
     paretoChart.resetZoom()
 })
 
-// switch control
-// var p = document.getElementById('paretoSwitch').checked
-// var f = document.getElementById('fileSwitch').checked
-
 // ipc
 ipc.on('createMarketObj', (event, args) => {
     var marketType = args[0]
@@ -103,6 +100,7 @@ ipc.on('createMarketObj', (event, args) => {
         editMarketElem(marketType, marketData)
     }else {
         marketObjList[marketType] = marketData
+        updateFileSetting()
         createMarketElem(marketType, marketData) 
         clearDropdownMenu('market')
         toggleMarketItem(marketType)
@@ -134,17 +132,21 @@ var progressHint = document.querySelector('#progress-hint')
 progressBar.style = "width: 10%"
 
 ipc.on('generateResult', (event, args) => {
-	progressBar.classList = "progress-bar progress-bar-striped progress-bar-animated"
-	paretoChart.data.datasets[0].data = []
-	paretoChart.data.datasets[1].data = []
-	paretoChart.update()
-	paretoChart.resetZoom()
-	progressBar.style = "width: 0%"
+  missing = formValidation()
+  if(missing.length === 0) { 
+    progressBar.classList = "progress-bar progress-bar-striped progress-bar-animated"
+    paretoChart.data.datasets[0].data = []
+    paretoChart.data.datasets[1].data = []
+    paretoChart.update()
+    paretoChart.resetZoom()
+    progressBar.style = "width: 0%"
     var configForm = $("form").serializeArray()
-    ipc.send('run', {configForm, marketObjList, essObjList})
+    ipc.send('run', {configForm, marketObjList, essObjList, marketDataList})
     document.querySelector('#result .alert').style.display = "none"
     document.querySelector('#progress').style.display = ""
-
+  } else {
+    dialog.showErrorBox('Please fill all the inputs!', 'Missing fields: ' + missing.toString())
+  }
 }) 
 
 ipc.on('updateProgressBar', (event, args) => {
@@ -160,8 +162,6 @@ ipc.on('doneProgressBar', (event, args) => {
 
 // functions
 function createMarketElem(marketType, marketData) {
-    console.log(marketData);
-    
     var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'id=marketEditBtn')
     editbtn.innerHTML = 'Edit'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
@@ -234,6 +234,7 @@ function createMarketElem(marketType, marketData) {
     deletebtn.addEventListener('click', function(e) {
         toggleMarketItem(marketType)
         delete marketObjList[marketType]
+        updateFileSetting()
         card.remove()
     })  
 }
@@ -336,6 +337,8 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
     dodprofile.config['options']['maintainAspectRatio'] = false
     cardchart1.style.height = "168px"
     cardchart2.style.height = "168px"
+    // var socchart = new Chart(document.getElementById("soc"+essTypeId+essId), socprofile.config)
+    // var dodchart = new Chart(document.getElementById("dod"+essTypeId+essId), dodprofile.config)
     var socchart = new Chart(cardchart1, socprofile.config)
     var dodchart = new Chart(cardchart2, dodprofile.config)
 }
@@ -390,13 +393,13 @@ function createDataElem(args) {
       var p
       if(key === 'y'){
         p = createElement('p', 'class=mb-1 ')
-		p.innerHTML = (strMap.diStrMap(key) + ": " + value).bold()
-		cardBody.appendChild(p)
+        p.innerHTML = (strMap.diStrMap(key) + ": " + value.toPrecision(2)).bold()
+        cardBody.appendChild(p)
       } else if(key === 'x'){
         p = createElement('p', 'class=mb-1 ')
-		p.innerHTML = (strMap.diStrMap(key) + ": " + value).bold()
-		cardBody.appendChild(p)
-	  } 
+        p.innerHTML = (strMap.diStrMap(key) + ": " + value.toPrecision(2)).bold()
+        cardBody.appendChild(p)
+	    } 
 	//   else if(strMap.diStrMap(key) == 'undefined'){
 		
 	// 	continue
@@ -429,16 +432,81 @@ function createDataElem(args) {
 
 
     downloadbtn.addEventListener('click', function(e) {
+      var lineArray = ["IRR," + data['x'].toPrecision(2), "Year,"+data['y'].toPrecision(2)]
+      numOfBattery = data['soc'][0].length
+      numOfMarket = data['prices'][0].length
+      let title = ""
+      
+      for (i=0;i<numOfMarket;++i){
+        if(i==0)
+          title += "Primary Market Output Price, Primary Market Input Price, "
+        else if(i==1)
+          title += "Secondary Market Output Price, Secondary Market Input Price, "
+        else if(i==2)
+          title += "Tertiary Market Output Price, Tertiary Market Input Price, " 
+      }
+      title += "Power Output, Power Input, "
+      for (i=0;i<numOfBattery;++i){
+        title += "Battery " + (i+1)
+        if(i != numOfBattery - 1)
+          title += ',' 
+      }
+      lineArray.push(title)
+
+      for(i=0; i<data['soc'].length; ++i){
+        line = ""
+        
+        for (j=0;j<numOfMarket;++j){
+          if(i<data['prices'].length){
+            line += '' + data['prices'][i][j][0] + ',' + data['prices'][i][j][1] + ','
+          }else{
+            line += ',,'
+          }
+        }
+        // if(i<data['prices'].length){
+        //   line += '' + data['prices'][i][0] + ',' + data['prices'][i][1] + ',' 
+        // }else{
+        //   line += ',,'
+        // }
+        if(i<data['power'].length){
+          line += '' + data['power'][i][0] + ',' + data['power'][i][1] + ',' 
+        }else{
+          line += ',,'
+        }
+        for (j=0;j<numOfBattery;++j){
+          line += '' + data['soc'][i][j]
+          if(j != numOfBattery - 1)
+            line += ',' 
+        }
+        
+        lineArray.push(line)
+      }
+
+      let csvContent = lineArray.join('\n')
+      
+      console.log(data)
+      console.log(data['soc'][0].length)
+      console.log(data['soc'][1].length)
+      console.log(data['soc'][2].length)
+      console.log(data['power'][0].length)
+      console.log(data['power'][0].length)
+      console.log(data['power'][0].length)
+      console.log(data['prices'].length)
       let content = "temp"
       var filename
-      filename = dialog.showSaveDialog({}
+      filename = dialog.showSaveDialog({
+        filters: [{
+          name: 'CSV',
+          extensions: ['csv']
+        }]
+      }
         ).then(result => {
           filename = result.filePath
           if (filename === undefined) {
             alert("Filename invalid, file not created!")
             return
           }
-          fs.writeFile(filename, content, (err) => {
+          fs.writeFile(filename, csvContent, (err) => {
             if (err) {
               alert("An error ocurred creating the file " + err.message)
               return
@@ -568,10 +636,10 @@ function compareData(a, b) {
   }
 function updateChartData(data) {
 	// TODO soh is zero now, use random to show 
-	data['soh'] = Math.random()
+	data['soh'] = Math.random()*10
 	data['x'] = data['soh']
 	delete data['soh']
-	data['y'] = data['revenue']
+	data['y'] = data['revenue']/100
 	delete data['revenue']
 	if(paretoChart.data.datasets[0].data.length == 0 && paretoChart.data.datasets[1].data.length == 0){
 		paretoChart.data.datasets[1].data.push(data)
@@ -735,8 +803,8 @@ function generateResultChart() {
           label: function(tooltipItem, data) {
               var prp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['prp']
               var profit = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['profit']
-              return [['Battery Life: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['x']],
-              ['IRR: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['y']],
+              return [['Battery Life: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['x'].toPrecision(2)],
+              ['IRR: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['y'].toPrecision(2)],
               ['PRP: ' + (prp?prp:0)],
               ['Profit: '+ (profit?profit:0)]]
           }
@@ -782,4 +850,42 @@ function generateResultChart() {
   
   var ctx = document.getElementById("paretoChart").getContext("2d")
   paretoChart = new Chart.Scatter(ctx, config)
+}
+
+// file
+document.querySelector('#primaryFile').addEventListener('change', uploadFile);
+document.querySelector('#secondaryFile').addEventListener('change', uploadFile);
+document.querySelector('#tertiaryFile').addEventListener('change', uploadFile);
+
+function uploadFile(e) {
+  var labels = document.getElementsByTagName('LABEL');
+  for (var i = 0; i < labels.length; i++) {
+      if(labels[i].htmlFor === e.target.id) {
+        labels[i].innerHTML = e.target.files[0].name
+      }
+  }
+  marketDataList[e.target.id] = e.target.files[0].path
+}
+
+function updateFileSetting(e) {
+  document.querySelector('#primaryFile').disabled = ('Primary Reserve' in marketObjList) ? false : true
+  document.querySelector('#secondaryFile').disabled = ('Secondary Reserve' in marketObjList) ? false : true
+  document.querySelector('#tertiaryFile').disabled = ('Tertiary Reserve' in marketObjList) ? false : true
+}
+
+function formValidation() {
+  var inputs = document.getElementsByTagName('input')
+  var missing = []
+  for(var i = 0; i < inputs.length; i++) {
+    if(i < 3) {
+      if(inputs[i].value === null || inputs[i].value === "" && inputs[i].disabled === false) {
+        missing.push(strMap.ciStrMap(inputs[i].name))
+      }
+    } else {
+      if(inputs[i].files.length === 0 && inputs[i].disabled === false) {
+         missing.push(strMap.fiStrMap(inputs[i].id))
+      }
+    } 
+  }
+  return missing
 }

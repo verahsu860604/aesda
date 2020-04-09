@@ -37,32 +37,22 @@
                                 <div class="card-body">
                                     <h5 class="card-title">Simulation Parameters</h5>
                                     <div class="form-group">
-                                        <label for="mi-spUpdate">Prediction Horizon (hr)</label>
-                                        <input type="number" step="any" class="form-control" name="ci-predic" placeholder="default value?">
+                                        <label for="ci-predic">Prediction Horizon (min)</label>
+                                        <input type="number" step="any" class="form-control" name="ci-predic">
                                     </div>  
-                                    <!-- <div class="form-row">
-                                        <div class="form-group col-md-6">
-                                            <label for="mi-maxpIn">Max Percentage Power Input</label>
-                                            <input type="number" step="any" class="form-control" name="ci-maxpIn" placeholder="default value?">
-                                        </div>
-                                        <div class="form-group col-md-6">
-                                            <label for="mi-maxpOut">Max Percentage Power Output</label>
-                                            <input type="number" step="any" class="form-control" name="ci-maxpOut" placeholder="default value?">
-                                        </div>
-                                    </div>     -->
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
-                                            <label for="ci-sohItv">SoH Update Interval</label>
-                                            <input type="number" step="any" class="form-control" name="ci-sohItv" placeholder="default value?">
+                                            <label for="ci-sohItv">SoH Update Interval (min)</label>
+                                            <input type="number" step="any" class="form-control" name="ci-sohItv">
                                         </div>
                                         <div class="form-group col-md-6">
-                                            <label for="ci-totTimestamp">Total Timestamp</label>
-                                            <input type="number" step="any" class="form-control" name="ci-totTimestamp" placeholder="default value?">
+                                            <label for="ci-totTimestamp">Total Timestamp (min)</label>
+                                            <input type="number" step="any" class="form-control" name="ci-totTimestamp">
                                         </div>
                                     </div>                                                            
                                 </div>
                             </div>
-                            <div class="card mb-3">
+                            <!-- <div class="card mb-3">
                                 <div class="card-body">
                                     <h5 class="card-title">Output Setting</h5>
                                     <div class="custom-control custom-switch">
@@ -74,7 +64,7 @@
                                         <label class="custom-control-label" for="fileSwitch">Generate Output File</label>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
                         </form>
                     </div>
                 </div>
@@ -125,119 +115,34 @@
                     <form class="needs-validation" novalidate>
                         <h5>Primary Reserve</h5>
                         <div class="form-row">
-
                             <div class="col-md-6 mb-3">
-                                <label for="validationCustom01">Upward Price</label>
+                                <!-- <label for="validationCustom01">File Upload</label> -->
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customFile">
-                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                    <input type="file" class="custom-file-input" id="primaryFile" disabled>
+                                    <label class="custom-file-label" for="primaryFile">Choose file</label>
                                 </div>
                             </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="validationCustom02">Upward Power Demand</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customFile">
-                                    <label class="custom-file-label" for="customFile">Choose file</label>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-6 mb-3">
-                                <label for="validationCustom01">Downward Price</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customFile">
-                                    <label class="custom-file-label" for="customFile">Choose file</label>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="validationCustom02">Downward Power Demand</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customFile">
-                                    <label class="custom-file-label" for="customFile">Choose file</label>
-                                </div>
-                            </div>
-
                         </div>
                         <h5>Secondary Reserve</h5>
                         <div class="form-row">
                             <div class="col-md-6 mb-3">
-                                <label for="validationCustom01">Upward Price</label>
+                                <!-- <label for="validationCustom01">File Upload</!--> 
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customFile">
-                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                    <input type="file" class="custom-file-input" id="secondaryFile" disabled>
+                                    <label class="custom-file-label" for="secondaryFile">Choose file</label>
                                 </div>
                             </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="validationCustom02">Upward Power Demand</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customFile">
-                                    <label class="custom-file-label" for="customFile">Choose file</label>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="form-row">
-                            <div class="col-md-6 mb-3">
-                                <label for="validationCustom01">Downward Price</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customFile">
-                                    <label class="custom-file-label" for="customFile">Choose file</label>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="validationCustom02">Downward Power Demand</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customFile">
-                                    <label class="custom-file-label" for="customFile">Choose file</label>
-                                </div>
-                            </div>
-
                         </div>
                         <h5>Tertiary Reserve</h5>
                         <div class="form-row">
-
                             <div class="col-md-6 mb-3">
-                                <label for="validationCustom01">Upward Price</label>
+                                <!-- <label for="validationCustom01">File Upload</label> -->
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customFile">
-                                    <label class="custom-file-label" for="customFile">Choose file</label>
+                                    <input type="file" class="custom-file-input" id="tertiaryFile" disabled>
+                                    <label class="custom-file-label" for="tertiaryFile">Choose file</label>
                                 </div>
                             </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="validationCustom02">Upward Power Demand</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customFile">
-                                    <label class="custom-file-label" for="customFile">Choose file</label>
-                                </div>
-                            </div>
-
                         </div>
-                        <div class="form-row">
-
-                            <div class="col-md-6 mb-3">
-                                <label for="validationCustom01">Downward Price</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customFile">
-                                    <label class="custom-file-label" for="customFile">Choose file</label>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="validationCustom02">Downward Power Demand</label>
-                                <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customFile">
-                                    <label class="custom-file-label" for="customFile">Choose file</label>
-                                </div>
-                            </div>
-
-                        </div>
-
                     </form>
                 </div>
                 </div>
