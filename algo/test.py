@@ -98,7 +98,7 @@ parameters = {
             "percentage_fixed": True
         },
         {
-            "time_window_in_delivery": 4, # Primary
+            "time_window_in_delivery": 4, # Secondary
             "planning_phase_length": 60,
             "selection_phase_length": 60,
             "schedule_phase_length": 60,
@@ -108,7 +108,7 @@ parameters = {
             "percentage_fixed": True
         },
         {
-            "time_window_in_delivery": 4, # Primary
+            "time_window_in_delivery": 4, # Tertiary
             "planning_phase_length": 60,
             "selection_phase_length": 60,
             "schedule_phase_length": 60,
