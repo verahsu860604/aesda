@@ -8,6 +8,10 @@ const {BrowserWindow} = electron.remote
 const ipc = electron.ipcRenderer
 const {PythonShell} = require('python-shell')
 
+
+const XLSX = require('xlsx');
+
+
 let marketObjList = {}
 // number of ess objects
 let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
@@ -853,9 +857,15 @@ function generateResultChart() {
 }
 
 // file
-document.querySelector('#primaryFile').addEventListener('change', uploadFile);
-document.querySelector('#secondaryFile').addEventListener('change', uploadFile);
-document.querySelector('#tertiaryFile').addEventListener('change', uploadFile);
+// document.querySelector('#primaryFile').addEventListener('change', uploadFile);
+// document.querySelector('#secondaryFile').addEventListener('change', uploadFile);
+// document.querySelector('#tertiaryFile').addEventListener('change', uploadFile);
+
+
+document.querySelectorAll('.custom-file input').forEach(e => {
+  e.addEventListener('change', uploadFile)
+})
+
 
 function uploadFile(e) {
   var labels = document.getElementsByTagName('LABEL');
@@ -864,13 +874,23 @@ function uploadFile(e) {
         labels[i].innerHTML = e.target.files[0].name
       }
   }
-  marketDataList[e.target.id] = e.target.files[0].path
+  marketDataList[e.target.id] = e.target.files[0].path  
+  // if validate, check here
+  // const workbook = XLSX.readFile(e.target.files[0].path);
+  // const sheet_name_list = workbook.SheetNames;
+  // console.log(XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]))
 }
 
 function updateFileSetting(e) {
-  document.querySelector('#primaryFile').disabled = ('Primary Reserve' in marketObjList) ? false : true
-  document.querySelector('#secondaryFile').disabled = ('Secondary Reserve' in marketObjList) ? false : true
-  document.querySelector('#tertiaryFile').disabled = ('Tertiary Reserve' in marketObjList) ? false : true
+  document.querySelectorAll('.primary-file').forEach(e => {
+    e.disabled = ('Primary Reserve' in marketObjList) ? false : true
+  })
+  document.querySelectorAll('.secondary-file').forEach(e => {
+    e.disabled = ('Secondary Reserve' in marketObjList) ? false : true
+  })
+  document.querySelectorAll('.tertiary-file').forEach(e => {
+    e.disabled = ('Tertiary Reserve' in marketObjList) ? false : true
+  })
 }
 
 function formValidation() {
