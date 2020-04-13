@@ -154,7 +154,7 @@ ipc.on('essType', (event, args) => {
         dodprofile.data.datasets[0].data = dodData
         dodprofile.update()
 
-        if(essType === "Power Flow Battery" && i > 2) {
+        if(essType === "Power Flow Battery" || essType === "Supercapacitor" && i > 2) {
             e.disabled = true
         }
     })
