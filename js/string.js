@@ -63,9 +63,12 @@ var data = {
 }
 
 var file = {
-    'primaryFile'   : 'Primary Reserve Datafile',
-    'secondaryFile' : 'Secondary Reserve Datafile',
-    'tertiaryFile'  : 'Tertiary Reserve Datafile',
+    'primarySetpoint'   : 'Primary Reserve Setpoint file',
+    'primaryPrice'   : 'Primary Reserve Price file',
+    'secondrySetpoint'   : 'Secondary Reserve Setpoint file',
+    'secondryPrice'   : 'Secondary Reserve Price file',
+    'tertiarySetpoint'   : 'Tertiary Reserve Setpoint file',
+    'tertiaryPrice'   : 'Tertiary Reserve Price file'
 }
 
 var config = {
