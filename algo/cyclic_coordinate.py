@@ -1,7 +1,49 @@
 import numpy as np
 import json
+import random
+import math
 
+def getCashFlow(cost, cin, years):
+    """get cashflow.
 
+        Args:
+            cost: total cost(first year only, not considering cost later)
+            cin (List): List of revenue for each year
+            years: number of years of life the battery has
+    """
+    if(not type(cin) == type([])):
+        cin = [cin]
+    full_years = int(years)
+    diff = full_years - len(cin)
+    cin_avg = sum(cin)/len(cin)
+    for i in range(diff):
+        cin.append(cin_avg)
+    cin.append(cin_avg*(years - full_years))
+    cin[0] -= cost
+    cashflow = np.array(cin)
+    print("DEBUG: cashflow", cashflow)
+    return cashflow
+
+def getIRR(cashflow):
+    """get Internal Rate of Return.
+
+        Args:
+            cashflow: cashflow
+    """
+    return round(np.irr(cashflow), 5)*100
+
+def getPBP(cashflow):
+    """get Payback Period.
+
+        Args:
+            cashflow: cashflow
+    """
+    csum = 0
+    for i,c in enumerate(cashflow):
+        csum += c
+        if(csum>=0):
+            return i
+    return -1
 class CyclicCoordinate(object):
     """Cyclic Coordinate Algorithm
     
@@ -9,9 +51,10 @@ class CyclicCoordinate(object):
     """
 
 
-    def __init__(self, markets, mpc_solver, really_run = True):
+    def __init__(self, markets, mpc_solver, cost, really_run = True):
         self.markets = markets
         self.mpc_solver = mpc_solver
+        self.cost = cost
         self.really_run = really_run
         self.global_id = 0
 
@@ -35,6 +78,19 @@ class CyclicCoordinate(object):
             tuple(results[-1]['soh']), \
             np.array([[results[time_k]['power_device_upward'], results[time_k]['power_device_downward']] for time_k in range(len(results))])
 
+    def get_battery_life(self, soh):
+        """Calculate the remaining years for the battery with the same usage
+        :param soh: State of health of the battery
+        :return: remaining years
+        """
+        if type(soh) == type(()):
+            soh = soh[0]
+        # soh -= 0.01
+        number_of_week = self.mpc_solver.config.tot_timestamps / (60.0 * 24.0 * 7.0)
+        # print("DEBUG: ", self.mpc_solver.config.tot_timestamps, number_of_week, soh)
+        # return (soh - 0.8) / ((1 - soh) / number_of_week * 52)
+        return random.random()*10
+ 
     def Algo4(self, percentage):
         solutions = []
 
@@ -73,6 +129,21 @@ class CyclicCoordinate(object):
                         current_value_params = value_best_so_far[:] # [:] means copying the list
                         current_value_params[i] = value
                         revenue, soc, soh, storage = self.run_mpc(np.reshape(current_value_params, [-1, 2]).tolist(), percentage)
+                        
+                        print("DEBUG: soh", soh)
+                        if(not type(soh) == type([])):
+                            soh_array = [soh]
+                        else:
+                            soh_array = soh
+                        years = self.get_battery_life(min(soh_array))
+                        print("DEBUG: years", years)
+                        cashflow = getCashFlow(self.cost, revenue, years)
+                        irr = getIRR(cashflow)
+                        if math.isnan(irr): # TODO: IRR should not be nan
+                            irr = 0
+                        print("DEBUG: irr", irr)
+                        pbp = getPBP(cashflow)
+                        print("DEBUG: pbp", pbp)
                         # Print results:
                         if self.really_run:
                             self.global_id += 1
@@ -80,8 +151,11 @@ class CyclicCoordinate(object):
                                 {
                                     'id': self.global_id,
                                     'revenue': revenue,
+                                    'irr': irr,
+                                    'pbp': pbp,
                                     'soc': soc.tolist(),
-                                    'soh': soh,
+                                    # 'soh': soh_array,
+                                    'years': years,
                                     'power': storage.tolist(),
                                     'prices': np.reshape(current_value_params, [-1, 2]).tolist(),
                                     'percentages': percentage

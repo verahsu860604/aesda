@@ -52,13 +52,15 @@ var ess = {
 
 var data = {
     'x'     :   'Remaining years',
-    'y'     :   'IRR',
+    'y'     :   'y',
     'ess0'  :   '   Power Flow Battery',
     'ess1'  :   '   Lithium-ion Battery',
     'ess2'  :   '   Supercapacitor',
     'ess3'  :   '   Custom',
     'pbp'   :   'PBP',
-    'profit':   'Profit',
+    'revenue':   'revenue',
+    'irr'   :   'IRR',
+    'id'    :   'Data id'
     // 'soc'   :   
 }
 

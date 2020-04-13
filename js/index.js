@@ -86,8 +86,11 @@ document.querySelector("#essBtn").addEventListener('click', function() {
     if(curEss !== undefined) ipc.send("createEssWindow", [curEss, essObjNum])
 })
 
-document.querySelector("#resetChartBtn").addEventListener('click', function() {
-    paretoChart.resetZoom()
+document.querySelector("#resetIRRChartBtn").addEventListener('click', function() {
+  irrParetoChart.resetZoom()
+})
+document.querySelector("#resetRevChartBtn").addEventListener('click', function() {
+  revParetoChart.resetZoom()
 })
 
 // ipc
@@ -133,20 +136,27 @@ progressBar.style = "width: 10%"
 
 ipc.on('generateResult', (event, args) => {
   missing = formValidation()
-  if(missing.length === 0) { 
+  // if(missing.length === 0) { 
     progressBar.classList = "progress-bar progress-bar-striped progress-bar-animated"
-    paretoChart.data.datasets[0].data = []
-    paretoChart.data.datasets[1].data = []
-    paretoChart.update()
-    paretoChart.resetZoom()
+    irrParetoChart.data.datasets[0].data = []
+    irrParetoChart.data.datasets[1].data = []
+    irrParetoChart.update()
+    irrParetoChart.resetZoom()
+    
+    console.log(irrParetoChart.data.datasets[0].data)
+    console.log(irrParetoChart.data.datasets[1].data)
+    revParetoChart.data.datasets[0].data = []
+    revParetoChart.data.datasets[1].data = []
+    revParetoChart.update()
+    revParetoChart.resetZoom()
     progressBar.style = "width: 0%"
     var configForm = $("form").serializeArray()
     ipc.send('run', {configForm, marketObjList, essObjList, marketDataList})
     document.querySelector('#result .alert').style.display = "none"
     document.querySelector('#progress').style.display = ""
-  } else {
-    dialog.showErrorBox('Please fill all the inputs!', 'Missing fields: ' + missing.toString())
-  }
+  // } else {
+  //   dialog.showErrorBox('Please fill all the inputs!', 'Missing fields: ' + missing.toString())
+  // }
 }) 
 
 ipc.on('updateProgressBar', (event, args) => {
@@ -375,8 +385,6 @@ function createElement(type, ...args) {
 
 function createDataElem(args) {
     var data = args
-    var id = data['id']
-    delete data['id']
     var downloadbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'id=dataDownloadBtn')
     downloadbtn.innerHTML = 'Download'
     var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
@@ -391,13 +399,9 @@ function createDataElem(args) {
   
     for (const [key, value] of Object.entries(data)) {
       var p
-      if(key === 'y'){
+      if(key === 'id' || key === 'irr' || key === 'revenue' || key === 'pbp'){
         p = createElement('p', 'class=mb-1 ')
-        p.innerHTML = (strMap.diStrMap(key) + ": " + value.toPrecision(2)).bold()
-        cardBody.appendChild(p)
-      } else if(key === 'x'){
-        p = createElement('p', 'class=mb-1 ')
-        p.innerHTML = (strMap.diStrMap(key) + ": " + value.toPrecision(2)).bold()
+        p.innerHTML = (strMap.diStrMap(key) + ": " + (+value.toFixed(2))).bold()
         cardBody.appendChild(p)
 	    } 
 	//   else if(strMap.diStrMap(key) == 'undefined'){
@@ -432,7 +436,7 @@ function createDataElem(args) {
 
 
     downloadbtn.addEventListener('click', function(e) {
-      var lineArray = ["IRR," + data['x'].toPrecision(2), "Year,"+data['y'].toPrecision(2)]
+      var lineArray = ["IRR," + (+data['x'].toFixed(6)), "Year,"+(+data['y'].toFixed(2))]
       numOfBattery = data['soc'][0].length
       numOfMarket = data['prices'][0].length
       let title = ""
@@ -522,19 +526,50 @@ function createDataElem(args) {
     }) 
 
 }
-ipc.on('addDataToCompare', (event, args) => {
-  createDataElem(args)
-})
 
-
-var paretoChart
-function handleClick(evt){
-  var activeElement = paretoChart.getElementAtEvent(evt)
+var irrParetoChart
+var revParetoChart
+function handleClickIRR(evt){
+  var activeElement = irrParetoChart.getElementAtEvent(evt)
   if(activeElement.length>0){
-    args = paretoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index]
+    args = irrParetoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index]
     createDataElem(args)
   }
 }
+function handleClickRev(evt){
+  var activeElement = revParetoChart.getElementAtEvent(evt)
+  if(activeElement.length>0){
+    args = revParetoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index]
+    createDataElem(args)
+  }
+}
+
+function handleHoverIRR(c, id){
+  console.log("ID: " + id)
+  var idx = 0,
+    dataset = 0
+  for( var j=0; j<2; j++){
+    for( var i = 0; i < c.data.datasets[j].data.length; i++){
+      if(c.data.datasets[j].data[i]['id'] == id){
+        idx = i
+        dataset = j
+        break;
+      }
+    }
+  }
+
+  var meta = c.getDatasetMeta(dataset),
+      rect = c.canvas.getBoundingClientRect(),
+      point = meta.data[idx].getCenterPoint(),
+      evt = new MouseEvent('mousemove', {
+        clientX: rect.left + point.x,
+        clientY: rect.top + point.y
+      }),
+      node = c.canvas;
+  console.log("rect" + rect)
+  node.dispatchEvent(evt);
+}
+
 function getParameters(){
   parameters = {
     'energy_sources': [
@@ -635,41 +670,78 @@ function compareData(a, b) {
 	return 0;
   }
 function updateChartData(data) {
-	// TODO soh is zero now, use random to show 
-	data['soh'] = Math.random()*10
-	data['x'] = data['soh']
-	delete data['soh']
-	data['y'] = data['revenue']/100
-	delete data['revenue']
-	if(paretoChart.data.datasets[0].data.length == 0 && paretoChart.data.datasets[1].data.length == 0){
-		paretoChart.data.datasets[1].data.push(data)
+	// TODO soh is all one now, use random to show 
+	// data['soh'] = Math.random()*10
+	// data['x'] = data['soh']
+	// delete data['soh']
+	// data['y'] = data['revenue']/100
+  // delete data['revenue']
+  var revData = $.extend(true,{},data)
+  data['x'] = data['years']
+  revData['x'] = revData['years']
+	// delete data['years']
+	// delete revData['years']
+	data['y'] = data['irr']
+	revData['y'] = revData['revenue']
+	// delete data['irr']
+	// delete revData['revenue']
+  console.log(data)
+	if(irrParetoChart.data.datasets[0].data.length == 0 && irrParetoChart.data.datasets[1].data.length == 0){
+		irrParetoChart.data.datasets[1].data.push(data)
 	} else {
 		pushTo = 0
-		for( var i = 0; i < paretoChart.data.datasets[1].data.length; i++){
+		for( var i = 0; i < irrParetoChart.data.datasets[1].data.length; i++){
 
-			if((data['x'] >= paretoChart.data.datasets[1].data[i]['x'] &&
-				data['y'] >= paretoChart.data.datasets[1].data[i]['y'])){
+			if((data['x'] >= irrParetoChart.data.datasets[1].data[i]['x'] &&
+				data['y'] >= irrParetoChart.data.datasets[1].data[i]['y'])){
 					pushTo = 1
-					tmp = paretoChart.data.datasets[1].data.splice(i, 1)
-					paretoChart.data.datasets[0].data.push(tmp[0])
+					tmp = irrParetoChart.data.datasets[1].data.splice(i, 1)
+					irrParetoChart.data.datasets[0].data.push(tmp[0])
 					i--
-			} else if ((data['x'] > paretoChart.data.datasets[1].data[i]['x'] ||
-						data['y'] > paretoChart.data.datasets[1].data[i]['y'])){
+			} else if ((data['x'] > irrParetoChart.data.datasets[1].data[i]['x'] ||
+						data['y'] > irrParetoChart.data.datasets[1].data[i]['y'])){
 				pushTo = 1
-			} else if ((data['x'] < paretoChart.data.datasets[1].data[i]['x'] &&
-						data['y'] < paretoChart.data.datasets[1].data[i]['y'])){
+			} else if ((data['x'] < irrParetoChart.data.datasets[1].data[i]['x'] &&
+						data['y'] < irrParetoChart.data.datasets[1].data[i]['y'])){
 				pushTo = 0
 				break
 			}
 		}
 		
-		paretoChart.data.datasets[pushTo].data.push(data)
+		irrParetoChart.data.datasets[pushTo].data.push(data)
 		if(pushTo == 1){
-			paretoChart.data.datasets[1].data.sort(compareData)
+			irrParetoChart.data.datasets[1].data.sort(compareData)
 		}
 	}
+  if(revParetoChart.data.datasets[0].data.length == 0 && revParetoChart.data.datasets[1].data.length == 0){
+		revParetoChart.data.datasets[1].data.push(revData)
+	} else {
+		pushTo = 0
+		for( var i = 0; i < revParetoChart.data.datasets[1].data.length; i++){
 
-	paretoChart.update()
+			if((revData['x'] >= revParetoChart.data.datasets[1].data[i]['x'] &&
+				revData['y'] >= revParetoChart.data.datasets[1].data[i]['y'])){
+					pushTo = 1
+					tmp = revParetoChart.data.datasets[1].data.splice(i, 1)
+					revParetoChart.data.datasets[0].data.push(tmp[0])
+					i--
+			} else if ((revData['x'] > revParetoChart.data.datasets[1].data[i]['x'] ||
+						revData['y'] > revParetoChart.data.datasets[1].data[i]['y'])){
+				pushTo = 1
+			} else if ((revData['x'] < revParetoChart.data.datasets[1].data[i]['x'] &&
+						revData['y'] < revParetoChart.data.datasets[1].data[i]['y'])){
+				pushTo = 0
+				break
+			}
+		}
+		
+		revParetoChart.data.datasets[pushTo].data.push(revData)
+		if(pushTo == 1){
+			revParetoChart.data.datasets[1].data.sort(compareData)
+		}
+	}
+  irrParetoChart.update()
+  revParetoChart.update()
 }
 
 
@@ -693,6 +765,7 @@ function generateResultChart() {
         borderWidth: 2,
         fill: false,
         data: [],
+        pointHoverRadius: 10
       },{
         label: 'Pareto Frontier',
         cubicInterpolationMode: 'monotone',
@@ -702,124 +775,131 @@ function generateResultChart() {
         data: [],
         borderWidth: 2.5,
         tension: 1,
-        showLine: true
+        showLine: true,
+        pointHoverRadius: 10
       }]
     },
     options: {
-      onClick: handleClick,
+      onClick: handleClickIRR,
 	  // events: ['mousemove', 'click', 'touchstart'],
-	  plugins: {
-		zoom: {
-			// Container for pan options
-			pan: {
-				// Boolean to enable panning
-				enabled: true,
-	
-				// Panning directions. Remove the appropriate direction to disable
-				// Eg. 'y' would only allow panning in the y direction
-				// A function that is called as the user is panning and returns the
-				// available directions can also be used:
-				//   mode: function({ chart }) {
-				//     return 'xy';
-				//   },
-				mode: 'xy',
-	
-				rangeMin: {
-					// Format of min pan range depends on scale type
-					x: null,
-					y: null
-				},
-				rangeMax: {
-					// Format of max pan range depends on scale type
-					x: null,
-					y: null
-				},
-	
-				// On category scale, factor of pan velocity
-				speed: 20,
-	
-				// Minimal pan distance required before actually applying pan
-				threshold: 10,
-	
-				// Function called while the user is panning
-				onPan: function({chart}) { console.log(`I'm panning!!!`); },
-				// Function called once panning is completed
-				onPanComplete: function({chart}) { console.log(`I was panned!!!`); }
-			},
-	
-			// Container for zoom options
-			zoom: {
-				// Boolean to enable zooming
-				enabled: true,
-	
-				// Enable drag-to-zoom behavior
-				drag: true,
-	
-				// Drag-to-zoom effect can be customized
-				// drag: {
-				// 	 borderColor: 'rgba(225,225,225,0.3)'
-				// 	 borderWidth: 5,
-				// 	 backgroundColor: 'rgb(225,225,225)',
-				// 	 animationDuration: 0
-				// },
-	
-				// Zooming directions. Remove the appropriate direction to disable
-				// Eg. 'y' would only allow zooming in the y direction
-				// A function that is called as the user is zooming and returns the
-				// available directions can also be used:
-				//   mode: function({ chart }) {
-				//     return 'xy';
-				//   },
-				mode: 'xy',
-	
-				rangeMin: {
-					// Format of min zoom range depends on scale type
-					x: null,
-					y: null
-				},
-				rangeMax: {
-					// Format of max zoom range depends on scale type
-					x: null,
-					y: null
-				},
-	
-				// Speed of zoom via mouse wheel
-				// (percentage of zoom on a wheel event)
-				speed: 0.1,
-	
-				// On category scale, minimal zoom level before actually applying zoom
-				sensitivity: 3,
-	
-				// Function called while the user is zooming
-				onZoom: function({chart}) { console.log(`I'm zooming!!!`); },
-				// Function called once zooming is completed
-				onZoomComplete: function({chart}) { console.log(`I was zoomed!!!`); }
-			}
-		}
-	},
+      plugins: {
+        zoom: {
+          // Container for pan options
+          pan: {
+            // Boolean to enable panning
+            enabled: true,
+      
+            // Panning directions. Remove the appropriate direction to disable
+            // Eg. 'y' would only allow panning in the y direction
+            // A function that is called as the user is panning and returns the
+            // available directions can also be used:
+            //   mode: function({ chart }) {
+            //     return 'xy';
+            //   },
+            mode: 'xy',
+      
+            rangeMin: {
+              // Format of min pan range depends on scale type
+              x: null,
+              y: null
+            },
+            rangeMax: {
+              // Format of max pan range depends on scale type
+              x: null,
+              y: null
+            },
+      
+            // On category scale, factor of pan velocity
+            speed: 20,
+      
+            // Minimal pan distance required before actually applying pan
+            threshold: 10,
+      
+            // Function called while the user is panning
+            onPan: function({chart}) { console.log(`I'm panning!!!`); },
+            // Function called once panning is completed
+            onPanComplete: function({chart}) { console.log(`I was panned!!!`); }
+          },
+      
+          // Container for zoom options
+          zoom: {
+            // Boolean to enable zooming
+            enabled: true,
+      
+            // Enable drag-to-zoom behavior
+            drag: true,
+      
+            // Drag-to-zoom effect can be customized
+            // drag: {
+            // 	 borderColor: 'rgba(225,225,225,0.3)'
+            // 	 borderWidth: 5,
+            // 	 backgroundColor: 'rgb(225,225,225)',
+            // 	 animationDuration: 0
+            // },
+      
+            // Zooming directions. Remove the appropriate direction to disable
+            // Eg. 'y' would only allow zooming in the y direction
+            // A function that is called as the user is zooming and returns the
+            // available directions can also be used:
+            //   mode: function({ chart }) {
+            //     return 'xy';
+            //   },
+            mode: 'xy',
+      
+            rangeMin: {
+              // Format of min zoom range depends on scale type
+              x: null,
+              y: null
+            },
+            rangeMax: {
+              // Format of max zoom range depends on scale type
+              x: null,
+              y: null
+            },
+      
+            // Speed of zoom via mouse wheel
+            // (percentage of zoom on a wheel event)
+            speed: 0.1,
+      
+            // On category scale, minimal zoom level before actually applying zoom
+            sensitivity: 3,
+      
+            // Function called while the user is zooming
+            onZoom: function({chart}) { console.log(`I'm zooming!!!`); },
+            // Function called once zooming is completed
+            onZoomComplete: function({chart}) { console.log(`I was zoomed!!!`); }
+          }
+        }
+      },
       responsive: true,
       tooltips: {
         callbacks: {
           label: function(tooltipItem, data) {
-              var prp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['prp']
-              var profit = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['profit']
-              return [['Battery Life: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['x'].toPrecision(2)],
-              ['IRR: ' + data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['y'].toPrecision(2)],
-              ['PRP: ' + (prp?prp:0)],
-              ['Profit: '+ (profit?profit:0)]]
+              // var pbp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['pbp']
+              // var revenue = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['revenue']
+              temp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]
+              handleHoverIRR(revParetoChart, temp['id'])
+              return [
+                ['id: ' + temp['id']],
+                ['Battery Life: ' + (+temp['x'].toFixed(2))],
+                ['IRR: ' + (+temp['irr'].toFixed(2)) + '%'],
+                ['Revenues: ' + (+temp['revenue'].toFixed(2)) + 'k'],
+                ['PBP: ' + (+temp['pbp'].toFixed(2))]
+              ]
+              
           }
         },
         bodyFontSize: 14,
         displayColors: false          
       },
-     hover: {
+      hover: {
         mode: 'nearest',
         intersect: true
       },
       title: {
         display: true,
-        text: 'Pareto Scatter Chart',
-        fontSize: 30
+        text: 'Battery Life vs IRR',
+        fontSize: 20
       },
       scales: {
         xAxes: [{
@@ -847,9 +927,31 @@ function generateResultChart() {
       }
     }
   }
-  
-  var ctx = document.getElementById("paretoChart").getContext("2d")
-  paretoChart = new Chart.Scatter(ctx, config)
+  var configRev = $.extend(true,{},config)
+  configRev['options']['onClick'] = handleClickRev
+  configRev['options']['tooltips']['callbacks'] = {
+    label: function(tooltipItem, data) {
+        // var pbp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['pbp']
+        // var revenue = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['revenue']
+        temp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]
+        handleHoverIRR(irrParetoChart, temp['id'])
+        return [
+          ['id: ' + temp['id']],
+          ['Battery Life: ' + (+temp['x'].toFixed(2))],
+          ['IRR: ' + (+temp['irr'].toFixed(2)) + '%'],
+          ['Revenues: ' + (+temp['revenue'].toFixed(2)) + 'k'],
+          ['PBP: ' + (+temp['pbp'].toFixed(2))]
+        ]
+        
+    }
+  }
+  configRev['options']['title']['text'] = 'Battery Life vs Revenues'
+  configRev['options']['scales']['yAxes'][0]['scaleLabel']['labelString'] = 'Revenues (thousand dollars)'
+
+  var ctxIRR = document.getElementById("irrParetoChart").getContext("2d")
+  irrParetoChart = new Chart.Scatter(ctxIRR, config)
+  var ctxRev = document.getElementById("revParetoChart").getContext("2d")
+  revParetoChart = new Chart.Scatter(ctxRev, configRev)
 }
 
 // file

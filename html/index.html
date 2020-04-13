@@ -167,15 +167,23 @@
                             </div>
                         </div>
 
-
-                        <div class="card-body">
-                            <div class="card ">
-                                <canvas id="paretoChart"></canvas>
+                        <div class="row">
+                            <div class="card-body col-md-6">
+                            <!-- <div class="card-body"> -->
+                                <div class="card ">
+                                    <canvas id="revParetoChart"></canvas>
+                                </div>
+                                <button type="button" class="btn btn-light" id="resetRevChartBtn">Reset View</button>
                             </div>
-                            <button type="button" class="btn btn-light" id="resetChartBtn">Reset View</button>
+                            <div class="card-body col-md-6">
+                            <!-- <div class="card-body"> -->
+                                <div class="card ">
+                                    <canvas id="irrParetoChart"></canvas>
+                                </div>
+                                <button type="button" class="btn btn-light" id="resetIRRChartBtn">Reset View</button>
+                            </div>
                         </div>
-                            <div  id="dataComparison"></div>
-                        </div>
+                        <div  id="dataComparison"></div>
                     </div>  
                 </div>
             </div>
