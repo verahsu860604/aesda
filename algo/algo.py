@@ -31,10 +31,10 @@ for ess in energy_sources:
 markets = [market.Market(**kwargs) for kwargs in data['markets']]
 mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources, test_mode=True)
 
-# read file
+# read files
 file_paths = data['market_data_file']
-for market in file_paths:
-    excel_data_df = pd.read_excel(file_paths[market])
+for file in file_paths:
+    excel_data_df = pd.read_excel(file_paths[file])
     print(excel_data_df.iloc[:3])
     
     # todo: connect real data to algorithms
