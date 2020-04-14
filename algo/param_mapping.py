@@ -69,7 +69,10 @@ market_mapping = \
     'mi-planning'   :   'planning_phase_length',
     'mi-schedule'   :   'selection_phase_length',
     'mi-selection'  :   'schedule_phase_length',
-    'mi-delivery'   :   'delivery_phase_length'
+    'mi-delivery'   :   'delivery_phase_length',
+
+    'setpoint_data_path': 'setpoint_data_path',
+    'price_data_path': 'price_data_path'
     
     # TODO no penalty in python
     # 'mi-upPenalty'  :   '' 
@@ -108,10 +111,11 @@ def map_param(param_ui):
                     key = market_mapping.get(market_dict['name'])
                     if key: # if key exists in market_mapping
                         val = market_dict['value']
-                        if val:
-                            val = ast.literal_eval(val)
-                        else:
-                            val = 0
+                        if key != 'setpoint_data_path' and key != 'price_data_path':
+                            if val:
+                                val = ast.literal_eval(val)
+                            else:
+                                val = 0
                         param['markets'][-1][key] = val
 
         elif k == 'essObjList':
@@ -132,7 +136,5 @@ def map_param(param_ui):
                                     else:
                                         val = 0
                                     param['energy_sources'][-1][key] = val
-        elif k == 'marketDataList':
-            param['market_data_file'] = param_ui['marketDataList']
             
     return param

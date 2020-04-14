@@ -152,13 +152,31 @@ ipc.on('generateResult', (event, args) => {
     revParetoChart.resetZoom()
     progressBar.style = "width: 0%"
     var configForm = $("form").serializeArray()
-    ipc.send('run', {configForm, marketObjList, essObjList, marketDataList})
+    appendFilesToMarket()
+    ipc.send('run', {configForm, marketObjList, essObjList})
     document.querySelector('#result .alert').style.display = "none"
     document.querySelector('#progress').style.display = ""
   } else {
     dialog.showErrorBox('Please fill all the inputs!', 'Missing fields: ' + missing.toString())
   }
 }) 
+
+function appendFilesToMarket() {
+  for(let key in marketDataList) {
+    let e = key.split('-')
+    let filepath = (e[1] === 'setpoint') ? 'setpoint_data_path' : 'price_data_path'
+    let market
+    if(e[0] === 'primary') market = 'Primary Reserve'
+    else if(e[0] === 'secondary') market = 'Secondary Reserve'
+    else if(e[0] === 'tertiary') market = 'Tertiary Reserve'
+    
+    marketObjList[market].push({
+      'name': filepath,
+      'value': marketDataList[key] 
+    })
+  }
+}
+
 
 ipc.on('updateProgressBar', (event, args) => {
 	progressBar.style = "width: " + args[0] + "%"
