@@ -51,6 +51,10 @@ class Market(object):
     Handles parameters and market decisions
     """
     def __init__(self,
+
+                price_data_path,
+                setpoint_data_path,
+
                 time_window_in_delivery = 4,
                 setpoint_interval = 1,
                 planning_phase_length = 20,
@@ -76,6 +80,7 @@ class Market(object):
 
                 data_loader = None,
                 test_mode = False
+
             ):
         """Market builder.0;.p
 
@@ -97,6 +102,7 @@ class Market(object):
 
             data_loader (MarketDataLoader): Market data loader.
         """
+
         self.time_window_in_delivery = time_window_in_delivery
         self.setpoint_interval = setpoint_interval
         self.planning_phase_length = planning_phase_length
