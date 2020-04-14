@@ -21,7 +21,7 @@ def getCashFlow(cost, cin, years):
     cin.append(cin_avg*(years - full_years))
     cin[0] -= cost
     cashflow = np.array(cin)
-    print("DEBUG: cashflow", cashflow)
+    # print("DEBUG: cashflow", cashflow)
     return cashflow
 
 def getIRR(cashflow):
@@ -85,11 +85,10 @@ class CyclicCoordinate(object):
         """
         if type(soh) == type(()):
             soh = soh[0]
-        # soh -= 0.01
         number_of_week = self.mpc_solver.config.tot_timestamps / (60.0 * 24.0 * 7.0)
         # print("DEBUG: ", self.mpc_solver.config.tot_timestamps, number_of_week, soh)
-        # return (soh - 0.8) / ((1 - soh) / number_of_week * 52)
-        return random.random()*10
+        return (soh - 0.8) / ((1 - soh) / number_of_week * 52)
+        # return random.random()*10
  
     def Algo4(self, percentage):
         solutions = []
@@ -130,20 +129,20 @@ class CyclicCoordinate(object):
                         current_value_params[i] = value
                         revenue, soc, soh, storage = self.run_mpc(np.reshape(current_value_params, [-1, 2]).tolist(), percentage)
                         
-                        print("DEBUG: soh", soh)
+                        # print("DEBUG: soh", soh)
                         if(not type(soh) == type([])):
                             soh_array = [soh]
                         else:
                             soh_array = soh
                         years = self.get_battery_life(min(soh_array))
-                        print("DEBUG: years", years)
+                        # print("DEBUG: years", years)
                         cashflow = getCashFlow(self.cost, revenue, years)
                         irr = getIRR(cashflow)
                         if math.isnan(irr): # TODO: IRR should not be nan
                             irr = 0
-                        print("DEBUG: irr", irr)
+                        # print("DEBUG: irr", irr)
                         pbp = getPBP(cashflow)
-                        print("DEBUG: pbp", pbp)
+                        # print("DEBUG: pbp", pbp)
                         # Print results:
                         if self.really_run:
                             self.global_id += 1

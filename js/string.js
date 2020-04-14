@@ -51,17 +51,19 @@ var ess = {
 
 
 var data = {
-    'x'     :   'Remaining years',
-    'y'     :   'y',
-    'ess0'  :   '   Power Flow Battery',
-    'ess1'  :   '   Lithium-ion Battery',
-    'ess2'  :   '   Supercapacitor',
-    'ess3'  :   '   Custom',
-    'pbp'   :   'PBP',
-    'revenue':   'revenue',
-    'irr'   :   'IRR',
-    'id'    :   'Data id'
-    // 'soc'   :   
+    'x'             :   'Remaining years',
+    'y'             :   'y',
+    'ess0'          :   'Power Flow Battery',
+    'ess1'          :   'Lithium-ion Battery',
+    'ess2'          :   'Supercapacitor',
+    'ess3'          :   'Custom',
+    'pbp'           :   'PBP',
+    'revenue'       :   'Revenues',
+    'irr'           :   'IRR',
+    'id'            :   'Data id',
+    'percentages'   :   'Percentages',
+    'prices'        :   'prices',
+    'soc'           :   'soc'
 }
 
 var file = {

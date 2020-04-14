@@ -136,15 +136,12 @@ progressBar.style = "width: 10%"
 
 ipc.on('generateResult', (event, args) => {
   missing = formValidation()
-  // if(missing.length === 0) { 
+  if(missing.length === 0) { 
     progressBar.classList = "progress-bar progress-bar-striped progress-bar-animated"
     irrParetoChart.data.datasets[0].data = []
     irrParetoChart.data.datasets[1].data = []
     irrParetoChart.update()
     irrParetoChart.resetZoom()
-    
-    console.log(irrParetoChart.data.datasets[0].data)
-    console.log(irrParetoChart.data.datasets[1].data)
     revParetoChart.data.datasets[0].data = []
     revParetoChart.data.datasets[1].data = []
     revParetoChart.update()
@@ -154,9 +151,9 @@ ipc.on('generateResult', (event, args) => {
     ipc.send('run', {configForm, marketObjList, essObjList, marketDataList})
     document.querySelector('#result .alert').style.display = "none"
     document.querySelector('#progress').style.display = ""
-  // } else {
-  //   dialog.showErrorBox('Please fill all the inputs!', 'Missing fields: ' + missing.toString())
-  // }
+  } else {
+    dialog.showErrorBox('Please fill all the inputs!', 'Missing fields: ' + missing.toString())
+  }
 }) 
 
 ipc.on('updateProgressBar', (event, args) => {
@@ -391,7 +388,6 @@ function createDataElem(args) {
     deletebtn.innerHTML = 'Delete'
     
     var cardBody = createElement('div', 'class=card-body')
-    var cardHeadText = document.createTextNode(data)
 
     var card = createElement('div', 'class=card mb-1', 'id='+data)
     var cardiv = createElement('div', 'class=col-sm-4')
@@ -403,27 +399,32 @@ function createDataElem(args) {
         p = createElement('p', 'class=mb-1 ')
         p.innerHTML = (strMap.diStrMap(key) + ": " + (+value.toFixed(2))).bold()
         cardBody.appendChild(p)
-	    } 
-	//   else if(strMap.diStrMap(key) == 'undefined'){
-		
-	// 	continue
-	//   }else if(key === 'ess'){
-    //     for (const [keyEss, valueEss] of Object.entries(value)) {
-    //       p = createElement('p', 'class=mb-1 ')
-    //       p.innerHTML = (keyEss + ": " + valueEss).bold()
-    //       cardBody.appendChild(p)
-    //     }
-    //   }else{
-    //     p = createElement('p', 'class=mb-1')
-    //     p.innerHTML = strMap.diStrMap(key) + ": " + value
-    //   }
-    //   cardBody.appendChild(p)
+	    } else if (key === 'percentages'){
+        p = createElement('p', 'class=mb-1 ')
+        p.innerHTML = (strMap.diStrMap(key) + ": " + value).bold()
+        cardBody.appendChild(p)
+	    } else if (key === 'prices'){
+        numOfMarket = value.length
+        if(numOfMarket>=1){
+          p = createElement('p', 'class=mb-1 ')
+          p.innerHTML = ("Primary<br /> Buying Price: " + (+value[0][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[0][1].toFixed(2))).bold()
+          cardBody.appendChild(p)
+        }
+        if(numOfMarket>=2){
+          p = createElement('p', 'class=mb-1 ')
+          p.innerHTML = ("Secondary<br /> Buying Price: " + (+value[1][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[1][1].toFixed(2))).bold()
+          cardBody.appendChild(p)
+        }
+        if(numOfMarket>=3){
+          p = createElement('p', 'class=mb-1 ')
+          p.innerHTML = ("Tertiary<br /> Buying Price: " + (+value[2][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[2][1].toFixed(2))).bold()
+          cardBody.appendChild(p)
+        }
+      }
     }
-
 
     var dataDisplay = document.getElementById('dataComparison')
     if(dataDisplay.childElementCount === 0){
-    // if(essdisplay.childElementCount === 0 || (essdisplay.lastElementChild !== null && essdisplay.lastElementChild.childElementCount === 3)){
         var row = createElement('div', 'class=row')
         dataDisplay.appendChild(row)   
     }
@@ -436,75 +437,113 @@ function createDataElem(args) {
 
 
     downloadbtn.addEventListener('click', function(e) {
-      var lineArray = ["IRR," + (+data['x'].toFixed(6)), "Year,"+(+data['y'].toFixed(2))]
+      tot_timestamps = data['soc'].length
       numOfBattery = data['soc'][0].length
-      numOfMarket = data['prices'][0].length
-      let title = ""
-      
-      for (i=0;i<numOfMarket;++i){
-        if(i==0)
-          title += "Primary Market Output Price, Primary Market Input Price, "
-        else if(i==1)
-          title += "Secondary Market Output Price, Secondary Market Input Price, "
-        else if(i==2)
-          title += "Tertiary Market Output Price, Tertiary Market Input Price, " 
+      numOfMarket = data['prices'].length
+
+      // console.log("num of battery: " + numOfBattery + "    num of market: " + numOfMarket)
+      marketTitle = ""
+      bp = ""
+      sp = ""
+      percentage = ""
+      if(numOfMarket>=1){
+        marketTitle += "Primary Market"
+        bp += data['prices'][0][0]
+        sp += data['prices'][0][1]
+        percentage += data['percentages'][0]
       }
-      title += "Power Output, Power Input, "
-      for (i=0;i<numOfBattery;++i){
-        title += "Battery " + (i+1)
-        if(i != numOfBattery - 1)
-          title += ',' 
+      if(numOfMarket>=2){
+        marketTitle += ",Secondary Market"
+        bp += ',' + data['prices'][1][0]
+        sp += ',' + data['prices'][1][1]
+        percentage += ',' + data['percentages'][1]
+      }
+      if(numOfMarket>=3){
+        marketTitle += "," 
+        bp += ',' + data['prices'][2][0]
+        sp += ',' + data['prices'][2][1]
+        percentage += ',' + data['percentages'][2]
+      }
+
+      var lineArray = ["Battery Life,"+(+data['x'].toFixed(2)) + ",,," + marketTitle, 
+                            "IRR," + (+data['irr'].toFixed(6)) + ",,Buying Price," + bp, 
+                            "Revenue,"+(+data['revenue'].toFixed(2)) + ",,Selling Price," + sp,
+                            "PBP," + (+data['pbp'].toFixed(6)) + ",,Percentage," + percentage]
+      lineArray.push("")
+      let title = ""
+      for(i=0; i<numOfBattery; ++i){
+        title += "ess" + (i+1) + ",,, "
       }
       lineArray.push(title)
 
-      for(i=0; i<data['soc'].length; ++i){
+      title = ""
+      for(i=0; i<numOfBattery; ++i){
+        title += "Power Input, Power Output, SoC, "
+      }
+      lineArray.push(title)
+      for(i=0; i<tot_timestamps; ++i){
         line = ""
-        
-        for (j=0;j<numOfMarket;++j){
-          if(i<data['prices'].length){
-            line += '' + data['prices'][i][j][0] + ',' + data['prices'][i][j][1] + ','
-          }else{
-            line += ',,'
+        if(numOfBattery == 1){
+          line += data['power'][i][0] + ", " + data['power'][i][1] + ", "
+          line += data['soc'][i]
+        } else {
+          for(j=0; j<numOfBattery; ++j){
+            line += data['power'][i][j][0] + ", " + data['power'][i][j][1] + ", "
+            line += data['soc'][i][j] + ", "
           }
+
         }
-        // if(i<data['prices'].length){
-        //   line += '' + data['prices'][i][0] + ',' + data['prices'][i][1] + ',' 
-        // }else{
-        //   line += ',,'
-        // }
-        if(i<data['power'].length){
-          line += '' + data['power'][i][0] + ',' + data['power'][i][1] + ',' 
-        }else{
-          line += ',,'
-        }
-        for (j=0;j<numOfBattery;++j){
-          line += '' + data['soc'][i][j]
-          if(j != numOfBattery - 1)
-            line += ',' 
-        }
-        
         lineArray.push(line)
       }
 
-      let csvContent = lineArray.join('\n')
+
+      // var lineArray = ["IRR," + (+data['x'].toFixed(6)), "Year,"+(+data['y'].toFixed(2))]
       
-      console.log(data)
-      console.log(data['soc'][0].length)
-      console.log(data['soc'][1].length)
-      console.log(data['soc'][2].length)
-      console.log(data['power'][0].length)
-      console.log(data['power'][0].length)
-      console.log(data['power'][0].length)
-      console.log(data['prices'].length)
-      let content = "temp"
+      // title += "Power Output, Power Input, "
+      // for (i=0;i<numOfBattery;++i){
+      //   title += "Battery " + (i+1)
+      //   if(i != numOfBattery - 1)
+      //     title += ',' 
+      // }
+      // lineArray.push(title)
+
+      // for(i=0; i<data['soc'].length; ++i){
+      //   line = ""
+        
+      //   for (j=0;j<numOfMarket;++j){
+      //     if(i<data['prices'].length){
+      //       line += '' + data['prices'][i][j][0] + ',' + data['prices'][i][j][1] + ','
+      //     }else{
+      //       line += ',,'
+      //     }
+      //   }
+      //   // if(i<data['prices'].length){
+      //   //   line += '' + data['prices'][i][0] + ',' + data['prices'][i][1] + ',' 
+      //   // }else{
+      //   //   line += ',,'
+      //   // }
+      //   if(i<data['power'].length){
+      //     line += '' + data['power'][i][0] + ',' + data['power'][i][1] + ',' 
+      //   }else{
+      //     line += ',,'
+      //   }
+      //   for (j=0;j<numOfBattery;++j){
+      //     line += '' + data['soc'][i][j]
+      //     if(j != numOfBattery - 1)
+      //       line += ',' 
+      //   }
+        
+      //   lineArray.push(line)
+      // }
+
+      let csvContent = lineArray.join('\n')
       var filename
       filename = dialog.showSaveDialog({
         filters: [{
           name: 'CSV',
           extensions: ['csv']
         }]
-      }
-        ).then(result => {
+      }).then(result => {
           filename = result.filePath
           if (filename === undefined) {
             alert("Filename invalid, file not created!")
@@ -512,15 +551,15 @@ function createDataElem(args) {
           }
           fs.writeFile(filename, csvContent, (err) => {
             if (err) {
-              alert("An error ocurred creating the file " + err.message)
+              console.log("An error ocurred creating the file " + err.message)
               return
             }
-            alert("Succesfully saved")
+            console.log("Succesfully saved")
           })
         }).catch(err => {
           alert(err)
         })
-    })
+      })
     deletebtn.addEventListener('click', function(e) {
         cardiv.remove()
     }) 
@@ -545,7 +584,6 @@ function handleClickRev(evt){
 }
 
 function handleHoverIRR(c, id){
-  console.log("ID: " + id)
   var idx = 0,
     dataset = 0
   for( var j=0; j<2; j++){
@@ -566,7 +604,6 @@ function handleHoverIRR(c, id){
         clientY: rect.top + point.y
       }),
       node = c.canvas;
-  console.log("rect" + rect)
   node.dispatchEvent(evt);
 }
 
@@ -670,22 +707,12 @@ function compareData(a, b) {
 	return 0;
   }
 function updateChartData(data) {
-	// TODO soh is all one now, use random to show 
-	// data['soh'] = Math.random()*10
-	// data['x'] = data['soh']
-	// delete data['soh']
-	// data['y'] = data['revenue']/100
-  // delete data['revenue']
   var revData = $.extend(true,{},data)
   data['x'] = data['years']
   revData['x'] = revData['years']
-	// delete data['years']
-	// delete revData['years']
 	data['y'] = data['irr']
-	revData['y'] = revData['revenue']
-	// delete data['irr']
-	// delete revData['revenue']
-  console.log(data)
+  revData['y'] = revData['revenue']
+  
 	if(irrParetoChart.data.datasets[0].data.length == 0 && irrParetoChart.data.datasets[1].data.length == 0){
 		irrParetoChart.data.datasets[1].data.push(data)
 	} else {
@@ -872,6 +899,7 @@ function generateResultChart() {
         }
       },
       responsive: true,
+      aspectRatio: 1.5,
       tooltips: {
         callbacks: {
           label: function(tooltipItem, data) {
@@ -881,6 +909,8 @@ function generateResultChart() {
               handleHoverIRR(revParetoChart, temp['id'])
               return [
                 ['id: ' + temp['id']],
+                ['Buying Price: ' + (+temp['prices'][0][0].toFixed(2))],
+                ['Selling Price: ' + (+temp['prices'][0][1].toFixed(2))],
                 ['Battery Life: ' + (+temp['x'].toFixed(2))],
                 ['IRR: ' + (+temp['irr'].toFixed(2)) + '%'],
                 ['Revenues: ' + (+temp['revenue'].toFixed(2)) + 'k'],
@@ -931,12 +961,12 @@ function generateResultChart() {
   configRev['options']['onClick'] = handleClickRev
   configRev['options']['tooltips']['callbacks'] = {
     label: function(tooltipItem, data) {
-        // var pbp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['pbp']
-        // var revenue = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['revenue']
         temp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]
         handleHoverIRR(irrParetoChart, temp['id'])
         return [
           ['id: ' + temp['id']],
+          ['Buying Price: ' + (+temp['prices'][0][0].toFixed(2))],
+          ['Selling Price: ' + (+temp['prices'][0][1].toFixed(2))],
           ['Battery Life: ' + (+temp['x'].toFixed(2))],
           ['IRR: ' + (+temp['irr'].toFixed(2)) + '%'],
           ['Revenues: ' + (+temp['revenue'].toFixed(2)) + 'k'],
