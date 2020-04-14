@@ -18,6 +18,7 @@ ess_mapping = \
     'ei-selfDischareRatio'  :   'self_discharge_ratio',
     'ei-dimen'              :   'soc_profile_energy_scale',
     'ei-cost'               :   'cost',
+    'ei-othercost'          :   'other_cost',
     # TODO not found in python
     # 'ei-othercost'          :
     

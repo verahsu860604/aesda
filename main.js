@@ -161,6 +161,9 @@ ipc.on('run', (event, args) => {
             totl = parseInt(message.substring(6, message.length), 10)
             console.log('TOTL: ' + totl)
         }
+        if (message.substring(0, 7) == 'DEBUG: ') {
+            console.log(message)
+        }
         if(message.indexOf('id') !== -1){
             while(message.indexOf('Long-step') !== -1){
                 message = message.replace('Long-step dual simplex will be used', '')
@@ -168,6 +171,7 @@ ipc.on('run', (event, args) => {
             data = JSON.parse(message)
             cnt = data['id']
             new_progress = Math.round( 10 + 90 * cnt / totl )
+            // console.log(data)
             mainWindow.webContents.send('updateProgressBar', [new_progress, data])
             
         }
@@ -190,12 +194,6 @@ ipc.on('run', (event, args) => {
     // });
 })
 
-ipc.on('dataPointClick', (event, args) => {
-    createDatapointWindow(args)
-})
-ipc.on('compareData', (event, args) => {
-    mainWindow.webContents.send('addDataToCompare', args)
-})
 
 // create menu template
 const mainMenuTemplate = [
