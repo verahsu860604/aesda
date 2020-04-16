@@ -71,7 +71,7 @@ class CyclicCoordinate(object):
         results = self.mpc_solver.solve(prices, percentages)
         revenue = 0
         for time_k in range(len(results)):
-            revenue += sum(results[time_k]['revenue']) - sum(results[time_k]['penalty'])
+            revenue += sum(results[time_k]['revenue']) - results[time_k]['penalty']
 
         return revenue, \
             np.array([results[time_k]['soc'] for time_k in range(len(results))]), \
