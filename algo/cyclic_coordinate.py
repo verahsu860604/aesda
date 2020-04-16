@@ -21,7 +21,7 @@ def getCashFlow(cost, cin, years):
     cin.append(cin_avg*(years - full_years))
     cin[0] -= cost
     cashflow = np.array(cin)
-    # print("DEBUG: cashflow", cashflow)
+    print("DEBUG: cashflow", cashflow)
     return cashflow
 
 def getIRR(cashflow):
@@ -71,7 +71,7 @@ class CyclicCoordinate(object):
         results = self.mpc_solver.solve(prices, percentages)
         revenue = 0
         for time_k in range(len(results)):
-            revenue += sum(results[time_k]['revenue'])
+            revenue += sum(results[time_k]['revenue']) - sum(results[time_k]['penalty'])
 
         return revenue, \
             np.array([results[time_k]['soc'] for time_k in range(len(results))]), \
@@ -86,8 +86,8 @@ class CyclicCoordinate(object):
         if type(soh) == type(()):
             soh = soh[0]
         number_of_week = self.mpc_solver.config.tot_timestamps / (60.0 * 24.0 * 7.0)
-        # print("DEBUG: ", self.mpc_solver.config.tot_timestamps, number_of_week, soh)
-        return (soh - 0.8) / ((1 - soh) / number_of_week * 52)
+        print("DEBUG: ", self.mpc_solver.config.tot_timestamps, number_of_week, soh)
+        return (soh - 0.8) / ((1 - soh) / number_of_week * 52) if soh <= 1 - 1e-10 else 100 
         # return random.random()*10
  
     def Algo4(self, percentage):
@@ -201,8 +201,8 @@ class CyclicCoordinate(object):
             solutions.extend([s + ('free', 'free', 'free') for s in list_solutions])
             return solutions
 
-        if [market.percentage_fixed for market in self.markets] == [True for market in self.markets]:
-            print('WARNING: ALL fixed not implemented')
+        # if [market.percentage_fixed for market in self.markets] == [True for market in self.markets]:
+        #     print('WARNING: ALL fixed not implemented')
 
         # Cyclic Coordinate
         while True:

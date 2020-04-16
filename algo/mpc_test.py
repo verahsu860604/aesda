@@ -67,7 +67,6 @@ parameters = {
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": True,
             "percentage_fixed": True
         },
         {
@@ -77,7 +76,6 @@ parameters = {
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": True,
             "percentage_fixed": True
         },
         {
@@ -87,7 +85,6 @@ parameters = {
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": True
         },
     ],
     'config':{
@@ -106,7 +103,7 @@ data = get_parameters()
 config = config.Config(**data['config'])
 energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energy_sources']]
 markets = [market.Market(**kwargs) for kwargs in data['markets']]
-mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources, test_mode=True)
+mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources)
 
 print(energy_sources[0].__dict__)
 print(markets[0].__dict__)

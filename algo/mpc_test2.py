@@ -32,7 +32,8 @@ parameters = {
             'd5': 60,
             'c5': 10000,
             'd6': 100,
-            'c6': 3000
+            'c6': 3000,
+            # 'visualize': True
         },
         {
             'energy_type': 'PowerFlow',
@@ -41,8 +42,8 @@ parameters = {
             'soc_profile_min_output_th': 30,
             'soc_profile_max_power_upward': 10,
             'soc_profile_max_power_downward': 10,
-            'efficiency_upward': 0.9,
-            'efficiency_downward': 0.9,
+            'efficiency_upward': 0.7,
+            'efficiency_downward': 0.7,
             'cost': 470,
             'dod_profile': False,
             'd1': 0,
@@ -56,7 +57,8 @@ parameters = {
             'd5': 0,
             'c5': 0,
             'd6': 0,
-            'c6': 0
+            'c6': 0,
+            # 'visualize': True
         }
     ],
     'markets': [
@@ -67,6 +69,17 @@ parameters = {
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
+            # "percentage_fixed": True,
+            'price_data_path': 'data/primary_price.csv',
+            'setpoint_data_path': 'data/primary_setpoint.csv'
+        },
+        {
+            "time_window_in_delivery": 4, # Primary
+            "planning_phase_length": 120,
+            "selection_phase_length": 120,
+            "schedule_phase_length": 120,
+            "delivery_phase_length": 120,
+            "setpoint_interval": 2,
             # "percentage_fixed": True,
             'price_data_path': 'data/primary_price.csv',
             'setpoint_data_path': 'data/primary_setpoint.csv'
@@ -95,8 +108,8 @@ parameters = {
     ],
     'config':{
         'planning_horizon': 4 * 60,
-        'soh_update_interval': 15,
-        'tot_timestamps': 4320
+        'soh_update_interval': 1440,
+        'tot_timestamps': 1440
     }
 }
 

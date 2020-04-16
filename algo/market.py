@@ -19,9 +19,9 @@ class MarketDataLoader(object):
         self.price_data = None
         self.setpoint_data = None
         if price_data_path is not None:
-            self.price_data = pd.read_csv(price_data_path)
+            self.price_data = pd.read_csv(price_data_path).values
         if setpoint_data_path is not None:
-            self.setpoint_data = pd.read_csv(setpoint_data_path)
+            self.setpoint_data = pd.read_csv(setpoint_data_path).values
 
     def get_setpoint(self, timestamp):
         """Get setpoint data of given timestamp.
@@ -34,7 +34,7 @@ class MarketDataLoader(object):
         """
         if self.setpoint_data is None:
             return None
-        setpoint = self.setpoint_data.values[timestamp][1]
+        setpoint = self.setpoint_data[timestamp][1]
         return setpoint / 50 - 1
 
     def get_prices(self, timestamp):
@@ -50,7 +50,7 @@ class MarketDataLoader(object):
         if self.price_data is None:
             return None, None
         timestamp = timestamp // self.time_stamp_scale
-        return (self.price_data.values[timestamp][2], self.price_data.values[timestamp][1])
+        return (self.price_data[timestamp][2], self.price_data[timestamp][1])
 
 class Market(object):
     """Market represents a reserve market (primary, secondary or tertiary)
@@ -59,8 +59,8 @@ class Market(object):
     """
     def __init__(self,
 
-                price_data_path,
-                setpoint_data_path,
+                price_data_path = None,
+                setpoint_data_path = None,
 
                 time_window_in_delivery = 4,
                 setpoint_interval = 1,
@@ -85,9 +85,8 @@ class Market(object):
                 percentage_cyclic_eps = 5,
                 percentage_fixed = False,
 
-                price_data_path = None,
-                setpoint_data_path = None,
-                test_mode = False
+                upward_penalty = 1,
+                downward_penalty = 1
 
             ):
         """Market builder.0;.p
@@ -108,7 +107,11 @@ class Market(object):
             max_feasible_power_percentage (int): Max feasible Power percentage.
             min_feasible_power_percentage (int): Min feasible Power percentage.
 
-            data_loader (MarketDataLoader): Market data loader.
+            price_data_path (str): Price data path.
+            setpoint_data_path (str): setpoint data path.
+
+            upward_penalty (float): upward_penalty.
+            downward_penalty (float): downward_penalty.
         """
 
         self.time_window_in_delivery = time_window_in_delivery
@@ -144,13 +147,16 @@ class Market(object):
 
         self.percentage_fixed = percentage_fixed
 
-        self.test_mode = test_mode
-        if test_mode:
-            self.debug_data = [-1  for i in range(60)]
-            # self.debug_data = [-1 if i % 2 == 0 else 1 for i in range(60)]
-            for i in range(1, 60):
-                if i % self.setpoint_interval != 0:
-                    self.debug_data[i] = self.debug_data[i - 1]
+        self.upward_penalty = upward_penalty
+        self.downward_penalty = downward_penalty
+
+        # self.test_mode = test_mode
+        # if test_mode:
+        #     self.debug_data = [-1  for i in range(60)]
+        #     # self.debug_data = [-1 if i % 2 == 0 else 1 for i in range(60)]
+        #     for i in range(1, 60):
+        #         if i % self.setpoint_interval != 0:
+        #             self.debug_data[i] = self.debug_data[i - 1]
 
 
     def get_setpoint(self, timestamp):
@@ -163,8 +169,8 @@ class Market(object):
             setpoint (float) in range [-1, 1]. If < 0 means downward percentage, setpoint > 0 means upward percentage.
         """
 
-        if self.test_mode:
-            return self.debug_data[timestamp]
+        # if self.test_mode:
+        #     return self.debug_data[timestamp]
 
         if self.data_loader is None: # No data specified
             # return 0
@@ -187,8 +193,8 @@ class Market(object):
             decision (str): str in ['both', 'upward', 'downward', 'none']
         """
         # return 'both'
-        if self.test_mode:
-            return 'both'
+        # if self.test_mode:
+        #     return 'both'
 
         if self.data_loader is None: # No data specified
             return ['both', 'upward', 'downward', 'none'][random.randint(0, 3)] # Use random data

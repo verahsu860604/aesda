@@ -3,6 +3,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+from scipy import interpolate
+
 
 class SOHEstimator(object):
     """State of health Estimation
@@ -24,8 +26,8 @@ class SOHEstimator(object):
         """
         self.downward_change_th = downward_change_th
         self.dimension = dimension
-        self.dod_points = dod_points
-        self.cycle_points = cycle_points
+        self.dod_points = [0] + dod_points
+        self.cycle_points = [100000000] + cycle_points
         self.dod_profile = dod_profile
         self.visualize = visualize
 
@@ -36,8 +38,8 @@ class SOHEstimator(object):
         Returns:
             Estimated Cycles (list or np.array(1d)): How many cycles can the battery be used in estimation, given the curve and the DoD.
         """
-        f1 = np.polyfit(self.dod_points, self.cycle_points, 2)
-        estimated_cycles = np.polyval(f1, DoD)
+        f1 = interpolate.interp1d(self.dod_points, self.cycle_points, kind='linear') #TODO Cubic
+        estimated_cycles = f1(DoD)
         return estimated_cycles
 
     def get_DoD_and_Cycles(self, soc_history):
@@ -199,10 +201,11 @@ class SOHEstimator(object):
         if self.dod_profile:
             estimated_cycles = self.get_cycles(DoD)
             for i in range(DoD.__len__()):
-                if cycles[i] != 0 and self.visualize:
-                    print('DoD:{}, cycles:{}, estimated:{}'.format(i + 1, cycles[i], estimated_cycles[i]))
+                # if cycles[i] != 0 and self.visualize:
+                # print('DoD:{}, cycles:{}, estimated:{}'.format(i + 1, cycles[i], estimated_cycles[i]))
                 res += cycles[i] / estimated_cycles[i] * DoD[i] * 0.01
-            return res / DoD.__len__()
+            # print('fff', res)
+            return res
         else:
             res = sum(cycles)
             return 0.1 * res / 10000

@@ -72,11 +72,11 @@ market_mapping = \
     'mi-delivery'   :   'delivery_phase_length',
 
     'setpoint_data_path': 'setpoint_data_path',
-    'price_data_path': 'price_data_path'
+    'price_data_path': 'price_data_path',
     
     # TODO no penalty in python
-    # 'mi-upPenalty'  :   '' 
-    # 'mi-dwnPenalty' :   ''
+    'mi-upPenalty'  :   'upward_penalty',
+    'mi-dwnPenalty' :   'downward_penalty'
 
     # TODO not found in UI
     # : data_loader

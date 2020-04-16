@@ -10,18 +10,17 @@ from time import sleep
 import cyclic_coordinate
 import pareto
 
-
 parameters = {
     'energy_sources': [
         {
             'energy_type': 'Lithium-Ion',
             'soc_profile_energy_scale': 20,
-            'soc_profile_max_input_th': 100,
-            'soc_profile_min_output_th': 0,
+            'soc_profile_max_input_th': 90,
+            'soc_profile_min_output_th': 10,
             'soc_profile_max_power_upward': 10,
             'soc_profile_max_power_downward': 10,
-            'efficiency_upward': 0.95,
-            'efficiency_downward': 0.95,
+            'efficiency_upward': 0.8,
+            'efficiency_downward': 0.8,
             'cost': 310,
             'dod_profile': True,
             'd1': 2,
@@ -38,38 +37,14 @@ parameters = {
             'c6': 3000
         },
         {
-            'energy_type': 'SuperCap',
-            'soc_profile_energy_scale': 2,
-            'soc_profile_max_input_th': 100,
-            'soc_profile_min_output_th': 0,
-            'soc_profile_max_power_upward': 10,
-            'soc_profile_max_power_downward': 10,
-            'efficiency_upward': 0.95,
-            'efficiency_downward': 0.95,
-            'cost': 3100,
-            'dod_profile': False,
-            'd1': 0,
-            'c1': 10,
-            'd2': 0,
-            'c2': 10,
-            'd3': 0,
-            'c3': 0,
-            'd4': 0,
-            'c4': 0,
-            'd5': 0,
-            'c5': 0,
-            'd6': 0,
-            'c6': 0
-        },
-        {
             'energy_type': 'PowerFlow',
-            'soc_profile_energy_scale': 40,
+            'soc_profile_energy_scale': 20,
             'soc_profile_max_input_th': 70,
             'soc_profile_min_output_th': 30,
             'soc_profile_max_power_upward': 10,
             'soc_profile_max_power_downward': 10,
-            'efficiency_upward': 0.78,
-            'efficiency_downward': 0.78,
+            'efficiency_upward': 0.9,
+            'efficiency_downward': 0.9,
             'cost': 470,
             'dod_profile': False,
             'd1': 0,
@@ -94,30 +69,36 @@ parameters = {
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "percentage_fixed": True
+            # "percentage_fixed": True,
+            'price_data_path': 'data/primary_price.csv',
+            'setpoint_data_path': 'data/primary_setpoint.csv'
         },
-        {
-            "time_window_in_delivery": 4, # Secondary
-            "planning_phase_length": 60,
-            "selection_phase_length": 60,
-            "schedule_phase_length": 60,
-            "delivery_phase_length": 60,
-            "setpoint_interval": 1,
-            "percentage_fixed": True
-        },
-        {
-            "time_window_in_delivery": 4, # Tertiary
-            "planning_phase_length": 60,
-            "selection_phase_length": 60,
-            "schedule_phase_length": 60,
-            "delivery_phase_length": 60,
-            "setpoint_interval": 1,
-        },
+        # {
+        #     "time_window_in_delivery": 4, # Secondary
+        #     "planning_phase_length": 240,
+        #     "selection_phase_length": 240,
+        #     "schedule_phase_length": 240,
+        #     "delivery_phase_length": 240,
+        #     "setpoint_interval": 15,
+        #     # "percentage_fixed": True,
+        #     # 'price_data_path': 'data/primary_price.csv',
+        #     # 'setpoint_data_path': 'data/primary_setpoint.csv'
+        # },
+        # {
+        #     "time_window_in_delivery": 4, # Tertiary
+        #     "planning_phase_length": 960,
+        #     "selection_phase_length": 960,
+        #     "schedule_phase_length": 960,
+        #     "delivery_phase_length": 960,
+        #     "setpoint_interval": 60,
+        #     # 'price_data_path': 'data/primary_price.csv',
+        #     # 'setpoint_data_path': 'data/primary_setpoint.csv'
+        # },
     ],
     'config':{
-        'planning_horizon': 60,
-        'soh_update_interval': 24 * 7 * 60,
-        'tot_timestamps': 60
+        'planning_horizon': 4 * 60,
+        'soh_update_interval': 720,
+        'tot_timestamps': 720
     }
 }
 

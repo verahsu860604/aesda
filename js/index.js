@@ -28,9 +28,9 @@ const barColor = {
 
 // init config
 const defaultVal = {
-  'ci-predic': 20, 
-  'ci-totTimestamp': 300,
-  'ci-sohItv': 24*7*60
+  'ci-predic': 240, 
+  'ci-totTimestamp': 720,
+  'ci-sohItv': 720
 }
 
 Object.keys(defaultVal).forEach(e => {
@@ -689,7 +689,6 @@ function getParameters(){
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": true,
             "percentage_fixed": true,
             "price_cyclic_eps_upward": 1,
             "price_cyclic_eps_downward": 1,
@@ -702,7 +701,6 @@ function getParameters(){
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": true,
             "percentage_fixed": true
         },
         {
@@ -712,7 +710,6 @@ function getParameters(){
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": true
         },
     ],
     'config':{
