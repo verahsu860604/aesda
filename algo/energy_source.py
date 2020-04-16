@@ -233,6 +233,7 @@ class EnergySource(object):
                 max_soh=1.0, 
                 min_soh=0.8, 
                 cost=310,
+                other_cost=0,
                 dod_profile_change_th=0.2,
                 d1=0,
                 c1=0,
@@ -304,7 +305,7 @@ class EnergySource(object):
         self.max_degradation_para = max_degradation_para
         self.max_soh = max_soh
         self.min_soh = min_soh
-        self.cost = cost
+        self.cost = cost + other_cost
         self.dod_profile = dod_profile
         if d5==0 or d6 == 0:
             self.dod_profile = False

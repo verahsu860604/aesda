@@ -51,24 +51,28 @@ var ess = {
 
 
 var data = {
-    'x'     :   'Remaining years',
-    'y'     :   'IRR',
-    'ess0'  :   '   Power Flow Battery',
-    'ess1'  :   '   Lithium-ion Battery',
-    'ess2'  :   '   Supercapacitor',
-    'ess3'  :   '   Custom',
-    'pbp'   :   'PBP',
-    'profit':   'Profit',
-    // 'soc'   :   
+    'x'             :   'Remaining years',
+    'y'             :   'y',
+    'ess0'          :   'Power Flow Battery',
+    'ess1'          :   'Lithium-ion Battery',
+    'ess2'          :   'Supercapacitor',
+    'ess3'          :   'Custom',
+    'pbp'           :   'PBP',
+    'revenue'       :   'Revenues',
+    'irr'           :   'IRR',
+    'id'            :   'Data id',
+    'percentages'   :   'Percentages',
+    'prices'        :   'prices',
+    'soc'           :   'soc'
 }
 
 var file = {
-    'primarySetpoint'   : 'Primary Reserve Setpoint file',
-    'primaryPrice'   : 'Primary Reserve Price file',
-    'secondrySetpoint'   : 'Secondary Reserve Setpoint file',
-    'secondryPrice'   : 'Secondary Reserve Price file',
-    'tertiarySetpoint'   : 'Tertiary Reserve Setpoint file',
-    'tertiaryPrice'   : 'Tertiary Reserve Price file'
+    'primary-setpoint'   : 'Primary Reserve Setpoint file',
+    'primary-price'   : 'Primary Reserve Price file',
+    'secondary-setpoint'   : 'Secondary Reserve Setpoint file',
+    'secondary-price'   : 'Secondary Reserve Price file',
+    'tertiary-setpoint'   : 'Tertiary Reserve Setpoint file',
+    'tertiary-price'   : 'Tertiary Reserve Price file'
 }
 
 var config = {
