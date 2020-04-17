@@ -35,55 +35,55 @@ parameters = {
             'c6': 3000,
             # 'visualize': True
         },
-        {
-            'energy_type': 'PowerFlow',
-            'soc_profile_energy_scale': 20,
-            'soc_profile_max_input_th': 70,
-            'soc_profile_min_output_th': 30,
-            'soc_profile_max_power_upward': 10,
-            'soc_profile_max_power_downward': 10,
-            'efficiency_upward': 0.7,
-            'efficiency_downward': 0.7,
-            'cost': 470,
-            'dod_profile': False,
-            'd1': 0,
-            'c1': 10,
-            'd2': 0,
-            'c2': 10,
-            'd3': 0,
-            'c3': 0,
-            'd4': 0,
-            'c4': 0,
-            'd5': 0,
-            'c5': 0,
-            'd6': 0,
-            'c6': 0,
-            # 'visualize': True
-        }
+        # {
+        #     'energy_type': 'PowerFlow',
+        #     'soc_profile_energy_scale': 20,
+        #     'soc_profile_max_input_th': 70,
+        #     'soc_profile_min_output_th': 30,
+        #     'soc_profile_max_power_upward': 10,
+        #     'soc_profile_max_power_downward': 10,
+        #     'efficiency_upward': 0.7,
+        #     'efficiency_downward': 0.7,
+        #     'cost': 470,
+        #     'dod_profile': False,
+        #     'd1': 0,
+        #     'c1': 10,
+        #     'd2': 0,
+        #     'c2': 10,
+        #     'd3': 0,
+        #     'c3': 0,
+        #     'd4': 0,
+        #     'c4': 0,
+        #     'd5': 0,
+        #     'c5': 0,
+        #     'd6': 0,
+        #     'c6': 0,
+        #     # 'visualize': True
+        # }
     ],
     'markets': [
         {
             "time_window_in_delivery": 4, # Primary
-            "planning_phase_length": 60,
-            "selection_phase_length": 60,
-            "schedule_phase_length": 60,
-            "delivery_phase_length": 60,
+            "planning_phase_length": 20,
+            "selection_phase_length": 20,
+            "schedule_phase_length": 20,
+            "delivery_phase_length": 20,
             "setpoint_interval": 1,
             # "percentage_fixed": True,
             'price_data_path': 'data/primary_price.csv',
             'setpoint_data_path': 'data/primary_setpoint.csv'
         },
-        {
-            "time_window_in_delivery": 4, # Primary
-            "planning_phase_length": 120,
-            "selection_phase_length": 120,
-            "schedule_phase_length": 120,
-            "delivery_phase_length": 120,
-            "setpoint_interval": 2,
-            # "percentage_fixed": True,
-            'price_data_path': 'data/primary_price.csv',
-            'setpoint_data_path': 'data/primary_setpoint.csv'
-        },
+        # {
+        #     "time_window_in_delivery": 4, # Primary
+        #     "planning_phase_length": 120,
+        #     "selection_phase_length": 120,
+        #     "schedule_phase_length": 120,
+        #     "delivery_phase_length": 120,
+        #     "setpoint_interval": 2,
+        #     # "percentage_fixed": True,
+        #     'price_data_path': 'data/primary_price.csv',
+        #     'setpoint_data_path': 'data/primary_setpoint.csv'
+        # },
         # {
         #     "time_window_in_delivery": 4, # Secondary
         #     "planning_phase_length": 240,
@@ -107,7 +107,7 @@ parameters = {
         # },
     ],
     'config':{
-        'planning_horizon': 4 * 60,
+        'planning_horizon': 61,
         'soh_update_interval': 1440,
         'tot_timestamps': 1440
     }

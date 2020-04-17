@@ -13,15 +13,17 @@ def getCashFlow(cost, cin, years):
     """
     if(not type(cin) == type([])):
         cin = [cin]
+    cashflow = [-cost]
+    cashflow.extend(cin)
+    
     full_years = int(years)
     diff = full_years - len(cin)
     cin_avg = sum(cin)/len(cin)
     for i in range(diff):
-        cin.append(cin_avg)
-    cin.append(cin_avg*(years - full_years))
-    cin[0] -= cost
-    cashflow = np.array(cin)
-    print("DEBUG: cashflow", cashflow)
+        cashflow.append(cin_avg)
+    cashflow.append(cin_avg*(years - full_years))
+    cashflow = np.array(cashflow)
+    # print("DEBUG: cashflow", cashflow)
     return cashflow
 
 def getIRR(cashflow):
@@ -72,7 +74,6 @@ class CyclicCoordinate(object):
         revenue = 0
         for time_k in range(len(results)):
             revenue += sum(results[time_k]['revenue']) - results[time_k]['penalty']
-
         return revenue, \
             np.array([results[time_k]['soc'] for time_k in range(len(results))]), \
             tuple(results[-1]['soh']), \
@@ -128,7 +129,8 @@ class CyclicCoordinate(object):
                         current_value_params = value_best_so_far[:] # [:] means copying the list
                         current_value_params[i] = value
                         revenue, soc, soh, storage = self.run_mpc(np.reshape(current_value_params, [-1, 2]).tolist(), percentage)
-                        
+                        revenue = revenue * 60*24*7*52 / self.mpc_solver.config.tot_timestamps
+
                         # print("DEBUG: soh", soh)
                         if(not type(soh) == type([])):
                             soh_array = [soh]
