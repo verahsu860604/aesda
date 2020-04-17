@@ -9,7 +9,7 @@ const ipc = electron.ipcRenderer
 const {PythonShell} = require('python-shell')
 
 
-const XLSX = require('xlsx');
+// const XLSX = require('xlsx');
 
 
 let marketObjList = {}
@@ -85,11 +85,9 @@ function clearDropdownMenu(type) {
 document.querySelector("#marketBtn").addEventListener('click', function() {
     if(curMarket !== undefined) ipc.send("createMarketWindow", curMarket)
 })
-
 document.querySelector("#essBtn").addEventListener('click', function() {
     if(curEss !== undefined) ipc.send("createEssWindow", [curEss, essObjNum])
 })
-
 document.querySelector("#resetIRRChartBtn").addEventListener('click', function() {
   irrParetoChart.resetZoom()
 })
@@ -310,6 +308,7 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
     
     btndiv.appendChild(editbtn)
     btndiv.appendChild(deletebtn)
+
     var cardBody = createElement('div', 'class=card-body row collapse', 'id=body'+essTypeId+"-"+essId, 'aria-labelledby='+essTypeId+"-"+essId, 'data-parent=#head'+essTypeId+"-"+essId)
     var cardHeadBtn = createElement('button', 'class=btn btn-link collapsed p-0', 'data-toggle=collapse', 'data-target=#body'+essTypeId+"-"+essId, 'aria-expanded=false', 'aria-controls='+essTypeId+"-"+essId)
     cardHeadBtn.innerHTML = essType + "-" + essId + " (Quantity: " + essData[0]['value'] + ")"
@@ -360,16 +359,38 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
         cardiv.remove()
     }) 
 
+    // a very weird fixer for chart not shwoing...
+    var ctx = document.getElementById("dod"+essTypeId+essId).getContext('2d');
+    var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'line',
+
+        // The data for our dataset
+        data: {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [{
+                label: 'My First dataset',
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: [0, 10, 5, 2, 20, 30, 45]
+            }]
+        },
+
+        // Configuration options go here
+        options: {}
+    });
+
     socprofile.config['options']['responsive'] = true
     socprofile.config['options']['maintainAspectRatio'] = false
     dodprofile.config['options']['responsive'] = true    
     dodprofile.config['options']['maintainAspectRatio'] = false
     cardchart1.style.height = "168px"
     cardchart2.style.height = "168px"
-    // var socchart = new Chart(document.getElementById("soc"+essTypeId+essId), socprofile.config)
-    // var dodchart = new Chart(document.getElementById("dod"+essTypeId+essId), dodprofile.config)
-    var socchart = new Chart(cardchart1, socprofile.config)
-    var dodchart = new Chart(cardchart2, dodprofile.config)
+
+    // var socchart = new Chart(document.getElementById("soc"+essTypeId+essId).getContext('2d'), socprofile.config)
+    // var dodchart = new Chart(document.getElementById("dod"+essTypeId+essId).getContext('2d'), dodprofile.config)
+    var soc1chart = new Chart(cardchart1, socprofile.config)
+    var dod1chart = new Chart(cardchart2, dodprofile.config)
 }
 
 function editEssElement(essType, essId, essData, socprofile, dodprofile) {

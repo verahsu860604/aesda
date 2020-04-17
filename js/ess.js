@@ -422,7 +422,6 @@ function updateSocProfile() {
     socprofile.data.datasets[1].data = soc_y_data_discharge
     socprofile.update()
 }
-
 const updateDodProfile = function (e) {
     var i = e.target.name[4]
     var c = (e.target.name[5] === 'c') ? 'y' : 'x'
