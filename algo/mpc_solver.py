@@ -97,9 +97,9 @@ class MarketState(object):
         print('DEBUG: new strategy', len(power_values[self.market.phase_length * 2: self.market.phase_length * 3])) #VERBOSE
         print('DEBUG: new strategy value', power_values[self.market.phase_length * 2: self.market.phase_length * 3: self.market.delivery_length]) #VERBOSE
         if direction == 'upward':
-            self.power_delivery_upward = power_values[self.market.phase_length * 2: self.market.phase_length * 3: self.market.delivery_length]
+            self.power_delivery_upward = np.array(power_values[self.market.phase_length * 2: self.market.phase_length * 3: self.market.delivery_length])
         elif direction == 'downward':
-            self.power_delivery_downward = power_values[self.market.phase_length * 2: self.market.phase_length * 3: self.market.delivery_length]
+            self.power_delivery_downward = np.array(power_values[self.market.phase_length * 2: self.market.phase_length * 3: self.market.delivery_length])
 
 
 class MPCSolver(object):
@@ -147,7 +147,7 @@ class MPCSolver(object):
         assert (len(prices) == len(percentages) == self.num_markets), \
             'Number of prices and percentages should be equal'
 
-        self.average_price = np.mean(np.array(prices))
+        self.average_price = np.max(np.array(prices)[:,1])
         print('DEBUG: prices', prices) #VERBOSE
         print('DEBUG: average', self.average_price) #VERBOSE
         # Update percentage. 
@@ -215,7 +215,7 @@ class MPCSolver(object):
                     self._build_static_problem()
                     self._set_basic_parameters_and_constraints(current_time, self.state, prices)
 
-                    self.problem = cp.Problem(cp.Maximize(self.profit) if direction == 'downward' else cp.Maximize(-self.profit), self.constraints + self.dynamic_constraints)
+                    self.problem = cp.Problem(cp.Maximize(self.profit) if direction == 'downward' else cp.Maximize(self.profit + self.potential_profit), self.constraints + self.dynamic_constraints)
 
                     r = self.problem.solve(solver=cp.GUROBI)#SOLVER
                     print('DEBUG: Type2 timestamp:', current_time, direction + ' revenue', r)#VERBOSE
@@ -234,11 +234,11 @@ class MPCSolver(object):
 
                         # Rolling market_decision:
                         # For example: [137, 24, 99] -> [24, 99, 50]
-                        # print('soc', self.variables['soc'].value.tolist())
-                        # print('power_device_upward', self.variables['power_device_upward'].value.tolist())
-                        # print('power_device_downward', self.variables['power_device_downward'].value.tolist())
-                        # print('power_market_upward', self.variables['power_market_upward'].value.tolist())
-                        # print('power_market_downward', self.variables['power_market_downward'].value.tolist())
+                        # print('DEBUG: soc', self.variables['soc'].value.tolist())
+                        # print('DEBUG: power_device_upward', self.variables['power_device_upward'].value.tolist())
+                        # print('DEBUG: power_device_downward', self.variables['power_device_downward'].value.tolist())
+                        # print('DEBUG: power_market_upward', self.variables['power_market_upward'].value.tolist())
+                        # print('DEBUG: power_market_downward', self.variables['power_market_downward'].value.tolist())
             # Set 1
             tmp_planning_horizon = self.config.planning_horizon
             self.config.planning_horizon = 2
@@ -253,7 +253,7 @@ class MPCSolver(object):
             # print('xbeforepower', self.variables['power_market_upward'].value[:,0].tolist())
             # print('xbeforepower', self.variables['power_market_downward'].value[:,0].tolist())
 
-            self.problem = cp.Problem(cp.Maximize(self.profit), self.constraints + self.dynamic_constraints)
+            self.problem = cp.Problem(cp.Maximize(self.profit + self.potential_profit), self.constraints + self.dynamic_constraints)
 
             # r = self.problem.solve(solver=cp.ECOS_BB)
             # print('ECOS timestamp:', current_time, 'setpoint revenue', r)
@@ -267,7 +267,7 @@ class MPCSolver(object):
                 # print(self.state)
                 self._build_static_problem()
                 self._set_basic_parameters_and_constraints(current_time, self.state, prices)            
-                self.problem = cp.Problem(cp.Maximize(self.profit), self.constraints + self.dynamic_constraints)
+                self.problem = cp.Problem(cp.Maximize(self.profit + self.potential_profit), self.constraints + self.dynamic_constraints)
 
                 # r = self.problem.solve(solver=cp.ECOS_BB)
                 # print('ECOS timestamp:', current_time, 'setpoint revenue', r)
@@ -275,10 +275,10 @@ class MPCSolver(object):
 
                 for j in range(self.num_markets):
                     self._set_demands(current_time, j, 'both')
-                # print(self.state['setpoint_upward'])
-                # print(self.state['demand_upward'][:])
-                # print(self.state['setpoint_downward'])
-                # print(self.state['demand_downward'][:])
+                print('DEBUG: ', self.state['setpoint_upward'])
+                print('DEBUG: ', self.state['demand_upward'][:])
+                print('DEBUG: ', self.state['setpoint_downward'])
+                print('DEBUG: ', self.state['demand_downward'][:])
                 penalty = np.sum(self.state['setpoint_upward'] * self.state['demand_upward'][:,0] * np.array([market.upward_penalty for market in self.markets]))\
                     + np.sum(self.state['setpoint_downward'] * self.state['demand_downward'][:,0] * np.array([market.downward_penalty for market in self.markets]))
                 print('DEBUG: penalty', penalty)
