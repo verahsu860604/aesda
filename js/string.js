@@ -78,7 +78,10 @@ var file = {
 var config = {
     'ci-predic'       : 'Prediction Horizon',
     'ci-sohItv'       : 'SoH Update Interval',
-    'ci-totTimestamp' : 'Total Timestamp'
+    'ci-totTimestampMonth' : 'Total Timestamp (Month)',
+    'ci-totTimestampWeek'  : 'Total Timestamp (Week)',
+    'ci-totTimestampDay'   : 'Total Timestamp (Day)',
+    'ci-totTimestampHour'  : 'Total Timestamp (Hour)'
 }
 
 exports.miStrMap = function(str) {

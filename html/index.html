@@ -37,20 +37,23 @@
                             <div class="card mb-3">
                                 <div class="card-body">
                                     <h5 class="card-title">Simulation Parameters</h5>
-                                    <div class="form-group">
-                                        <label for="ci-predic">Prediction Horizon (min)</label>
-                                        <input type="number" step="any" class="form-control" name="ci-predic">
-                                    </div>  
                                     <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <label for="ci-predic">Prediction Horizon (min)</label>
+                                            <input type="number" step="any" class="form-control" name="ci-predic">
+                                        </div>  
                                         <div class="form-group col-md-6">
                                             <label for="ci-sohItv">SoH Update Interval (min)</label>
                                             <input type="number" step="any" class="form-control" name="ci-sohItv">
                                         </div>
-                                        <div class="form-group col-md-6">
-                                            <label for="ci-totTimestamp">Total Timestamp (min)</label>
-                                            <input type="number" step="any" class="form-control" name="ci-totTimestamp">
-                                        </div>
-                                    </div>                                                            
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="m-2">Total Timestamp</div>
+                                        <input type="number" step="any" class="form-control col-md-1" name="ci-totTimestampMonth" ><span class="m-2">Months</span>
+                                        <input type="number" step="any" class="form-control col-md-1" name="ci-totTimestampWeek" ><span class="m-2">Weeks</span>
+                                        <input type="number" step="any" class="form-control col-md-1" name="ci-totTimestampDay" ><span class="m-2">Days</span>
+                                        <input type="number" step="any" class="form-control col-md-1" name="ci-totTimestampHour" ><span class="m-2">Hours</span>
+                                    </div>                         
                                 </div>
                             </div>
                         </form>
