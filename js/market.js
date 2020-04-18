@@ -25,10 +25,10 @@ const defaultVal = {
         'mi-price_cyclic_eps_upward'       : 5, 
         'mi-price_cyclic_eps_downward'     : 5,
         'mi-percentage_cyclic_eps'         : 5,
-        'mi-planning': 20,
-        'mi-schedule': 20,
-        'mi-selection': 20,
-        'mi-delivery': 20,
+        'mi-planning': 60,
+        'mi-schedule': 60,
+        'mi-selection': 60,
+        'mi-delivery': 60,
         'mi-upPenalty': 1, // missing
         'mi-dwnPenalty': 1 // missing
     }, 'Secondary Reserve': {

@@ -64,26 +64,26 @@ parameters = {
     'markets': [
         {
             "time_window_in_delivery": 4, # Primary
-            "planning_phase_length": 20,
-            "selection_phase_length": 20,
-            "schedule_phase_length": 20,
-            "delivery_phase_length": 20,
+            "planning_phase_length": 60,
+            "selection_phase_length": 60,
+            "schedule_phase_length": 60,
+            "delivery_phase_length": 60,
             "setpoint_interval": 1,
             # "percentage_fixed": True,
             'price_data_path': 'data/primary_price.csv',
             'setpoint_data_path': 'data/primary_setpoint.csv'
         },
-        {
-            "time_window_in_delivery": 4, # Primary
-            "planning_phase_length": 40,
-            "selection_phase_length": 40,
-            "schedule_phase_length": 40,
-            "delivery_phase_length": 40,
-            "setpoint_interval": 2,
-            # "percentage_fixed": True,
-            'price_data_path': 'data/primary_price.csv',
-            'setpoint_data_path': 'data/primary_setpoint.csv'
-        },
+        # {
+        #     "time_window_in_delivery": 4, # Primary
+        #     "planning_phase_length": 120,
+        #     "selection_phase_length": 120,
+        #     "schedule_phase_length": 120,
+        #     "delivery_phase_length": 120,
+        #     "setpoint_interval": 2,
+        #     # "percentage_fixed": True,
+        #     'price_data_path': 'data/primary_price.csv',
+        #     'setpoint_data_path': 'data/primary_setpoint.csv'
+        # },
         # {
         #     "time_window_in_delivery": 4, # Secondary
         #     "planning_phase_length": 240,
@@ -108,8 +108,8 @@ parameters = {
     ],
     'config':{
         'planning_horizon': 61,
-        'soh_update_interval': 1440,
-        'tot_timestamps': 1440
+        'soh_update_interval': 2160,
+        'tot_timestamps': 2160
     }
 }
 
@@ -127,7 +127,7 @@ mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy
 print(energy_sources[0].__dict__)
 print(markets[0].__dict__)
 
-results = mpc.solve([[80, 180] for i in range(len(markets))], ['free' for i in range(len(markets))])
+results = mpc.solve([[5, 150] for i in range(len(markets))], ['free' for i in range(len(markets))])
 
 # assert results[-1]['soc'][0] < 0.03
 # assert results[-1]['soc'][0] < 0.03

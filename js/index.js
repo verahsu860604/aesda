@@ -28,7 +28,7 @@ const barColor = {
 
 // init config
 const defaultVal = {
-  'ci-predic': 240, 
+  'ci-predic': 180, 
   'ci-totTimestamp': 720,
   'ci-sohItv': 720
 }
@@ -143,11 +143,11 @@ ipc.on('generateResult', (event, args) => {
     irrParetoChart.data.datasets[0].data = []
     irrParetoChart.data.datasets[1].data = []
     irrParetoChart.update()
-    irrParetoChart.resetZoom()
+    // irrParetoChart.resetZoom()
     revParetoChart.data.datasets[0].data = []
     revParetoChart.data.datasets[1].data = []
     revParetoChart.update()
-    revParetoChart.resetZoom()
+    // revParetoChart.resetZoom()
     progressBar.style = "width: 0%"
     var configForm = $("form").serializeArray()
     appendFilesToMarket()
