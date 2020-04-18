@@ -125,6 +125,8 @@ var max_power_input = document.getElementsByName('ei-maxpin')[0]
 var max_power_output = document.getElementsByName('ei-maxpout')[0]
 
 var SoCData =[];
+var RealSoCdata = [];
+
 var soc_x_data = [0, 0, 0, 0];
 var soc_y_data_charge = [0, 0, 0, undefined];
 var soc_y_data_discharge = [undefined, 0, 0, 0];
@@ -136,7 +138,7 @@ ipc.on('essType', (event, args) => {
     essType = args[0];
     essId = args[1]
     essData = args[2]
-    
+
     document.getElementById('essType').innerHTML = essType + "-" + essId
 
     if (essData !== '') {
@@ -147,12 +149,14 @@ ipc.on('essType', (event, args) => {
         setDefault(defaultVal[essType])
     }
 
+    console.log(RealSoCdata)
 
     generageThresholdChart()
     generageDodChart()
     generageSocChart()
     updateSocProfile()
     updateThresholdEstimation(threshold.value)
+    InitThresholdEstimation()
 
     $(document).ready(function(){
         $('.single-slider').jRange({
@@ -230,17 +234,28 @@ function generageThresholdChart() {
         type: 'scatter',
         data: {
             datasets: [{
-                label: "SoC Estimated",
+                label: "Estimated SoC",
                 data: SoCData,
                 showLine: true,
                 borderColor: "#3e95cd",
                 fill: false,
-                lineTension: 0
+                lineTension: 0,
+                pointRadius: 1,
+                borderWidth: 1
+
+                
+            },
+            {
+                label: "Original SoC",
+                data: RealSoCdata,
+                showLine: true,
+                borderColor: "#8e5ea2",
+                fill: false,
+                lineTension: 0,
+                pointRadius: 1
             }]
         },
         options: {
-            zoomEnabled: true,
-            animationEnabled: true,
             title: {
                 display: true,
                 text: 'Estimated SoC Profile'
@@ -257,6 +272,10 @@ function generageThresholdChart() {
                         display: true,
                         labelString: 'Time (min)'
                     },
+                    ticks: {
+                        max: 720,
+                        stepSize: 60
+                    }
                 }]
             }
         }
@@ -337,7 +356,31 @@ function generageDodChart() {
         }
     })
 }
+function InitThresholdEstimation() {
+    
+    let options = {
+        args: [0.0, dimen_input.value]
+    }
+    let pyshell = new PythonShell('__dirname/../algo/visual.py', options, {});
 
+    let totl = 1
+    pyshell.on('message', function (message) {
+        // received a message sent from the Python script (a simple "print" statement)
+        message = message.replace('[','')
+        message = message.replace(']','')
+        message = message.replace(',','')
+        var datapoint = message.split(" ")
+        RealSoCdata.push({
+            x: parseInt(datapoint[0]),
+            y: parseFloat(datapoint[1])
+        });
+    });
+    pyshell.end(function (err) {
+        if (err) throw err;
+        thresholdestimation.data.datasets[1].data = RealSoCdata
+        thresholdestimation.update()
+    });
+}
 function updateThresholdEstimation(val) {
     $('#threshold').val(val); 
     let options = {
@@ -360,12 +403,10 @@ function updateThresholdEstimation(val) {
     pyshell.end(function (err) {
         if (err) throw err;
         thresholdestimation.data.datasets[0].data = SoCData
+        thresholdestimation.data.datasets[1].data = RealSoCdata
         thresholdestimation.update()
         SoCData = []
     });
-    
-    
-
 }
 
 function updateSocProfile() {
@@ -381,7 +422,6 @@ function updateSocProfile() {
     socprofile.data.datasets[1].data = soc_y_data_discharge
     socprofile.update()
 }
-
 const updateDodProfile = function (e) {
     var i = e.target.name[4]
     var c = (e.target.name[5] === 'c') ? 'y' : 'x'
