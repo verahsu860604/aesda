@@ -67,18 +67,21 @@ var data = {
 }
 
 var file = {
-    'primarySetpoint'   : 'Primary Reserve Setpoint file',
-    'primaryPrice'   : 'Primary Reserve Price file',
-    'secondrySetpoint'   : 'Secondary Reserve Setpoint file',
-    'secondryPrice'   : 'Secondary Reserve Price file',
-    'tertiarySetpoint'   : 'Tertiary Reserve Setpoint file',
-    'tertiaryPrice'   : 'Tertiary Reserve Price file'
+    'primary-setpoint'   : 'Primary Reserve Setpoint file',
+    'primary-price'   : 'Primary Reserve Price file',
+    'secondary-setpoint'   : 'Secondary Reserve Setpoint file',
+    'secondary-price'   : 'Secondary Reserve Price file',
+    'tertiary-setpoint'   : 'Tertiary Reserve Setpoint file',
+    'tertiary-price'   : 'Tertiary Reserve Price file'
 }
 
 var config = {
     'ci-predic'       : 'Prediction Horizon',
     'ci-sohItv'       : 'SoH Update Interval',
-    'ci-totTimestamp' : 'Total Timestamp'
+    'ci-totTimestampMonth' : 'Total Timestamp (Month)',
+    'ci-totTimestampWeek'  : 'Total Timestamp (Week)',
+    'ci-totTimestampDay'   : 'Total Timestamp (Day)',
+    'ci-totTimestampHour'  : 'Total Timestamp (Hour)'
 }
 
 exports.miStrMap = function(str) {

@@ -1,5 +1,6 @@
 node_modules/
-algo/output/
+algo/output*/
+algo/data*/
 *.prof
 *.pyc
 __pycache__/

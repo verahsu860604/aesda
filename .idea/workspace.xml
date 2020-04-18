@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="dae25095-8a95-4dba-9b20-415351ac6bf2" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/algo/energy_source.py" beforeDir="false" afterPath="$PROJECT_DIR$/algo/energy_source.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/pareto.py" beforeDir="false" afterPath="$PROJECT_DIR$/algo/pareto.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/ess.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/ess.js" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/algo/energy_source.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4410">
+              <caret line="296" column="38" selection-start-line="296" selection-start-column="13" selection-end-line="296" selection-end-column="38" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/algo/algo.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="495">
+              <caret line="45" column="17" selection-start-line="45" selection-start-column="17" selection-end-line="45" selection-end-column="17" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2355">
+              <caret line="157" column="8" selection-start-line="157" selection-start-column="8" selection-end-line="157" selection-end-column="8" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/algo/main.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="135">
+              <caret line="17" column="60" selection-start-line="17" selection-start-column="60" selection-end-line="17" selection-end-column="60" />
+              <folding>
+                <element signature="e#0#17#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/cvxpy/problems/problem.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="6165">
+              <caret line="433" selection-start-line="433" selection-end-line="433" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/algo/parameters.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="795">
+              <caret line="53" selection-start-line="53" selection-end-line="54" selection-end-column="43" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/algo/test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1155">
+              <caret line="87" column="6" selection-start-line="87" selection-start-column="6" selection-end-line="87" selection-end-column="6" />
+              <folding>
+                <element signature="e#0#17#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/codecs.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4620">
+              <caret line="308" selection-start-line="308" selection-end-line="308" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/algo/mpc_solver.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="217">
+              <caret line="237" column="43" selection-start-line="237" selection-start-column="37" selection-end-line="237" selection-end-column="43" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/algo/cyclic_coordinate.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1845">
+              <caret line="126" selection-start-line="126" selection-end-line="126" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>min_SOC</find>
+      <find>_evolve_and_record</find>
+      <find>variables</find>
+      <find>evolve</find>
+      <find>pys</find>
+      <find>solver</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/algo/mpc_solver.py" />
+        <option value="$PROJECT_DIR$/js/index.js" />
+        <option value="$PROJECT_DIR$/algo/main.py" />
+        <option value="$PROJECT_DIR$/algo/parameters.py" />
+        <option value="$PROJECT_DIR$/js/ess.js" />
+        <option value="$PROJECT_DIR$/main.js" />
+        <option value="$PROJECT_DIR$/algo/energy_source.py" />
+        <option value="$PROJECT_DIR$/algo/algo.py" />
+        <option value="$PROJECT_DIR$/algo/test.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" fullScreen="true">
+    <option name="width" value="1280" />
+    <option name="height" value="800" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="aesda" type="b2602c69:ProjectViewProjectNode" />
+              <item name="aesda" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="aesda" type="b2602c69:ProjectViewProjectNode" />
+              <item name="aesda" type="462c0819:PsiDirectoryNode" />
+              <item name="algo" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="aesda" type="b2602c69:ProjectViewProjectNode" />
+              <item name="aesda" type="462c0819:PsiDirectoryNode" />
+              <item name="html" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="aesda" type="b2602c69:ProjectViewProjectNode" />
+              <item name="aesda" type="462c0819:PsiDirectoryNode" />
+              <item name="js" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="PyDebuggerOptionsProvider">
+    <option name="mySupportGeventDebugging" value="true" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Python.test">
+    <configuration name="algo" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="aesda" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/algo" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/algo/algo.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="aesda" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/algo" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/algo/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="aesda" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/algo" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/algo/test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.test" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.algo" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="dae25095-8a95-4dba-9b20-415351ac6bf2" name="Default Changelist" comment="" />
+      <created>1584155108648</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1584155108648</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="0" width="1280" height="800" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2494043" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32876712" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.14931507" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Python Console" order="10" />
+      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/algo/mpc_solver.py</url>
+          <line>239</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="debuggerHistoryManager">
+    <expressions id="breakpointCondition">
+      <expression>
+        <expression-string>a == 0</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>cum_dod&gt;100</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>a == 0.0</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>cum_dod&gt;99</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/js/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="76">
+          <caret line="525" column="6" selection-start-line="525" selection-start-column="6" selection-end-line="525" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/algo.py" />
+    <entry file="file://$USER_HOME$/PycharmProjects/algo/algo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6480">
+          <caret line="437" column="114" selection-start-line="437" selection-start-column="103" selection-end-line="437" selection-end-column="114" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/html/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-121" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/ess.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1110">
+          <caret line="74" column="21" selection-start-line="74" selection-start-column="21" selection-end-line="74" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/algo/energy_source.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4410">
+          <caret line="296" column="38" selection-start-line="296" selection-start-column="13" selection-end-line="296" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2355">
+          <caret line="157" column="8" selection-start-line="157" selection-start-column="8" selection-end-line="157" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/algo/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="17" column="60" selection-start-line="17" selection-start-column="60" selection-end-line="17" selection-end-column="60" />
+          <folding>
+            <element signature="e#0#17#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/cvxpy/problems/problem.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6165">
+          <caret line="433" selection-start-line="433" selection-end-line="433" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/algo/parameters.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="795">
+          <caret line="53" selection-start-line="53" selection-end-line="54" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/algo/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1155">
+          <caret line="87" column="6" selection-start-line="87" selection-start-column="6" selection-end-line="87" selection-end-column="6" />
+          <folding>
+            <element signature="e#0#17#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/codecs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4620">
+          <caret line="308" selection-start-line="308" selection-end-line="308" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/algo/cyclic_coordinate.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1845">
+          <caret line="126" selection-start-line="126" selection-end-line="126" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/algo/mpc_solver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="217">
+          <caret line="237" column="43" selection-start-line="237" selection-start-column="37" selection-end-line="237" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/algo/algo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="495">
+          <caret line="45" column="17" selection-start-line="45" selection-start-column="17" selection-end-line="45" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

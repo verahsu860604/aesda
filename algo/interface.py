@@ -16,7 +16,7 @@ data = json.loads(data)
 config = config.Config(**data['config'])
 energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energy_sources']]
 markets = [market.Market(**kwargs) for kwargs in data['markets']]
-mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources, test_mode=True)
+mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources)
 
 # Fake run
 cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, really_run=False)

@@ -156,15 +156,20 @@ ipc.on('run', (event, args) => {
 
     let totl = 1
     pyshell.on('message', function (message) {
+        console.log(message);
+        
         // received a message sent from the Python script (a simple "print" statement)
         if (message.substring(0, 6) == 'totl: ') {
             totl = parseInt(message.substring(6, message.length), 10)
             console.log('TOTL: ' + totl)
         }
-        if (message.substring(0, 7) == 'DEBUG: ') {
+        else if (message.substring(0, 7) == 'DEBUG: ') {
             console.log(message)
         }
-        if(message.indexOf('id') !== -1){
+        else if (message.indexOf('license') !== -1) {
+            console.log(message)
+        }
+        else if(message.indexOf('id') !== -1){
             while(message.indexOf('Long-step') !== -1){
                 message = message.replace('Long-step dual simplex will be used', '')
             }

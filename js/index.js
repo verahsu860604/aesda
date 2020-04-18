@@ -9,7 +9,7 @@ const ipc = electron.ipcRenderer
 const {PythonShell} = require('python-shell')
 
 
-const XLSX = require('xlsx');
+// const XLSX = require('xlsx');
 
 
 let marketObjList = {}
@@ -28,9 +28,12 @@ const barColor = {
 
 // init config
 const defaultVal = {
-  'ci-predic': 20, 
-  'ci-totTimestamp': 300,
-  'ci-sohItv': 24*7*60
+  'ci-predic': 180, 
+  'ci-totTimestampMonth': 0,
+  'ci-totTimestampWeek': 0,
+  'ci-totTimestampDay': 0,
+  'ci-totTimestampHour': 12,
+  'ci-sohItv': 720
 }
 
 Object.keys(defaultVal).forEach(e => {
@@ -85,11 +88,9 @@ function clearDropdownMenu(type) {
 document.querySelector("#marketBtn").addEventListener('click', function() {
     if(curMarket !== undefined) ipc.send("createMarketWindow", curMarket)
 })
-
 document.querySelector("#essBtn").addEventListener('click', function() {
     if(curEss !== undefined) ipc.send("createEssWindow", [curEss, essObjNum])
 })
-
 document.querySelector("#resetIRRChartBtn").addEventListener('click', function() {
   irrParetoChart.resetZoom()
 })
@@ -145,20 +146,46 @@ ipc.on('generateResult', (event, args) => {
     irrParetoChart.data.datasets[0].data = []
     irrParetoChart.data.datasets[1].data = []
     irrParetoChart.update()
-    irrParetoChart.resetZoom()
+    // irrParetoChart.resetZoom()
     revParetoChart.data.datasets[0].data = []
     revParetoChart.data.datasets[1].data = []
     revParetoChart.update()
-    revParetoChart.resetZoom()
+    // revParetoChart.resetZoom()
     progressBar.style = "width: 0%"
+
+    // convert timestamp to minute
     var configForm = $("form").serializeArray()
-    ipc.send('run', {configForm, marketObjList, essObjList, marketDataList})
+    let totTimestampMin = (((configForm[2].value * 30) + (configForm[3].value * 7) + configForm[4].value) * 24 + configForm[5].value) * 60
+    for(let i = 2; i < 6; i++) configForm.pop()
+    configForm.push({"name": "ci-totTimestamp", "value": totTimestampMin.toString()})
+
+    // append files to market objects
+    appendFilesToMarket()
+    
+    ipc.send('run', {configForm, marketObjList, essObjList})
     document.querySelector('#result .alert').style.display = "none"
     document.querySelector('#progress').style.display = ""
   } else {
     dialog.showErrorBox('Please fill all the inputs!', 'Missing fields: ' + missing.toString())
   }
 }) 
+
+function appendFilesToMarket() {
+  for(let key in marketDataList) {
+    let e = key.split('-')
+    let filepath = (e[1] === 'setpoint') ? 'setpoint_data_path' : 'price_data_path'
+    let market
+    if(e[0] === 'primary') market = 'Primary Reserve'
+    else if(e[0] === 'secondary') market = 'Secondary Reserve'
+    else if(e[0] === 'tertiary') market = 'Tertiary Reserve'
+    
+    marketObjList[market].push({
+      'name': filepath,
+      'value': marketDataList[key] 
+    })
+  }
+}
+
 
 ipc.on('updateProgressBar', (event, args) => {
 	progressBar.style = "width: " + args[0] + "%"
@@ -292,6 +319,7 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
     
     btndiv.appendChild(editbtn)
     btndiv.appendChild(deletebtn)
+
     var cardBody = createElement('div', 'class=card-body row collapse', 'id=body'+essTypeId+"-"+essId, 'aria-labelledby='+essTypeId+"-"+essId, 'data-parent=#head'+essTypeId+"-"+essId)
     var cardHeadBtn = createElement('button', 'class=btn btn-link collapsed p-0', 'data-toggle=collapse', 'data-target=#body'+essTypeId+"-"+essId, 'aria-expanded=false', 'aria-controls='+essTypeId+"-"+essId)
     cardHeadBtn.innerHTML = essType + "-" + essId + " (Quantity: " + essData[0]['value'] + ")"
@@ -342,16 +370,38 @@ function createEssElem(essType, essId, essData, socprofile, dodprofile) {
         cardiv.remove()
     }) 
 
+    // a very weird fixer for chart not shwoing...
+    var ctx = document.getElementById("dod"+essTypeId+essId).getContext('2d');
+    var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'line',
+
+        // The data for our dataset
+        data: {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [{
+                label: 'My First dataset',
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: [0, 10, 5, 2, 20, 30, 45]
+            }]
+        },
+
+        // Configuration options go here
+        options: {}
+    });
+
     socprofile.config['options']['responsive'] = true
     socprofile.config['options']['maintainAspectRatio'] = false
     dodprofile.config['options']['responsive'] = true    
     dodprofile.config['options']['maintainAspectRatio'] = false
     cardchart1.style.height = "168px"
     cardchart2.style.height = "168px"
-    // var socchart = new Chart(document.getElementById("soc"+essTypeId+essId), socprofile.config)
-    // var dodchart = new Chart(document.getElementById("dod"+essTypeId+essId), dodprofile.config)
-    var socchart = new Chart(cardchart1, socprofile.config)
-    var dodchart = new Chart(cardchart2, dodprofile.config)
+
+    // var socchart = new Chart(document.getElementById("soc"+essTypeId+essId).getContext('2d'), socprofile.config)
+    // var dodchart = new Chart(document.getElementById("dod"+essTypeId+essId).getContext('2d'), dodprofile.config)
+    var soc1chart = new Chart(cardchart1, socprofile.config)
+    var dod1chart = new Chart(cardchart2, dodprofile.config)
 }
 
 function editEssElement(essType, essId, essData, socprofile, dodprofile) {
@@ -671,7 +721,6 @@ function getParameters(){
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": true,
             "percentage_fixed": true,
             "price_cyclic_eps_upward": 1,
             "price_cyclic_eps_downward": 1,
@@ -684,7 +733,6 @@ function getParameters(){
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": true,
             "percentage_fixed": true
         },
         {
@@ -694,7 +742,6 @@ function getParameters(){
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "test_mode": true
         },
     ],
     'config':{
@@ -1029,7 +1076,7 @@ function formValidation() {
   var inputs = document.getElementsByTagName('input')
   var missing = []
   for(var i = 0; i < inputs.length; i++) {
-    if(i < 3) {
+    if(i < 6) {
       if(inputs[i].value === null || inputs[i].value === "" && inputs[i].disabled === false) {
         missing.push(strMap.ciStrMap(inputs[i].name))
       }
