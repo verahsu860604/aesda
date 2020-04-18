@@ -36,7 +36,7 @@ class SOHEstimator(object):
         Returns:
             Estimated Cycles (list or np.array(1d)): How many cycles can the battery be used in estimation, given the curve and the DoD.
         """
-        f1 = np.polyfit(self.dod_points, self.cycle_points, 2)
+        f1 = np.polyfit(self.dod_points, self.cycle_points, 3)
         estimated_cycles = np.polyval(f1, DoD)
         return estimated_cycles
 
@@ -202,7 +202,7 @@ class SOHEstimator(object):
                 if cycles[i] != 0 and self.visualize:
                     print('DoD:{}, cycles:{}, estimated:{}'.format(i + 1, cycles[i], estimated_cycles[i]))
                 res += cycles[i] / estimated_cycles[i] * DoD[i] * 0.01
-            return res / DoD.__len__()
+            return res 
         else:
             res = sum(cycles)
             return 0.1 * res / 10000
