@@ -163,10 +163,13 @@ ipc.on('run', (event, args) => {
             totl = parseInt(message.substring(6, message.length), 10)
             console.log('TOTL: ' + totl)
         }
-        if (message.substring(0, 7) == 'DEBUG: ') {
+        else if (message.substring(0, 7) == 'DEBUG: ') {
             console.log(message)
         }
-        if(message.indexOf('id') !== -1){
+        else if (message.indexOf('license') !== -1) {
+            console.log(message)
+        }
+        else if(message.indexOf('id') !== -1){
             while(message.indexOf('Long-step') !== -1){
                 message = message.replace('Long-step dual simplex will be used', '')
             }

@@ -3,6 +3,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+from scipy import interpolate
+
 
 class SOHEstimator(object):
     """State of health Estimation
@@ -24,8 +26,8 @@ class SOHEstimator(object):
         """
         self.downward_change_th = downward_change_th
         self.dimension = dimension
-        self.dod_points = dod_points
-        self.cycle_points = cycle_points
+        self.dod_points = [0] + dod_points
+        self.cycle_points = [100000000] + cycle_points
         self.dod_profile = dod_profile
         self.visualize = visualize
 
@@ -36,8 +38,8 @@ class SOHEstimator(object):
         Returns:
             Estimated Cycles (list or np.array(1d)): How many cycles can the battery be used in estimation, given the curve and the DoD.
         """
-        f1 = np.polyfit(self.dod_points, self.cycle_points, 3)
-        estimated_cycles = np.polyval(f1, DoD)
+        f1 = interpolate.interp1d(self.dod_points, self.cycle_points, kind='linear') #TODO Cubic
+        estimated_cycles = f1(DoD)
         return estimated_cycles
 
     def get_DoD_and_Cycles(self, soc_history):
@@ -199,10 +201,10 @@ class SOHEstimator(object):
         if self.dod_profile:
             estimated_cycles = self.get_cycles(DoD)
             for i in range(DoD.__len__()):
-                if cycles[i] != 0 and self.visualize:
-                    print('DoD:{}, cycles:{}, estimated:{}'.format(i + 1, cycles[i], estimated_cycles[i]))
+                # if cycles[i] != 0 and self.visualize:
+                # print('DoD:{}, cycles:{}, estimated:{}'.format(i + 1, cycles[i], estimated_cycles[i]))
                 res += cycles[i] / estimated_cycles[i] * DoD[i] * 0.01
-            return res 
+            return res
         else:
             res = sum(cycles)
             return 0.1 * res / 10000
@@ -264,7 +266,7 @@ class EnergySource(object):
             soc_profile_max_power_downward (float): P-, in MW.
             soc_profile_max_change_upward (float): MaxPChange+, in MW.
             soc_profile_max_change_downward (float): MaxPChange-, in MW.
-            efficiency_upward (float): Effi+. PG+(k) = P+(k) / Effi+ (SHOULD BE > 1)
+            efficiency_upward (float): Effi+. PG+(k) = P+(k) * Effi+ (SHOULD BE < 1)
             efficiency_downward (float): Effi+. PG-(k) = P-(k) * Effi- (SHOULD BE < 1)
             max_degradation_para (float): The value describing how state-of-health affect Max Energy. The larger the bigger.
             min_degradation_para (float): The value describing how state-of-health affect Min Energy. The larger the bigger.
@@ -305,7 +307,7 @@ class EnergySource(object):
         self.max_degradation_para = max_degradation_para
         self.max_soh = max_soh
         self.min_soh = min_soh
-        self.cost = cost + other_cost
+        self.cost = (cost + other_cost)*1000
         self.dod_profile = dod_profile
         if d5==0 or d6 == 0:
             self.dod_profile = False

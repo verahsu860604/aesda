@@ -12,13 +12,13 @@ parameters = {
     'energy_sources': [
         {
             'energy_type': 'Lithium-Ion',
-            'soc_profile_energy_scale': 16,
+            'soc_profile_energy_scale': 20,
             'soc_profile_max_input_th': 90,
             'soc_profile_min_output_th': 10,
             'soc_profile_max_power_upward': 10,
             'soc_profile_max_power_downward': 10,
-            'efficiency_upward': 0.5,
-            'efficiency_downward': 0.5,
+            'efficiency_upward': 0.8,
+            'efficiency_downward': 0.8,
             'cost': 310,
             'dod_profile': True,
             'd1': 2,
@@ -32,17 +32,18 @@ parameters = {
             'd5': 60,
             'c5': 10000,
             'd6': 100,
-            'c6': 3000
+            'c6': 3000,
+            # 'visualize': True
         },
         {
             'energy_type': 'PowerFlow',
-            'soc_profile_energy_scale': 16,
+            'soc_profile_energy_scale': 20,
             'soc_profile_max_input_th': 70,
             'soc_profile_min_output_th': 30,
             'soc_profile_max_power_upward': 10,
             'soc_profile_max_power_downward': 10,
-            'efficiency_upward': 0.25,
-            'efficiency_downward': 0.25,
+            'efficiency_upward': 0.75,
+            'efficiency_downward': 0.75,
             'cost': 470,
             'dod_profile': False,
             'd1': 0,
@@ -56,7 +57,8 @@ parameters = {
             'd5': 0,
             'c5': 0,
             'd6': 0,
-            'c6': 0
+            'c6': 0,
+            # 'visualize': True
         }
     ],
     'markets': [
@@ -67,30 +69,47 @@ parameters = {
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
             "setpoint_interval": 1,
-            "percentage_fixed": True
+            # "percentage_fixed": True,
+            'price_data_path': 'data/primary_price.csv',
+            'setpoint_data_path': 'data/primary_setpoint.csv'
         },
-        {
-            "time_window_in_delivery": 4, # Primary
-            "planning_phase_length": 60,
-            "selection_phase_length": 60,
-            "schedule_phase_length": 60,
-            "delivery_phase_length": 60,
-            "setpoint_interval": 1,
-            "percentage_fixed": True
-        },
-        {
-            "time_window_in_delivery": 4, # Primary
-            "planning_phase_length": 60,
-            "selection_phase_length": 60,
-            "schedule_phase_length": 60,
-            "delivery_phase_length": 60,
-            "setpoint_interval": 1,
-        },
+        # {
+        #     "time_window_in_delivery": 4, # Primary
+        #     "planning_phase_length": 120,
+        #     "selection_phase_length": 120,
+        #     "schedule_phase_length": 120,
+        #     "delivery_phase_length": 120,
+        #     "setpoint_interval": 2,
+        #     # "percentage_fixed": True,
+        #     'price_data_path': 'data/primary_price.csv',
+        #     'setpoint_data_path': 'data/primary_setpoint.csv'
+        # },
+        # {
+        #     "time_window_in_delivery": 4, # Secondary
+        #     "planning_phase_length": 240,
+        #     "selection_phase_length": 240,
+        #     "schedule_phase_length": 240,
+        #     "delivery_phase_length": 240,
+        #     "setpoint_interval": 15,
+        #     # "percentage_fixed": True,
+        #     # 'price_data_path': 'data/primary_price.csv',
+        #     # 'setpoint_data_path': 'data/primary_setpoint.csv'
+        # },
+        # {
+        #     "time_window_in_delivery": 4, # Tertiary
+        #     "planning_phase_length": 960,
+        #     "selection_phase_length": 960,
+        #     "schedule_phase_length": 960,
+        #     "delivery_phase_length": 960,
+        #     "setpoint_interval": 60,
+        #     # 'price_data_path': 'data/primary_price.csv',
+        #     # 'setpoint_data_path': 'data/primary_setpoint.csv'
+        # },
     ],
     'config':{
-        'planning_horizon': 60,
-        'soh_update_interval': 24 * 7 * 60,
-        'tot_timestamps': 60
+        'planning_horizon': 61,
+        'soh_update_interval': 2160,
+        'tot_timestamps': 2160
     }
 }
 
@@ -108,7 +127,7 @@ mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy
 print(energy_sources[0].__dict__)
 print(markets[0].__dict__)
 
-results = mpc.solve([[1.80, 1.81] for i in range(len(markets))], ['free', 'free', 'free'])
+results = mpc.solve([[5, 150] for i in range(len(markets))], ['free' for i in range(len(markets))])
 
 # assert results[-1]['soc'][0] < 0.03
 # assert results[-1]['soc'][0] < 0.03
@@ -127,7 +146,9 @@ for key in results[0].keys():
         values.append(record[key])
     values = np.array(values)
     if key != 'soc' and key != 'soh':
-        if len(values[0]) == 3:
+        if type(values[0]) != list or len(values[0]) == 1:
+            plt.step(range(len(values)), values)
+        elif type(values[0]) != list and len(values[0]) == 3:
             plt.subplot(3, 1, 1)
             plt.step(range(len(values)), values[:,0])
             plt.subplot(3, 1, 2)
@@ -139,8 +160,6 @@ for key in results[0].keys():
             plt.step(range(len(values)), values[:,0])
             plt.subplot(2, 1, 2)
             plt.step(range(len(values)), values[:,1])
-        else:
-            plt.step(range(len(values)), values)
     else:
         if len(values[0]) == 3:
             plt.subplot(3, 1, 1)
