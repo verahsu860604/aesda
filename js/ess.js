@@ -149,8 +149,6 @@ ipc.on('essType', (event, args) => {
         setDefault(defaultVal[essType])
     }
 
-    console.log(RealSoCdata)
-
     generageThresholdChart()
     generageDodChart()
     generageSocChart()
