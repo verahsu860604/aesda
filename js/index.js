@@ -29,7 +29,10 @@ const barColor = {
 // init config
 const defaultVal = {
   'ci-predic': 180, 
-  'ci-totTimestamp': 720,
+  'ci-totTimestampMonth': 0,
+  'ci-totTimestampWeek': 0,
+  'ci-totTimestampDay': 0,
+  'ci-totTimestampHour': 12,
   'ci-sohItv': 720
 }
 
@@ -149,8 +152,16 @@ ipc.on('generateResult', (event, args) => {
     revParetoChart.update()
     // revParetoChart.resetZoom()
     progressBar.style = "width: 0%"
+
+    // convert timestamp to minute
     var configForm = $("form").serializeArray()
+    let totTimestampMin = (((configForm[2].value * 30) + (configForm[3].value * 7) + configForm[4].value) * 24 + configForm[5].value) * 60
+    for(let i = 2; i < 6; i++) configForm.pop()
+    configForm.push({"name": "ci-totTimestamp", "value": totTimestampMin.toString()})
+
+    // append files to market objects
     appendFilesToMarket()
+    
     ipc.send('run', {configForm, marketObjList, essObjList})
     document.querySelector('#result .alert').style.display = "none"
     document.querySelector('#progress').style.display = ""
@@ -1065,7 +1076,7 @@ function formValidation() {
   var inputs = document.getElementsByTagName('input')
   var missing = []
   for(var i = 0; i < inputs.length; i++) {
-    if(i < 3) {
+    if(i < 6) {
       if(inputs[i].value === null || inputs[i].value === "" && inputs[i].disabled === false) {
         missing.push(strMap.ciStrMap(inputs[i].name))
       }
