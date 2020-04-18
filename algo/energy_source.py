@@ -480,7 +480,7 @@ class Visualization(object):
             real_time, real_cycle = self.soh_estimator.get_battery_degradation(SOC)
             real_cycle = np.array(real_cycle)/20.0
         else:
-            real_cycle = SOC
+            real_cycle = np.array(SOC)/20.0
             real_time = range(720)
 
         return real_time, real_cycle
