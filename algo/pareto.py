@@ -16,7 +16,7 @@ class ParetoEfficient(object):
         """
         soh = min(soh)
         number_of_week = self.tot_timestamp / (60.0 * 24.0 * 7.0)
-        return (soh - 0.8) / ((1 - soh) / number_of_week * 52) if soh <= 1 - 1e-10 else 100 
+        return (soh - 0.8) / ((1 - soh) / number_of_week * 52.0) if soh <= 1 - 1e-10 else 100 
 
     def get_irr(self, cash_flows):
         #TODO
