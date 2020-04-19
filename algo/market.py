@@ -20,6 +20,7 @@ class MarketDataLoader(object):
         self.setpoint_data = None
         if price_data_path is not None:
             self.price_data = pd.read_csv(price_data_path).values
+            print("START TIME: ", self.price_data[0][0].replace('.', ':'))
         if setpoint_data_path is not None:
             self.setpoint_data = pd.read_csv(setpoint_data_path).values
 

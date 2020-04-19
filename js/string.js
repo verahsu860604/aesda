@@ -58,7 +58,7 @@ var data = {
     'ess2'          :   'Supercapacitor',
     'ess3'          :   'Custom',
     'pbp'           :   'PBP',
-    'revenue'       :   'Revenues',
+    'revenue'       :   'Revenues (kEuro)',
     'irr'           :   'IRR',
     'id'            :   'Data id',
     'percentages'   :   'Percentages',

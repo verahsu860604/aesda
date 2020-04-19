@@ -25,19 +25,19 @@ sys.stdout.flush()
 
 config = config.Config(**data['config'])
 energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energy_sources']]
-cost = sum([es.cost for es in energy_sources])
+costs = (sum([es.cost for es in energy_sources]), sum([es.other_cost for es in energy_sources]))
 for ess in energy_sources:
     ess.tuning_parameter_fit()
 markets = [market.Market(**kwargs) for kwargs in data['markets']]
 mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources)
 
 # Fake run
-cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, cost, really_run=False)
+cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, costs, really_run=False)
 solutions_fake = cc.Algo5()
 print("totl: " + str(len(solutions_fake)))
 sys.stdout.flush()
 
-cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, cost)
+cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, costs)
 solutions = cc.Algo5()
 # print(solutions)
 # pe = pareto.ParetoEfficient(solutions)
