@@ -151,7 +151,7 @@ class CyclicCoordinate(object):
                             print(json.dumps(
                                 {
                                     'id': self.global_id,
-                                    'revenue': revenue,
+                                    'revenue': revenue/1000,
                                     'irr': irr,
                                     'pbp': pbp,
                                     'soc': soc.tolist(),
