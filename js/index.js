@@ -10,7 +10,7 @@ const {PythonShell} = require('python-shell')
 
 
 // const XLSX = require('xlsx');
-
+var timestamp
 
 let marketObjList = {}
 // number of ess objects
@@ -185,11 +185,15 @@ function appendFilesToMarket() {
     })
   }
 }
-
+ipc.on('startTime', (event, args) => {
+  timestamp = Date.parse(args)
+  console.log("timestamp: " + args)
+  console.log("timestamp: " + timestamp)
+})
 
 ipc.on('updateProgressBar', (event, args) => {
 	progressBar.style = "width: " + args[0] + "%"
-	progressHint.innerHTML = 'Simulating... <br />' + 'Current Revenue = ' + args[1]['revenue']
+	progressHint.innerHTML = 'Simulating... <br />' + 'Current Revenue (kEuro) = ' + (+args[1]['revenue'].toFixed(2))
 	updateChartData(args[1])
 })
 
@@ -519,10 +523,11 @@ function createDataElem(args) {
         percentage += ',' + data['percentages'][2]
       }
 
-      var lineArray = ["Battery Life,"+(+data['x'].toFixed(2)) + ",,," + marketTitle, 
-                            "IRR," + (+data['irr'].toFixed(6)) + ",,Buying Price," + bp, 
-                            "Revenue,"+(+data['revenue'].toFixed(2)) + ",,Selling Price," + sp,
-                            "PBP," + (+data['pbp'].toFixed(6)) + ",,Percentage," + percentage]
+      var lineArray = ["Simulation time (min), " + tot_timestamps,
+                      "Battery Life,"+(+data['x'].toFixed(2)) + ",,," + marketTitle, 
+                      "IRR," + (+data['irr'].toFixed(6)) + ",,Buying Price," + bp, 
+                      "Revenue,"+(+data['revenue'].toFixed(2)) + ",,Selling Price," + sp,
+                      "PBP," + (+data['pbp'].toFixed(6)) + ",,Percentage," + percentage]
       lineArray.push("")
       let title = ""
       for(i=0; i<numOfBattery; ++i){
@@ -530,13 +535,28 @@ function createDataElem(args) {
       }
       lineArray.push(title)
 
-      title = ""
+      title = "Time, "
       for(i=0; i<numOfBattery; ++i){
         title += "Power Input, Power Output, SoC, "
       }
       lineArray.push(title)
       for(i=0; i<tot_timestamps; ++i){
         line = ""
+        d = new Date(timestamp)
+        ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d)
+        mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d)
+        da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d)
+        hour = new Intl.DateTimeFormat('en', { hour: 'numeric' , hour12: false}).format(d)
+        min = new Intl.DateTimeFormat('en', { minute: '2-digit' }).format(d)
+        if(hour == 24)
+          hour = '00'
+        if(min.length == 1)
+          min = '0' + min
+        timeString = `${mo}-${da}-${ye} ${hour}:${min}`
+        // console.log(timeString)
+        line += timeString
+        line += ', '
+        timestamp += 60000
         if(numOfBattery == 1){
           line += data['power'][i][0] + ", " + data['power'][i][1] + ", "
           line += data['soc'][i]

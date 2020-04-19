@@ -3,22 +3,22 @@ import json
 import random
 import math
 
-def getCashFlow(cost, cin, years):
+def getCashFlow(costs, cin, years):
     """get cashflow.
 
         Args:
-            cost: total cost(first year only, not considering cost later)
+            costs (Tuple): (first year cost, recurring cost)
             cin (List): List of revenue for each year
             years: number of years of life the battery has
     """
     if(not type(cin) == type([])):
         cin = [cin]
-    cashflow = [-cost]
+    cashflow = [-costs[0]]
     cashflow.extend(cin)
     
     full_years = int(years)
     diff = full_years - len(cin)
-    cin_avg = sum(cin)/len(cin)
+    cin_avg = sum(cin)/len(cin) - costs[1]
     for i in range(diff):
         cashflow.append(cin_avg)
     cashflow.append(cin_avg*(years - full_years))
@@ -53,10 +53,10 @@ class CyclicCoordinate(object):
     """
 
 
-    def __init__(self, markets, mpc_solver, cost, really_run = True):
+    def __init__(self, markets, mpc_solver, costs, really_run = True):
         self.markets = markets
         self.mpc_solver = mpc_solver
-        self.cost = cost
+        self.costs = costs
         self.really_run = really_run
         self.global_id = 0
 
@@ -138,7 +138,7 @@ class CyclicCoordinate(object):
                             soh_array = soh
                         years = self.get_battery_life(min(soh_array))
                         # print("DEBUG: years", years)
-                        cashflow = getCashFlow(self.cost, revenue, years)
+                        cashflow = getCashFlow(self.costs, revenue, years)
                         irr = getIRR(cashflow)
                         if math.isnan(irr): # TODO: IRR should not be nan
                             irr = 0
@@ -151,7 +151,7 @@ class CyclicCoordinate(object):
                             print(json.dumps(
                                 {
                                     'id': self.global_id,
-                                    'revenue': revenue,
+                                    'revenue': revenue/1000,
                                     'irr': irr,
                                     'pbp': pbp,
                                     'soc': soc.tolist(),
