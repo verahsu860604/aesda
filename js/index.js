@@ -8,7 +8,6 @@ const { BrowserWindow } = electron.remote
 const ipc = electron.ipcRenderer
 const { PythonShell } = require('python-shell')
 
-
 // const XLSX = require('xlsx');
 var timestamp
 
@@ -113,6 +112,7 @@ ipc.on('createMarketObj', (event, args) => {
     clearDropdownMenu('market')
     toggleMarketItem(marketType)
   }
+  createTopology()
 })
 
 ipc.on('createEssObj', (event, args) => {
@@ -279,6 +279,7 @@ function createMarketElem(marketType, marketData) {
     delete marketObjList[marketType]
     updateFileSetting()
     card.remove()
+    createTopology()
   })
 }
 
@@ -1119,6 +1120,13 @@ function isObjEmpty() {
   return true
 }
 
+var essColorMapping = { 
+  'Power Flow Battery': '#d4dcff', 
+  'Lithium-Ion': '#f5edf0', 
+  'Supercapacitor': '#a0c4e2', 
+  'Custom': '#b8dbd9' 
+}
+
 // topology
 
 var $ = go.GraphObject.make;
@@ -1147,13 +1155,25 @@ function createTopology() {
       let obj = {
         key: type + '-' + num.toString(),
         name: type + '-' + num.toString(),
+        color: essColorMapping[type]
       }
       nodeDataArray.push(obj)
     }
   }
 
+  for (let market in marketObjList) {
+    let obj = {
+      key: market,
+      name: market.split(' ')[0],
+      color: '#8AA399', 
+      stroke: 'white',
+      geometry: genControlCenter(10, 2)
+    }
+    nodeDataArray.push(obj)
+  }
+
   let marketobj = {
-    key: 'market', name: 'market', parent: nodeDataArray[0].key
+    key: 'mid', name: '???', color: '#8AA399', stroke: 'white'
   }
 
   nodeDataArray.push(marketobj)
@@ -1161,31 +1181,29 @@ function createTopology() {
   var linkDataArray = []
 
   for(let i = 0; i < nodeDataArray.length; i++) {
-    if(nodeDataArray[i].key !== 'market'){
+    if(nodeDataArray[i].key.includes('-')){
       linkDataArray.push({
-        from: nodeDataArray[i].key, to: 'market'
+        from: nodeDataArray[i].key, to: 'mid'
+      })
+    } else if(nodeDataArray[i].key !== 'mid') {
+      linkDataArray.push({
+        to: nodeDataArray[i].key, from: 'mid'
       })
     }
   }
 
-  // the template we defined earlier
   myDiagram.nodeTemplate =
-    $(go.Node, "Horizontal",
-      { background: "#44CCFF" },
-      $(go.Picture,
-        { margin: 10, width: 50, height: 50, background: "red" },
-        new go.Binding("source")),
-      $(go.TextBlock, "Default Text",
-        { margin: 12, stroke: "white", font: "bold 16px sans-serif" },
-        new go.Binding("text", "name"))
+    $(go.Node, "Auto",
+      $(go.Shape, {geometry: genDiskStorage(2, 2), fill: 'blue'}, new go.Binding('fill', 'color'), new go.Binding('geometry', 'geometry')),
+      $(go.TextBlock, "Default Text", { margin: 12, stroke: "black", font: "bold 16px sans-serif" }, new go.Binding("text", "name"), new go.Binding('stroke', 'stroke'))
     );
 
-  // define a Link template that routes orthogonally, with no arrowhead
   myDiagram.linkTemplate =
     $(go.Link,
       { routing: go.Link.Orthogonal, corner: 5 },
-      $(go.Shape, // the link's path shape
-        { strokeWidth: 3, stroke: "#555" }));
+      $(go.Shape, { strokeWidth: 3, stroke: "#555" }),
+      $(go.Shape, {toArrow: 'Standard', stroke: null})
+    );
 
   var model = $(go.GraphLinksModel);
 
@@ -1195,7 +1213,57 @@ function createTopology() {
   myDiagram.model = model;
 }
 
+function genDiskStorage(w, h) {
+  var KAPPA = 4 * ((Math.sqrt(2) - 1) / 3);
+  var geo = new go.Geometry();
+  var cpxOffset = KAPPA * .5;
+  var cpyOffset = KAPPA * .1;
+  var fig = new go.PathFigure(w, .1 * h, true);
+  geo.add(fig);
 
+  // Body
+  fig.add(new go.PathSegment(go.PathSegment.Line, w, .9 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Bezier, .5 * w, h, w, (.9 + cpyOffset) * h,
+    (.5 + cpxOffset) * w, h));
+  fig.add(new go.PathSegment(go.PathSegment.Bezier, 0, .9 * h, (.5 - cpxOffset) * w, h,
+    0, (.9 + cpyOffset) * h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0, .1 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Bezier, .5 * w, 0, 0, (.1 - cpyOffset) * h,
+    (.5 - cpxOffset) * w, 0));
+  fig.add(new go.PathSegment(go.PathSegment.Bezier, w, .1 * h, (.5 + cpxOffset) * w, 0,
+    w, (.1 - cpyOffset) * h));
+  var fig2 = new go.PathFigure(w, .1 * h, false);
+  geo.add(fig2);
+  // Rings
+  fig2.add(new go.PathSegment(go.PathSegment.Bezier, .5 * w, .2 * h, w, (.1 + cpyOffset) * h,
+    (.5 + cpxOffset) * w, .2 * h));
+  fig2.add(new go.PathSegment(go.PathSegment.Bezier, 0, .1 * h, (.5 - cpxOffset) * w, .2 * h,
+    0, (.1 + cpyOffset) * h));
+  fig2.add(new go.PathSegment(go.PathSegment.Move, w, .2 * h));
+  fig2.add(new go.PathSegment(go.PathSegment.Bezier, .5 * w, .3 * h, w, (.2 + cpyOffset) * h,
+    (.5 + cpxOffset) * w, .3 * h));
+  fig2.add(new go.PathSegment(go.PathSegment.Bezier, 0, .2 * h, (.5 - cpxOffset) * w, .3 * h,
+    0, (.2 + cpyOffset) * h));
+  geo.spot1 = new go.Spot(0, .3);
+  geo.spot2 = new go.Spot(1, .9);
+  return geo;
+}
 
+function genControlCenter(w, h) {
+  var geo = new go.Geometry();
+  var fig = new go.PathFigure(0, h, true);
+  geo.add(fig);
 
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0, 0.8 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0.1 * w, 0.8 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0.1 * w, 0));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0.9 * w, 0));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0.9 * w, 0.8 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, w, 0.8 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, w, h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0, h));
+  fig.add(new go.PathSegment(go.PathSegment.Move, 0.1 * w, 0.8 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0.9 * w, 0.8 * h).close());
+  return geo;
+}
 
