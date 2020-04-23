@@ -83,6 +83,7 @@ class MarketState(object):
 
         print('DEBUG: marketupdate demand_delivery_upward', self.demand_delivery_upward)
         print('DEBUG: marketupdate demand_delivery_downward', self.demand_delivery_downward)
+    
     def update_new_strategy(self, direction, power_values):
         """ Update power strategy (Not).
 
@@ -271,7 +272,6 @@ class MPCProblem(object):
 
         self.potential_profit = cp.sum(cp.multiply(cp.multiply(self.variables['soc'][:,-1], efficiency_downward),soc_profile_energy_scale)) * 60 * self.average_price
 
-
     def _set_basic_parameters_and_constraints(self, current_time):
         """ Set parameters and dynamic constraints (Constraints related to the demands / delivery / setpoints are dynamic)
         
@@ -337,8 +337,7 @@ class MPCProblem(object):
                 self.dynamic_constraints.append(self.variables['power_market_upward'][j][1: self.planning_horizon] == self.parameters['demand_upward'][j][1: self.planning_horizon])
                 self.dynamic_constraints.append(self.variables['power_market_downward'][j][1: self.planning_horizon] == self.parameters['demand_downward'][j][1: self.planning_horizon])
      
-                    
-
+            
     
 class MPCSolver(object):
     """Model predictive control solver (Algo 2)
@@ -563,7 +562,6 @@ class MPCSolver(object):
             self._evolve_and_record(problem_energy, prices, penalty)
 
         return self.records
-
 
     def _set_demands(self, problem, current_time, market_id, direction):
         """ Set demand parameters
