@@ -157,9 +157,9 @@ ipc.on('generateResult', (event, args) => {
 
     // convert timestamp to minute
     var configForm = $("form").serializeArray()
-    let totTimestampMin = (((configForm[2].value * 30) + (configForm[3].value * 7) + configForm[4].value) * 24 + configForm[5].value) * 60
-    for (let i = 2; i < 6; i++) configForm.pop()
-    configForm.push({ "name": "ci-totTimestamp", "value": totTimestampMin.toString() })
+    let totTimestampMin = (((parseFloat(configForm[2].value) * 30) + (parseFloat(configForm[3].value) * 7) + parseFloat(configForm[4].value)) * 24 + parseFloat(configForm[5].value)) * 60
+    for(let i = 2; i < 6; i++) configForm.pop()
+    configForm.push({"name": "ci-totTimestamp", "value": totTimestampMin.toString()})
 
     // append files to market objects
     appendFilesToMarket()
