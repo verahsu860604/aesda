@@ -1155,7 +1155,9 @@ function createTopology() {
       let obj = {
         key: type + '-' + num.toString(),
         name: type + '-' + num.toString(),
-        color: essColorMapping[type]
+        // color: essColorMapping[type],
+        color: '#1E8449',
+        geo: 'battery100'
       }
       nodeDataArray.push(obj)
     }
@@ -1165,15 +1167,18 @@ function createTopology() {
     let obj = {
       key: market,
       name: market.split(' ')[0],
-      color: '#8AA399', 
-      stroke: 'white',
-      geometry: genControlCenter(10, 2)
+      geo: 'battery50',
+      // color: '#8AA399', 
+      color: '#2874A6',
+      // stroke: 'white',
+      geo: 'reserve'
+      // geometry: genControlCenter(10, 2)
     }
     nodeDataArray.push(obj)
   }
 
   let marketobj = {
-    key: 'mid', name: '???', color: '#8AA399', stroke: 'white'
+    key: 'mid', name: 'Grid', color: 'gray', geo: 'grid'//, stroke: 'white'
   }
 
   nodeDataArray.push(marketobj)
@@ -1191,11 +1196,51 @@ function createTopology() {
       })
     }
   }
-
+  var icons = {
+    "battery100":
+    "M30 8v12h-26v-12h26zM32 17h2v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5zM36 11v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5c1.109 0 2 0.891 2 2z",
+    "battery0":
+    "M34 9c1.109 0 2 0.891 2 2v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5zM34 17v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5h2z",
+    "battery25":
+    "M4 20v-12h8v12h-8zM34 9c1.109 0 2 0.891 2 2v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5zM34 17v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5h2z",
+    "battery50":
+    "M4 20v-12h14v12h-14zM34 9c1.109 0 2 0.891 2 2v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5zM34 17v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5h2z",
+    "battery75":
+    "M4 20v-12h20v12h-20zM34 9c1.109 0 2 0.891 2 2v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5zM34 17v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5h2z",
+    "grid":
+    "M12 0l-12 16h12l-8 16 28-20h-16l12-12z",
+    "reserve":
+    "M32 19l-6-6v-9h-4v5l-6-6-16 16v1h4v10h10v-6h4v6h10v-10h4z"
+  };
+  function geoFunc(geoname) {
+    var geo = icons[geoname];
+    if (typeof geo === "string") {
+      geo = icons[geoname] = go.Geometry.parse(geo, true);
+    }
+    return geo;
+  }
+  var colors = {
+    blue: "#2a6dc0",
+    orange: "#ea2857",
+    green: "#1cc1bc",
+    gray: "#5b5b5b",
+    white: "#F5F5F5"
+  }
   myDiagram.nodeTemplate =
-    $(go.Node, "Auto",
-      $(go.Shape, {geometry: genDiskStorage(2, 2), fill: 'blue'}, new go.Binding('fill', 'color'), new go.Binding('geometry', 'geometry')),
-      $(go.TextBlock, "Default Text", { margin: 12, stroke: "black", font: "bold 16px sans-serif" }, new go.Binding("text", "name"), new go.Binding('stroke', 'stroke'))
+    $(go.Node, "Vertical", 
+      {
+        fromSpot: go.Spot.Right, toSpot: go.Spot.Left
+      },
+      // $(go.Node, "Auto",
+      // $(go.Shape, "Circle",
+      // { fill: "lightcoral", strokeWidth: 0, width: 65, height: 65 },
+      // new go.Binding("fill", "color")),
+    $(go.Shape,
+      { margin: 3, strokeWidth: 0 },
+      new go.Binding("geometry", "geo", geoFunc),
+      new go.Binding("fill", 'color')),
+    
+  $(go.TextBlock, "Default Text", { margin: 12, stroke: "black", font: "bold 16px sans-serif" }, new go.Binding("text", "name"), new go.Binding('stroke', 'stroke'))
     );
 
   myDiagram.linkTemplate =
