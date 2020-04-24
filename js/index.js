@@ -1167,7 +1167,6 @@ function createTopology() {
     let obj = {
       key: market,
       name: market.split(' ')[0],
-      geo: 'battery50',
       // color: '#8AA399', 
       color: '#2874A6',
       // stroke: 'white',
@@ -1188,11 +1187,11 @@ function createTopology() {
   for(let i = 0; i < nodeDataArray.length; i++) {
     if(nodeDataArray[i].key.includes('-')){
       linkDataArray.push({
-        from: nodeDataArray[i].key, to: 'mid'
+        from: nodeDataArray[i].key, to: 'mid', color: 'lightgreen'
       })
     } else if(nodeDataArray[i].key !== 'mid') {
       linkDataArray.push({
-        to: nodeDataArray[i].key, from: 'mid'
+        to: nodeDataArray[i].key, from: 'mid', color: 'lightblue'
       })
     }
   }
@@ -1219,13 +1218,7 @@ function createTopology() {
     }
     return geo;
   }
-  var colors = {
-    blue: "#2a6dc0",
-    orange: "#ea2857",
-    green: "#1cc1bc",
-    gray: "#5b5b5b",
-    white: "#F5F5F5"
-  }
+  
   myDiagram.nodeTemplate =
     $(go.Node, "Vertical", 
       {
@@ -1243,11 +1236,46 @@ function createTopology() {
   $(go.TextBlock, "Default Text", { margin: 12, stroke: "black", font: "bold 16px sans-serif" }, new go.Binding("text", "name"), new go.Binding('stroke', 'stroke'))
     );
 
-  myDiagram.linkTemplate =
+    var Colors = {
+      "red": "#be4b15",
+      "green": "#52ce60",
+      "blue": "#6ea5f8",
+      "lightred": "#fd8852",
+      "lightblue": "#85C1E9",
+      "lightgreen": "#7DCEA0",
+      "pink": "#faadc1",
+      "purple": "#d689ff",
+      "orange": "#f08c00"
+    }
+
+    // a conversion function for translating general color names to specific colors
+    function colorFunc(colorname) {
+      var c = Colors[colorname]
+      if (c) return c;
+      return "gray";
+    }
+    myDiagram.linkTemplate =
     $(go.Link,
-      { routing: go.Link.Orthogonal, corner: 5 },
-      $(go.Shape, { strokeWidth: 3, stroke: "#555" }),
-      $(go.Shape, {toArrow: 'Standard', stroke: null})
+      {
+        layerName: "Background",
+        routing: go.Link.Orthogonal,
+        corner: 15,
+        reshapable: true,
+        resegmentable: true,
+        fromSpot: go.Spot.RightSide,
+        toSpot: go.Spot.LeftSide
+      },
+      // make sure links come in from the proper direction and go out appropriately
+      new go.Binding("fromSpot", "fromSpot", go.Spot.parse),
+      new go.Binding("toSpot", "toSpot", go.Spot.parse),
+      new go.Binding("points").makeTwoWay(),
+      // mark each Shape to get the link geometry with isPanelMain: true
+      $(go.Shape, { isPanelMain: true, stroke: "gray", strokeWidth: 10 },
+        // get the default stroke color from the fromNode
+        new go.Binding("stroke", "fromNode", function(n) { return go.Brush.lighten((n && Colors[n.data.color]) || "gray"); }).ofObject(),
+        // but use the link's data.color if it is set
+        new go.Binding("stroke", "color", colorFunc)),
+      $(go.Shape, { isPanelMain: true, stroke: "white", strokeWidth: 3, name: "ELEC", strokeDashArray: [20, 40] })
     );
 
   var model = $(go.GraphLinksModel);
@@ -1256,8 +1284,32 @@ function createTopology() {
   model.linkDataArray = linkDataArray
   
   myDiagram.model = model;
+  loop();  // animate some flow through the pipes
 }
 
+var opacity = 1;
+var down = true;
+function loop() {
+  var diagram = myDiagram;
+  setTimeout(function() {
+    var oldskips = diagram.skipsUndoManager;
+    diagram.skipsUndoManager = true;
+    diagram.links.each(function(link) {
+      var shape = link.findObject("ELEC");
+      var off = shape.strokeDashOffset - 3;
+      // animate (move) the stroke dash
+      shape.strokeDashOffset = (off <= 0) ? 60 : off;
+      // animte (strobe) the opacity:
+      if (down) opacity = opacity - 0.01;
+      else opacity = opacity + 0.003;
+      if (opacity <= 0) { down = !down; opacity = 0; }
+      if (opacity > 1) { down = !down; opacity = 1; }
+      shape.opacity = opacity;
+    });
+    diagram.skipsUndoManager = oldskips;
+    loop();
+  }, 60);
+}
 function genDiskStorage(w, h) {
   var KAPPA = 4 * ((Math.sqrt(2) - 1) / 3);
   var geo = new go.Geometry();
