@@ -1155,7 +1155,9 @@ function createTopology() {
       let obj = {
         key: type + '-' + num.toString(),
         name: type + '-' + num.toString(),
-        color: essColorMapping[type]
+        // color: essColorMapping[type],
+        color: '#1E8449',
+        geo: 'battery100'
       }
       nodeDataArray.push(obj)
     }
@@ -1165,15 +1167,17 @@ function createTopology() {
     let obj = {
       key: market,
       name: market.split(' ')[0],
-      color: '#8AA399', 
-      stroke: 'white',
-      geometry: genControlCenter(10, 2)
+      // color: '#8AA399', 
+      color: '#2874A6',
+      // stroke: 'white',
+      geo: 'reserve'
+      // geometry: genControlCenter(10, 2)
     }
     nodeDataArray.push(obj)
   }
 
   let marketobj = {
-    key: 'mid', name: '???', color: '#8AA399', stroke: 'white'
+    key: 'mid', name: 'Grid', color: 'gray', geo: 'grid'//, stroke: 'white'
   }
 
   nodeDataArray.push(marketobj)
@@ -1183,26 +1187,95 @@ function createTopology() {
   for(let i = 0; i < nodeDataArray.length; i++) {
     if(nodeDataArray[i].key.includes('-')){
       linkDataArray.push({
-        from: nodeDataArray[i].key, to: 'mid'
+        from: nodeDataArray[i].key, to: 'mid', color: 'lightgreen'
       })
     } else if(nodeDataArray[i].key !== 'mid') {
       linkDataArray.push({
-        to: nodeDataArray[i].key, from: 'mid'
+        to: nodeDataArray[i].key, from: 'mid', color: 'lightblue'
       })
     }
   }
-
+  var icons = {
+    "battery100":
+    "M30 8v12h-26v-12h26zM32 17h2v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5zM36 11v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5c1.109 0 2 0.891 2 2z",
+    "battery0":
+    "M34 9c1.109 0 2 0.891 2 2v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5zM34 17v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5h2z",
+    "battery25":
+    "M4 20v-12h8v12h-8zM34 9c1.109 0 2 0.891 2 2v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5zM34 17v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5h2z",
+    "battery50":
+    "M4 20v-12h14v12h-14zM34 9c1.109 0 2 0.891 2 2v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5zM34 17v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5h2z",
+    "battery75":
+    "M4 20v-12h20v12h-20zM34 9c1.109 0 2 0.891 2 2v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5zM34 17v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5h2z",
+    "grid":
+    "M12 0l-12 16h12l-8 16 28-20h-16l12-12z",
+    "reserve":
+    "M32 19l-6-6v-9h-4v5l-6-6-16 16v1h4v10h10v-6h4v6h10v-10h4z"
+  };
+  function geoFunc(geoname) {
+    var geo = icons[geoname];
+    if (typeof geo === "string") {
+      geo = icons[geoname] = go.Geometry.parse(geo, true);
+    }
+    return geo;
+  }
+  
   myDiagram.nodeTemplate =
-    $(go.Node, "Auto",
-      $(go.Shape, {geometry: genDiskStorage(2, 2), fill: 'blue'}, new go.Binding('fill', 'color'), new go.Binding('geometry', 'geometry')),
-      $(go.TextBlock, "Default Text", { margin: 12, stroke: "black", font: "bold 16px sans-serif" }, new go.Binding("text", "name"), new go.Binding('stroke', 'stroke'))
+    $(go.Node, "Vertical", 
+      {
+        fromSpot: go.Spot.Right, toSpot: go.Spot.Left
+      },
+      // $(go.Node, "Auto",
+      // $(go.Shape, "Circle",
+      // { fill: "lightcoral", strokeWidth: 0, width: 65, height: 65 },
+      // new go.Binding("fill", "color")),
+    $(go.Shape,
+      { margin: 3, strokeWidth: 0 },
+      new go.Binding("geometry", "geo", geoFunc),
+      new go.Binding("fill", 'color')),
+    
+  $(go.TextBlock, "Default Text", { margin: 12, stroke: "black", font: "bold 16px sans-serif" }, new go.Binding("text", "name"), new go.Binding('stroke', 'stroke'))
     );
 
-  myDiagram.linkTemplate =
+    var Colors = {
+      "red": "#be4b15",
+      "green": "#52ce60",
+      "blue": "#6ea5f8",
+      "lightred": "#fd8852",
+      "lightblue": "#85C1E9",
+      "lightgreen": "#7DCEA0",
+      "pink": "#faadc1",
+      "purple": "#d689ff",
+      "orange": "#f08c00"
+    }
+
+    // a conversion function for translating general color names to specific colors
+    function colorFunc(colorname) {
+      var c = Colors[colorname]
+      if (c) return c;
+      return "gray";
+    }
+    myDiagram.linkTemplate =
     $(go.Link,
-      { routing: go.Link.Orthogonal, corner: 5 },
-      $(go.Shape, { strokeWidth: 3, stroke: "#555" }),
-      $(go.Shape, {toArrow: 'Standard', stroke: null})
+      {
+        layerName: "Background",
+        routing: go.Link.Orthogonal,
+        corner: 15,
+        reshapable: true,
+        resegmentable: true,
+        fromSpot: go.Spot.RightSide,
+        toSpot: go.Spot.LeftSide
+      },
+      // make sure links come in from the proper direction and go out appropriately
+      new go.Binding("fromSpot", "fromSpot", go.Spot.parse),
+      new go.Binding("toSpot", "toSpot", go.Spot.parse),
+      new go.Binding("points").makeTwoWay(),
+      // mark each Shape to get the link geometry with isPanelMain: true
+      $(go.Shape, { isPanelMain: true, stroke: "gray", strokeWidth: 10 },
+        // get the default stroke color from the fromNode
+        new go.Binding("stroke", "fromNode", function(n) { return go.Brush.lighten((n && Colors[n.data.color]) || "gray"); }).ofObject(),
+        // but use the link's data.color if it is set
+        new go.Binding("stroke", "color", colorFunc)),
+      $(go.Shape, { isPanelMain: true, stroke: "white", strokeWidth: 3, name: "ELEC", strokeDashArray: [20, 40] })
     );
 
   var model = $(go.GraphLinksModel);
@@ -1211,8 +1284,32 @@ function createTopology() {
   model.linkDataArray = linkDataArray
   
   myDiagram.model = model;
+  loop();  // animate some flow through the pipes
 }
 
+var opacity = 1;
+var down = true;
+function loop() {
+  var diagram = myDiagram;
+  setTimeout(function() {
+    var oldskips = diagram.skipsUndoManager;
+    diagram.skipsUndoManager = true;
+    diagram.links.each(function(link) {
+      var shape = link.findObject("ELEC");
+      var off = shape.strokeDashOffset - 3;
+      // animate (move) the stroke dash
+      shape.strokeDashOffset = (off <= 0) ? 60 : off;
+      // animte (strobe) the opacity:
+      if (down) opacity = opacity - 0.01;
+      else opacity = opacity + 0.003;
+      if (opacity <= 0) { down = !down; opacity = 0; }
+      if (opacity > 1) { down = !down; opacity = 1; }
+      shape.opacity = opacity;
+    });
+    diagram.skipsUndoManager = oldskips;
+    loop();
+  }, 60);
+}
 function genDiskStorage(w, h) {
   var KAPPA = 4 * ((Math.sqrt(2) - 1) / 3);
   var geo = new go.Geometry();
