@@ -154,13 +154,11 @@ ipc.on('generateResult', (event, args) => {
     revParetoChart.update()
     // revParetoChart.resetZoom()
     progressBar.style = "width: 0%"
-
     // convert timestamp to minute
     var configForm = $("form").serializeArray()
     let totTimestampMin = (((parseFloat(configForm[2].value) * 30) + (parseFloat(configForm[3].value) * 7) + parseFloat(configForm[4].value)) * 24 + parseFloat(configForm[5].value)) * 60
     for(let i = 2; i < 6; i++) configForm.pop()
     configForm.push({"name": "ci-totTimestamp", "value": totTimestampMin.toString()})
-
     // append files to market objects
     appendFilesToMarket()
     ipc.send('run', { configForm, marketObjList, essObjList })
@@ -1120,28 +1118,21 @@ function isObjEmpty() {
   return true
 }
 
-var essColorMapping = { 
-  'Power Flow Battery': '#d4dcff', 
-  'Lithium-Ion': '#f5edf0', 
-  'Supercapacitor': '#a0c4e2', 
-  'Custom': '#b8dbd9' 
-}
-
 // topology
 
-var $ = go.GraphObject.make;
+var gojs = go.GraphObject.make;
 
 var myDiagram =
-  $(go.Diagram, "myDiagramDiv",
+  gojs(go.Diagram, "myDiagramDiv",
     {
       "undoManager.isEnabled": true,
-      layout: $(go.TreeLayout,
+      layout: gojs(go.TreeLayout,
         { angle: 0, layerSpacing: 35 })
     });
 
 function createTopology() {
   if(isObjEmpty()) {
-    var model = $(go.GraphLinksModel);
+    var model = gojs(go.GraphLinksModel);
     model.nodeDataArray = []
     model.linkDataArray = []
     myDiagram.model = model;
@@ -1155,7 +1146,6 @@ function createTopology() {
       let obj = {
         key: type + '-' + num.toString(),
         name: type + '-' + num.toString(),
-        // color: essColorMapping[type],
         color: '#1E8449',
         geo: 'battery100'
       }
@@ -1195,6 +1185,7 @@ function createTopology() {
       })
     }
   }
+
   var icons = {
     "battery100":
     "M30 8v12h-26v-12h26zM32 17h2v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5zM36 11v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5c1.109 0 2 0.891 2 2z",
@@ -1211,6 +1202,7 @@ function createTopology() {
     "reserve":
     "M32 19l-6-6v-9h-4v5l-6-6-16 16v1h4v10h10v-6h4v6h10v-10h4z"
   };
+  
   function geoFunc(geoname) {
     var geo = icons[geoname];
     if (typeof geo === "string") {
@@ -1220,20 +1212,20 @@ function createTopology() {
   }
   
   myDiagram.nodeTemplate =
-    $(go.Node, "Vertical", 
+    gojs(go.Node, "Vertical", 
       {
         fromSpot: go.Spot.Right, toSpot: go.Spot.Left
       },
-      // $(go.Node, "Auto",
-      // $(go.Shape, "Circle",
+      // gojs(go.Node, "Auto",
+      // gojs(go.Shape, "Circle",
       // { fill: "lightcoral", strokeWidth: 0, width: 65, height: 65 },
       // new go.Binding("fill", "color")),
-    $(go.Shape,
+    gojs(go.Shape,
       { margin: 3, strokeWidth: 0 },
       new go.Binding("geometry", "geo", geoFunc),
       new go.Binding("fill", 'color')),
     
-  $(go.TextBlock, "Default Text", { margin: 12, stroke: "black", font: "bold 16px sans-serif" }, new go.Binding("text", "name"), new go.Binding('stroke', 'stroke'))
+  gojs(go.TextBlock, "Default Text", { margin: 12, stroke: "black", font: "bold 16px sans-serif" }, new go.Binding("text", "name"), new go.Binding('stroke', 'stroke'))
     );
 
     var Colors = {
@@ -1255,7 +1247,7 @@ function createTopology() {
       return "gray";
     }
     myDiagram.linkTemplate =
-    $(go.Link,
+    gojs(go.Link,
       {
         layerName: "Background",
         routing: go.Link.Orthogonal,
@@ -1270,15 +1262,15 @@ function createTopology() {
       new go.Binding("toSpot", "toSpot", go.Spot.parse),
       new go.Binding("points").makeTwoWay(),
       // mark each Shape to get the link geometry with isPanelMain: true
-      $(go.Shape, { isPanelMain: true, stroke: "gray", strokeWidth: 10 },
+      gojs(go.Shape, { isPanelMain: true, stroke: "gray", strokeWidth: 10 },
         // get the default stroke color from the fromNode
         new go.Binding("stroke", "fromNode", function(n) { return go.Brush.lighten((n && Colors[n.data.color]) || "gray"); }).ofObject(),
         // but use the link's data.color if it is set
         new go.Binding("stroke", "color", colorFunc)),
-      $(go.Shape, { isPanelMain: true, stroke: "white", strokeWidth: 3, name: "ELEC", strokeDashArray: [20, 40] })
+      gojs(go.Shape, { isPanelMain: true, stroke: "white", strokeWidth: 3, name: "ELEC", strokeDashArray: [20, 40] })
     );
 
-  var model = $(go.GraphLinksModel);
+  var model = gojs(go.GraphLinksModel);
 
   model.nodeDataArray = nodeDataArray
   model.linkDataArray = linkDataArray
@@ -1309,58 +1301,5 @@ function loop() {
     diagram.skipsUndoManager = oldskips;
     loop();
   }, 60);
-}
-function genDiskStorage(w, h) {
-  var KAPPA = 4 * ((Math.sqrt(2) - 1) / 3);
-  var geo = new go.Geometry();
-  var cpxOffset = KAPPA * .5;
-  var cpyOffset = KAPPA * .1;
-  var fig = new go.PathFigure(w, .1 * h, true);
-  geo.add(fig);
-
-  // Body
-  fig.add(new go.PathSegment(go.PathSegment.Line, w, .9 * h));
-  fig.add(new go.PathSegment(go.PathSegment.Bezier, .5 * w, h, w, (.9 + cpyOffset) * h,
-    (.5 + cpxOffset) * w, h));
-  fig.add(new go.PathSegment(go.PathSegment.Bezier, 0, .9 * h, (.5 - cpxOffset) * w, h,
-    0, (.9 + cpyOffset) * h));
-  fig.add(new go.PathSegment(go.PathSegment.Line, 0, .1 * h));
-  fig.add(new go.PathSegment(go.PathSegment.Bezier, .5 * w, 0, 0, (.1 - cpyOffset) * h,
-    (.5 - cpxOffset) * w, 0));
-  fig.add(new go.PathSegment(go.PathSegment.Bezier, w, .1 * h, (.5 + cpxOffset) * w, 0,
-    w, (.1 - cpyOffset) * h));
-  var fig2 = new go.PathFigure(w, .1 * h, false);
-  geo.add(fig2);
-  // Rings
-  fig2.add(new go.PathSegment(go.PathSegment.Bezier, .5 * w, .2 * h, w, (.1 + cpyOffset) * h,
-    (.5 + cpxOffset) * w, .2 * h));
-  fig2.add(new go.PathSegment(go.PathSegment.Bezier, 0, .1 * h, (.5 - cpxOffset) * w, .2 * h,
-    0, (.1 + cpyOffset) * h));
-  fig2.add(new go.PathSegment(go.PathSegment.Move, w, .2 * h));
-  fig2.add(new go.PathSegment(go.PathSegment.Bezier, .5 * w, .3 * h, w, (.2 + cpyOffset) * h,
-    (.5 + cpxOffset) * w, .3 * h));
-  fig2.add(new go.PathSegment(go.PathSegment.Bezier, 0, .2 * h, (.5 - cpxOffset) * w, .3 * h,
-    0, (.2 + cpyOffset) * h));
-  geo.spot1 = new go.Spot(0, .3);
-  geo.spot2 = new go.Spot(1, .9);
-  return geo;
-}
-
-function genControlCenter(w, h) {
-  var geo = new go.Geometry();
-  var fig = new go.PathFigure(0, h, true);
-  geo.add(fig);
-
-  fig.add(new go.PathSegment(go.PathSegment.Line, 0, 0.8 * h));
-  fig.add(new go.PathSegment(go.PathSegment.Line, 0.1 * w, 0.8 * h));
-  fig.add(new go.PathSegment(go.PathSegment.Line, 0.1 * w, 0));
-  fig.add(new go.PathSegment(go.PathSegment.Line, 0.9 * w, 0));
-  fig.add(new go.PathSegment(go.PathSegment.Line, 0.9 * w, 0.8 * h));
-  fig.add(new go.PathSegment(go.PathSegment.Line, w, 0.8 * h));
-  fig.add(new go.PathSegment(go.PathSegment.Line, w, h));
-  fig.add(new go.PathSegment(go.PathSegment.Line, 0, h));
-  fig.add(new go.PathSegment(go.PathSegment.Move, 0.1 * w, 0.8 * h));
-  fig.add(new go.PathSegment(go.PathSegment.Line, 0.9 * w, 0.8 * h).close());
-  return geo;
 }
 
