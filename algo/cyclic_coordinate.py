@@ -131,11 +131,12 @@ class CyclicCoordinate(object):
                         revenue, soc, soh, storage = self.run_mpc(np.reshape(current_value_params, [-1, 2]).tolist(), percentage)
                         revenue = revenue * 60*24*7*52 / self.mpc_solver.config.tot_timestamps
 
-                        # print("DEBUG: soh", soh)
-                        if(not type(soh) == type([])):
+                        print("DEBUG: cyclic coordinate soh", soh)
+                        if(type(soh) != list and type(soh) != tuple):
                             soh_array = [soh]
                         else:
                             soh_array = soh
+                        print("DEBUG: cyclic coordinate min_soh", min(soh_array))
                         years = self.get_battery_life(min(soh_array))
                         # print("DEBUG: years", years)
                         cashflow = getCashFlow(self.costs, revenue, years)

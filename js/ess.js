@@ -13,7 +13,7 @@ const defaultVal = {
     'Power Flow Battery': {
         'ei-numOfEss': 1,
         'ei-selfDischareRatio': 0,
-        'ei-dimen': 40,
+        'ei-dimen': 8,
         'ei-cost': 470,
         'ei-othercost': 0,
         'ei-inEffi': 0.78,
@@ -38,7 +38,7 @@ const defaultVal = {
     }, 'Lithium-Ion': {
         'ei-numOfEss': 1,
         'ei-selfDischareRatio': 0,
-        'ei-dimen': 20,
+        'ei-dimen': 4,
         'ei-cost': 310,
         'ei-othercost': 0, 
         'ei-inEffi': 0.95,
@@ -88,7 +88,7 @@ const defaultVal = {
     }, 'Custom': {
         'ei-numOfEss': 1,
         'ei-selfDischareRatio': 0,
-        'ei-dimen': 20,
+        'ei-dimen': 4,
         'ei-cost': 310,
         'ei-othercost': 0, 
         'ei-inEffi': 0.95,

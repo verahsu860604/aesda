@@ -1,4 +1,5 @@
 node_modules/
+pyenv/
 algo/output*/
 algo/data*/
 *.prof

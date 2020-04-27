@@ -68,22 +68,38 @@ parameters = {
             "selection_phase_length": 60,
             "schedule_phase_length": 60,
             "delivery_phase_length": 60,
+            "price_cyclic_n_upward": 2,
+            "price_cyclic_n_downward": 2,
+            "price_cyclic_eps_downward": 80,
+            "price_cyclic_eps_upward": 8,
+            "max_feasible_selling_price": 250,
+            "min_feasible_selling_price": 150,
+            "max_feasible_buying_price": 1,
+            "min_feasible_buying_price": 10,
             "setpoint_interval": 1,
             # "percentage_fixed": True,
             'price_data_path': 'data/primary_price.csv',
             'setpoint_data_path': 'data/primary_setpoint.csv'
         },
-        # {
-        #     "time_window_in_delivery": 4, # Secondary
-        #     "planning_phase_length": 240,
-        #     "selection_phase_length": 240,
-        #     "schedule_phase_length": 240,
-        #     "delivery_phase_length": 240,
-        #     "setpoint_interval": 15,
-        #     # "percentage_fixed": True,
-        #     # 'price_data_path': 'data/primary_price.csv',
-        #     # 'setpoint_data_path': 'data/primary_setpoint.csv'
-        # },
+        {
+            "time_window_in_delivery": 4, # Secondary
+            "planning_phase_length": 120,
+            "selection_phase_length": 120,
+            "schedule_phase_length": 120,
+            "delivery_phase_length": 120,
+            "setpoint_interval": 15,
+            "price_cyclic_n_upward": 2,
+            "price_cyclic_n_downward": 2,
+            "price_cyclic_eps_downward": 80,
+            "price_cyclic_eps_upward": 8,
+            "max_feasible_selling_price": 250,
+            "min_feasible_selling_price": 150,
+            "max_feasible_buying_price": 1,
+            "min_feasible_buying_price": 10,
+            # "percentage_fixed": True,
+            'price_data_path': 'data/primary_price.csv',
+            'setpoint_data_path': 'data/primary_setpoint.csv'
+        },
         # {
         #     "time_window_in_delivery": 4, # Tertiary
         #     "planning_phase_length": 960,
@@ -116,11 +132,11 @@ markets = [market.Market(**kwargs) for kwargs in data['markets']]
 mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources)
 
 # Fake run
-cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, 10, really_run=False)
+cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, [10, 10], really_run=False)
 solutions_fake = cc.Algo5()
 print("totl: " + str(len(solutions_fake)))
 
-cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, 10)
+cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, [10, 10])
 solutions = cc.Algo5()
 print(solutions[0])
 # pe = pareto.ParetoEfficient(solutions)
