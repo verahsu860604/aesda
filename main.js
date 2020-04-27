@@ -145,6 +145,8 @@ ipc.on('editEsstObj', (event, args) => {
     createEssWindow(args)
 })
 
+var pyshell;
+
 ipc.on('run', (event, args) => {
     let options = {
         // machine specific
@@ -152,7 +154,7 @@ ipc.on('run', (event, args) => {
         args: [JSON.stringify(args)]
     }
     
-    let pyshell = new PythonShell('algo/algo.py', options, {});
+    pyshell = new PythonShell('algo/algo.py', options, {});
 
     let totl = 1
     pyshell.on('message', function (message) {
@@ -228,7 +230,12 @@ const mainMenuTemplate = [
                     mainWindow.webContents.send('generateResult')
                 }
             },{
-                label: 'Stop'
+                label: 'Stop',
+                // click() {
+                //     pyshell.terminate(signal, () => {
+                //         console.log(signal);  
+                //     })
+                // }
             }
         ]
     }

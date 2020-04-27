@@ -3,19 +3,18 @@ const path = require("path")
 const url = require("url")
 const strMap = require("../js/string.js")
 const fs = require("fs")
-const {dialog} = require('electron').remote;
-const {BrowserWindow} = electron.remote
+const { dialog } = require('electron').remote;
+const { BrowserWindow } = electron.remote
 const ipc = electron.ipcRenderer
-const {PythonShell} = require('python-shell')
-
+const { PythonShell } = require('python-shell')
 
 // const XLSX = require('xlsx');
 var timestamp
 
 let marketObjList = {}
 // number of ess objects
-let essObjNum = {'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0}
-let essObjList = {'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {}}
+let essObjNum = { 'Power Flow Battery': 0, 'Lithium-Ion': 0, 'Supercapacitor': 0, 'Custom': 0 }
+let essObjList = { 'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor': {}, 'Custom': {} }
 let marketDataList = {}
 
 generateResultChart()
@@ -28,7 +27,7 @@ const barColor = {
 
 // init config
 const defaultVal = {
-  'ci-predic': 180, 
+  'ci-predic': 180,
   'ci-totTimestampMonth': 0,
   'ci-totTimestampWeek': 0,
   'ci-totTimestampDay': 0,
@@ -46,16 +45,16 @@ var marketDropdownItem = document.querySelectorAll("#market .dropdown-item")
 var marketDropdownMenu = document.querySelector("#market #dropdownMenuLink")
 
 marketDropdownItem.forEach((node) => {
-    node.addEventListener('click', function(e){
-        curMarket = e['toElement']['text']
-        marketDropdownMenu.innerHTML = curMarket
-    })
-}) 
+  node.addEventListener('click', function (e) {
+    curMarket = e['toElement']['text']
+    marketDropdownMenu.innerHTML = curMarket
+  })
+})
 
 function toggleMarketItem(marketType) {
   marketDropdownItem.forEach(e => {
-    if(e.text === marketType){
-      if(e.style.display === "none")e.style.display = "block"
+    if (e.text === marketType) {
+      if (e.style.display === "none") e.style.display = "block"
       else e.style.display = "none"
     }
   })
@@ -66,16 +65,16 @@ var essDropdownItem = document.querySelectorAll("#ess .dropdown-item")
 var essDropdownMenu = document.querySelector("#ess #dropdownMenuLink")
 
 essDropdownItem.forEach((node) => {
-    node.addEventListener('click', function(e){
-        curEss = e['toElement']['text']
-        essDropdownMenu.innerHTML = curEss
-    })
-}) 
+  node.addEventListener('click', function (e) {
+    curEss = e['toElement']['text']
+    essDropdownMenu.innerHTML = curEss
+  })
+})
 
 function clearDropdownMenu(type) {
-  switch(type) {
+  switch (type) {
     case 'market':
-      marketDropdownMenu.innerHTML = "Select Reserve"    
+      marketDropdownMenu.innerHTML = "Select Reserve"
       break;
     case 'ess':
       essDropdownMenu.innerHTML = 'Select Storage'
@@ -85,54 +84,57 @@ function clearDropdownMenu(type) {
 }
 
 // buttons control
-document.querySelector("#marketBtn").addEventListener('click', function() {
-    if(curMarket !== undefined) ipc.send("createMarketWindow", curMarket)
+document.querySelector("#marketBtn").addEventListener('click', function () {
+  if (curMarket !== undefined) ipc.send("createMarketWindow", curMarket)
 })
-document.querySelector("#essBtn").addEventListener('click', function() {
-    if(curEss !== undefined) ipc.send("createEssWindow", [curEss, essObjNum])
+document.querySelector("#essBtn").addEventListener('click', function () {
+  if (curEss !== undefined) ipc.send("createEssWindow", [curEss, essObjNum])
 })
-document.querySelector("#resetIRRChartBtn").addEventListener('click', function() {
+document.querySelector("#resetIRRChartBtn").addEventListener('click', function () {
   irrParetoChart.resetZoom()
 })
-document.querySelector("#resetRevChartBtn").addEventListener('click', function() {
+document.querySelector("#resetRevChartBtn").addEventListener('click', function () {
   revParetoChart.resetZoom()
 })
 
 // ipc
 ipc.on('createMarketObj', (event, args) => {
-    var marketType = args[0]
-    var marketData = args[1]
-    
-    if(marketType in marketObjList) {
-        marketObjList[marketType] = marketData
-        editMarketElem(marketType, marketData)
-    }else {
-        marketObjList[marketType] = marketData
-        updateFileSetting()
-        createMarketElem(marketType, marketData) 
-        clearDropdownMenu('market')
-        toggleMarketItem(marketType)
-    }
+  var marketType = args[0]
+  var marketData = args[1]
+
+  if (marketType in marketObjList) {
+    marketObjList[marketType] = marketData
+    editMarketElem(marketType, marketData)
+  } else {
+    marketObjList[marketType] = marketData
+    updateFileSetting()
+    createMarketElem(marketType, marketData)
+    clearDropdownMenu('market')
+    toggleMarketItem(marketType)
+  }
+  createTopology()
 })
 
 ipc.on('createEssObj', (event, args) => {
-    var essType = args[0]
-    var essId = args[1]
-    var essData = args[2]
-    var socprofile = args[3]
-    var dodprofile = args[4]
+  var essType = args[0]
+  var essId = args[1]
+  var essData = args[2]
+  var socprofile = args[3]
+  var dodprofile = args[4]
 
-    if(essObjNum[essType] >= essId) {
-        essObjList[essType][essId] = essData
-        editEssElement(essType, essId, essData, socprofile, dodprofile)
-    } else {
-        essId = essObjNum[essType] + 1
-        essObjNum[essType] = essId    
-        essObjList[essType][essId] = essData
-        createEssElem(essType, essId, essData, socprofile, dodprofile)
-        clearDropdownMenu('ess')
-    }
-    
+  if (essObjNum[essType] >= essId) {
+    essObjList[essType][essId] = essData
+    editEssElement(essType, essId, essData, socprofile, dodprofile)
+  } else {
+    essId = essObjNum[essType] + 1
+    essObjNum[essType] = essId
+    essObjList[essType][essId] = essData
+    createEssElem(essType, essId, essData, socprofile, dodprofile)
+    clearDropdownMenu('ess')
+  }
+
+  createTopology()
+
 })
 
 var progressBar = document.querySelector('#progress .progress .progress-bar')
@@ -141,7 +143,7 @@ progressBar.style = "width: 10%"
 
 ipc.on('generateResult', (event, args) => {
   missing = formValidation()
-  if(missing.length === 0) { 
+  if (missing.length === 0) {
     progressBar.classList = "progress-bar progress-bar-striped progress-bar-animated"
     irrParetoChart.data.datasets[0].data = []
     irrParetoChart.data.datasets[1].data = []
@@ -158,29 +160,29 @@ ipc.on('generateResult', (event, args) => {
     let totTimestampMin = (((parseFloat(configForm[2].value) * 30) + (parseFloat(configForm[3].value) * 7) + parseFloat(configForm[4].value)) * 24 + parseFloat(configForm[5].value)) * 60
     for(let i = 2; i < 6; i++) configForm.pop()
     configForm.push({"name": "ci-totTimestamp", "value": totTimestampMin.toString()})
+
     // append files to market objects
     appendFilesToMarket()
-    
-    ipc.send('run', {configForm, marketObjList, essObjList})
+    ipc.send('run', { configForm, marketObjList, essObjList })
     document.querySelector('#result .alert').style.display = "none"
     document.querySelector('#progress').style.display = ""
   } else {
     dialog.showErrorBox('Please fill all the inputs!', 'Missing fields: ' + missing.toString())
   }
-}) 
+})
 
 function appendFilesToMarket() {
-  for(let key in marketDataList) {
+  for (let key in marketDataList) {
     let e = key.split('-')
     let filepath = (e[1] === 'setpoint') ? 'setpoint_data_path' : 'price_data_path'
     let market
-    if(e[0] === 'primary') market = 'Primary Reserve'
-    else if(e[0] === 'secondary') market = 'Secondary Reserve'
-    else if(e[0] === 'tertiary') market = 'Tertiary Reserve'
-    
+    if (e[0] === 'primary') market = 'Primary Reserve'
+    else if (e[0] === 'secondary') market = 'Secondary Reserve'
+    else if (e[0] === 'tertiary') market = 'Tertiary Reserve'
+
     marketObjList[market].push({
       'name': filepath,
-      'value': marketDataList[key] 
+      'value': marketDataList[key]
     })
   }
 }
@@ -191,477 +193,479 @@ ipc.on('startTime', (event, args) => {
 })
 
 ipc.on('updateProgressBar', (event, args) => {
-	progressBar.style = "width: " + args[0] + "%"
-	progressHint.innerHTML = 'Simulating... <br />' + 'Current Revenue (kEuro) = ' + (+args[1]['revenue'].toFixed(2))
-	updateChartData(args[1])
+  progressBar.style = "width: " + args[0] + "%"
+  progressHint.innerHTML = 'Simulating... <br />' + 'Current Revenue (kEuro) = ' + (+args[1]['revenue'].toFixed(2))
+  updateChartData(args[1])
 })
 
 ipc.on('doneProgressBar', (event, args) => {
-	progressBar.classList = "bg-success"
-	progressHint.innerHTML = progressHint.innerHTML.replace('Simulating...', 'Done!')
+  progressBar.classList = "bg-success"
+  progressHint.innerHTML = progressHint.innerHTML.replace('Simulating...', 'Done!')
 })
 
 // functions
 function createMarketElem(marketType, marketData) {
-    var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'id=marketEditBtn')
-    editbtn.innerHTML = 'Edit'
-    var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
-    deletebtn.innerHTML = 'Delete'
+  var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'id=marketEditBtn')
+  editbtn.innerHTML = 'Edit'
+  var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
+  deletebtn.innerHTML = 'Delete'
 
-    var cardBody = createElement('div', 'class=card-body')
-    var cardHead = createElement('H5', 'class=card-header')
-    var cardHeadText = document.createTextNode(marketType)
-    cardHead.appendChild(cardHeadText)
+  var cardBody = createElement('div', 'class=card-body')
+  var cardHead = createElement('H5', 'class=card-header')
+  var cardHeadText = document.createTextNode(marketType)
+  cardHead.appendChild(cardHeadText)
 
-    var card = createElement('div', 'class=card mb-3', 'id='+marketType)
+  var card = createElement('div', 'class=card mb-3', 'id=' + marketType)
 
-    var bodyContent1 = createElement('div', 'class=row', 'id=cardbody1')
-    var bodyContent2 = createElement('div', 'class=progress m-2', 'style=height: 30px', 'id=cardbody2')
+  var bodyContent1 = createElement('div', 'class=row', 'id=cardbody1')
+  var bodyContent2 = createElement('div', 'class=progress m-2', 'style=height: 30px', 'id=cardbody2')
 
-    var i = 0
-    var j = 0
-    var totalPeriod = 0
-  
-    for(i = 0; i < 8; i++) {
-      if(i%4 === 0) var pSec = createElement('div', 'class=col-md-6')
-      var p = createElement('p', 'class=mb-1')
-      p.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']
-      pSec.appendChild(p)
-      if(i%4 === 0) bodyContent1.appendChild(pSec)
-    }
+  var i = 0
+  var j = 0
+  var totalPeriod = 0
 
-    for(i = 14; i < 18; i++) totalPeriod += parseInt(marketData[i]['value'])
+  for (i = 0; i < 8; i++) {
+    if (i % 4 === 0) var pSec = createElement('div', 'class=col-md-6')
+    var p = createElement('p', 'class=mb-1')
+    p.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']
+    pSec.appendChild(p)
+    if (i % 4 === 0) bodyContent1.appendChild(pSec)
+  }
 
-    // while(i < marketData.length) {
-    //   j = 0
-    //   var pSec = createElement('div', 'class=col-md-4')
-    //   while(j < 4) {
-    //     if(i >= marketData.length) break
-    //     if(8 <= i && i <= 13) {i++}
-    //     if(14 <= i && i <= 17) {
-    //       totalPeriod += parseInt(marketData[i]['value'])
-    //       i++
-    //     } else {
-    //       var p = createElement('p', 'class=mb-1')
-    //       p.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']
-    //       pSec.appendChild(p)
-    //       i++
-    //       j++
-    //     }
-    //   }
-    //   bodyContent1.appendChild(pSec)
-    // }
+  for (i = 14; i < 18; i++) totalPeriod += parseInt(marketData[i]['value'])
 
-    for(i = 14; i < 18; i++) {
-      var percentage = (marketData[i]['value'] / totalPeriod) * 100
-      var pbar = createElement('div', 'class=progress-bar '+barColor[marketData[i]['name']], 'style=width:' + percentage + '%', 'role=progressbar', 'aria-valuenow='+(marketData[i]['value'] / totalPeriod) * 100, 'aria-valuemin=0',  'aria-valuemax=100')
-      pbar.innerHTML = strMap.miStrMap(marketData[i]['name']).split(' ')[0] + ": " + marketData[i]['value'] 
-      bodyContent2.appendChild(pbar)
-    }
+  // while(i < marketData.length) {
+  //   j = 0
+  //   var pSec = createElement('div', 'class=col-md-4')
+  //   while(j < 4) {
+  //     if(i >= marketData.length) break
+  //     if(8 <= i && i <= 13) {i++}
+  //     if(14 <= i && i <= 17) {
+  //       totalPeriod += parseInt(marketData[i]['value'])
+  //       i++
+  //     } else {
+  //       var p = createElement('p', 'class=mb-1')
+  //       p.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']
+  //       pSec.appendChild(p)
+  //       i++
+  //       j++
+  //     }
+  //   }
+  //   bodyContent1.appendChild(pSec)
+  // }
 
-    cardBody.appendChild(bodyContent1)
-    cardBody.appendChild(bodyContent2)
+  for (i = 14; i < 18; i++) {
+    var percentage = (marketData[i]['value'] / totalPeriod) * 100
+    var pbar = createElement('div', 'class=progress-bar ' + barColor[marketData[i]['name']], 'style=width:' + percentage + '%', 'role=progressbar', 'aria-valuenow=' + (marketData[i]['value'] / totalPeriod) * 100, 'aria-valuemin=0', 'aria-valuemax=100')
+    pbar.innerHTML = strMap.miStrMap(marketData[i]['name']).split(' ')[0] + ": " + marketData[i]['value']
+    bodyContent2.appendChild(pbar)
+  }
 
-    cardBody.appendChild(editbtn)
-    cardBody.appendChild(deletebtn)
-    card.appendChild(cardHead)
-    card.appendChild(cardBody)
-    document.getElementById('markets').appendChild(card)
+  cardBody.appendChild(bodyContent1)
+  cardBody.appendChild(bodyContent2)
 
-    editbtn.addEventListener('click', function(e) {
-        ipc.send('editMarketObj', [marketType, marketObjList[marketType]])
-    })
- 
-    deletebtn.addEventListener('click', function(e) {
-        toggleMarketItem(marketType)
-        delete marketObjList[marketType]
-        updateFileSetting()
-        card.remove()
-    })  
+  cardBody.appendChild(editbtn)
+  cardBody.appendChild(deletebtn)
+  card.appendChild(cardHead)
+  card.appendChild(cardBody)
+  document.getElementById('markets').appendChild(card)
+
+  editbtn.addEventListener('click', function (e) {
+    ipc.send('editMarketObj', [marketType, marketObjList[marketType]])
+  })
+
+  deletebtn.addEventListener('click', function (e) {
+    toggleMarketItem(marketType)
+    delete marketObjList[marketType]
+    updateFileSetting()
+    card.remove()
+    createTopology()
+  })
 }
 
 function editMarketElem(marketType, marketData) {
-    
-    var body1 = document.getElementById('cardbody1')
-    var body2 = document.getElementById('cardbody2')
 
-    var i = 0
-    var pObject = body1.querySelectorAll('p')
-    
-    pObject.forEach(e => {
-      e.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']  
-      i++
-    })
+  var body1 = document.getElementById('cardbody1')
+  var body2 = document.getElementById('cardbody2')
 
-    var i = 0
-    var barElem = body2.querySelectorAll('.progress-bar')
-    var totalPeriod = 0
-    
-    for(var j = 14; j < 18; j++) {
-      totalPeriod += parseInt(marketData[j]['value'])
-    } 
+  var i = 0
+  var pObject = body1.querySelectorAll('p')
 
-    for(var j = 14; j < 18; j++) {
-      var percentage = (marketData[j]['value'] / totalPeriod) * 100
-      barElem[i].style.width = percentage+'%'
-      barElem[i].innerHTML = strMap.miStrMap(marketData[j]['name']).split(' ')[0] + ": " + marketData[j]['value'] 
-      i++
-    }
+  pObject.forEach(e => {
+    e.innerHTML = strMap.miStrMap(marketData[i]['name']) + ": " + marketData[i]['value']
+    i++
+  })
+
+  var i = 0
+  var barElem = body2.querySelectorAll('.progress-bar')
+  var totalPeriod = 0
+
+  for (var j = 14; j < 18; j++) {
+    totalPeriod += parseInt(marketData[j]['value'])
+  }
+
+  for (var j = 14; j < 18; j++) {
+    var percentage = (marketData[j]['value'] / totalPeriod) * 100
+    barElem[i].style.width = percentage + '%'
+    barElem[i].innerHTML = strMap.miStrMap(marketData[j]['name']).split(' ')[0] + ": " + marketData[j]['value']
+    i++
+  }
 
 }
 
 function createEssElem(essType, essId, essData, socprofile, dodprofile) {
 
-    essTypeId = essType.replace(/\s+/g, "")
+  essTypeId = essType.replace(/\s+/g, "")
 
-    var btndiv = createElement('div', 'class=ml-3 mt-1 mb-1')
-    var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'essEditBtn')
-    editbtn.innerHTML = 'Edit'
-    var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
-    deletebtn.innerHTML = 'Delete'
-    
-    btndiv.appendChild(editbtn)
-    btndiv.appendChild(deletebtn)
+  var btndiv = createElement('div', 'class=ml-3 mt-1 mb-1')
+  var editbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'essEditBtn')
+  editbtn.innerHTML = 'Edit'
+  var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
+  deletebtn.innerHTML = 'Delete'
 
-    var cardBody = createElement('div', 'class=card-body row collapse', 'id=body'+essTypeId+"-"+essId, 'aria-labelledby='+essTypeId+"-"+essId, 'data-parent=#head'+essTypeId+"-"+essId)
-    var cardHeadBtn = createElement('button', 'class=btn btn-link collapsed p-0', 'data-toggle=collapse', 'data-target=#body'+essTypeId+"-"+essId, 'aria-expanded=false', 'aria-controls='+essTypeId+"-"+essId)
-    cardHeadBtn.innerHTML = essType + "-" + essId + " (Quantity: " + essData[0]['value'] + ")"
-    var cardHead = createElement('H5', 'class=card-header', 'id=head'+essTypeId+"-"+essId)
-    cardHead.appendChild(cardHeadBtn)
+  btndiv.appendChild(editbtn)
+  btndiv.appendChild(deletebtn)
 
-    var card = createElement('div', 'class=card mb-3', 'id='+essTypeId+"-"+essId)
-    var cardiv = createElement('div', 'class=col-md-12')
+  var cardBody = createElement('div', 'class=card-body row collapse', 'id=body' + essTypeId + "-" + essId, 'aria-labelledby=' + essTypeId + "-" + essId, 'data-parent=#head' + essTypeId + "-" + essId)
+  var cardHeadBtn = createElement('button', 'class=btn btn-link collapsed p-0', 'data-toggle=collapse', 'data-target=#body' + essTypeId + "-" + essId, 'aria-expanded=false', 'aria-controls=' + essTypeId + "-" + essId)
+  cardHeadBtn.innerHTML = essType + "-" + essId + " (Quantity: " + essData[0]['value'] + ")"
+  var cardHead = createElement('H5', 'class=card-header', 'id=head' + essTypeId + "-" + essId)
+  cardHead.appendChild(cardHeadBtn)
 
-    var cardtext = createElement('div', 'class=col-md-4')
-    for(var i = 1; i < 8; i++) {
-        var p = createElement('p', 'class=mb-1')
-        p.innerHTML = strMap.eiStrMap(essData[i]['name']) + ": " + essData[i]['value']
-        // cardBody.appendChild(p)
-        cardtext.appendChild(p)
-    }
-        
-    var chart1div = createElement('div', 'class=col-md-4')
-    var cardchart1 = createElement('canvas', 'id=soc'+essTypeId+essId)
-    chart1div.appendChild(cardchart1)
+  var card = createElement('div', 'class=card mb-3', 'id=' + essTypeId + "-" + essId)
+  var cardiv = createElement('div', 'class=col-md-12')
 
-    var chart2div = createElement('div', 'class=col-md-4')
-    var cardchart2 = createElement('canvas', 'id=dod'+essTypeId+essId)
-    chart2div.appendChild(cardchart2)
+  var cardtext = createElement('div', 'class=col-md-4')
+  for (var i = 1; i < 8; i++) {
+    var p = createElement('p', 'class=mb-1')
+    p.innerHTML = strMap.eiStrMap(essData[i]['name']) + ": " + essData[i]['value']
+    // cardBody.appendChild(p)
+    cardtext.appendChild(p)
+  }
 
-    cardBody.appendChild(cardtext)
-    cardBody.appendChild(chart1div)
-    cardBody.appendChild(chart2div)
-    var essdisplay = document.getElementById('esss')
-    if(essdisplay.childElementCount === 0){
+  var chart1div = createElement('div', 'class=col-md-4')
+  var cardchart1 = createElement('canvas', 'id=soc' + essTypeId + essId)
+  chart1div.appendChild(cardchart1)
+
+  var chart2div = createElement('div', 'class=col-md-4')
+  var cardchart2 = createElement('canvas', 'id=dod' + essTypeId + essId)
+  chart2div.appendChild(cardchart2)
+
+  cardBody.appendChild(cardtext)
+  cardBody.appendChild(chart1div)
+  cardBody.appendChild(chart2div)
+  var essdisplay = document.getElementById('esss')
+  if (essdisplay.childElementCount === 0) {
     // if(essdisplay.childElementCount === 0 || (essdisplay.lastElementChild !== null && essdisplay.lastElementChild.childElementCount === 3)){
-        var row = createElement('div', 'class=row')
-        essdisplay.appendChild(row)   
-    }
+    var row = createElement('div', 'class=row')
+    essdisplay.appendChild(row)
+  }
 
-    cardBody.appendChild(btndiv)
-    card.appendChild(cardHead)
-    card.appendChild(cardBody)
-    cardiv.appendChild(card)
-    essdisplay.lastElementChild.appendChild(cardiv)
+  cardBody.appendChild(btndiv)
+  card.appendChild(cardHead)
+  card.appendChild(cardBody)
+  cardiv.appendChild(card)
+  essdisplay.lastElementChild.appendChild(cardiv)
 
-    editbtn.addEventListener('click', function(e) {
-        ipc.send('editEsstObj', [essType, essId, essObjList[essType][essId]])
-    })
+  editbtn.addEventListener('click', function (e) {
+    ipc.send('editEsstObj', [essType, essId, essObjList[essType][essId]])
+  })
 
-    deletebtn.addEventListener('click', function(e) {
-        delete essObjList[essType][essId]
-        cardiv.remove()
-    }) 
+  deletebtn.addEventListener('click', function (e) {
+    delete essObjList[essType][essId]
+    cardiv.remove()
+    createTopology()
+  })
 
-    // a very weird fixer for chart not shwoing...
-    var ctx = document.getElementById("dod"+essTypeId+essId).getContext('2d');
-    var chart = new Chart(ctx, {
-        // The type of chart we want to create
-        type: 'line',
+  // a very weird fixer for chart not shwoing...
+  var ctx = document.getElementById("dod" + essTypeId + essId).getContext('2d');
+  var chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'line',
 
-        // The data for our dataset
-        data: {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-            datasets: [{
-                label: 'My First dataset',
-                backgroundColor: 'rgb(255, 99, 132)',
-                borderColor: 'rgb(255, 99, 132)',
-                data: [0, 10, 5, 2, 20, 30, 45]
-            }]
-        },
+    // The data for our dataset
+    data: {
+      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+      datasets: [{
+        label: 'My First dataset',
+        backgroundColor: 'rgb(255, 99, 132)',
+        borderColor: 'rgb(255, 99, 132)',
+        data: [0, 10, 5, 2, 20, 30, 45]
+      }]
+    },
 
-        // Configuration options go here
-        options: {}
-    });
+    // Configuration options go here
+    options: {}
+  });
 
-    socprofile.config['options']['responsive'] = true
-    socprofile.config['options']['maintainAspectRatio'] = false
-    dodprofile.config['options']['responsive'] = true    
-    dodprofile.config['options']['maintainAspectRatio'] = false
-    cardchart1.style.height = "168px"
-    cardchart2.style.height = "168px"
+  socprofile.config['options']['responsive'] = true
+  socprofile.config['options']['maintainAspectRatio'] = false
+  dodprofile.config['options']['responsive'] = true
+  dodprofile.config['options']['maintainAspectRatio'] = false
+  cardchart1.style.height = "168px"
+  cardchart2.style.height = "168px"
 
-    // var socchart = new Chart(document.getElementById("soc"+essTypeId+essId).getContext('2d'), socprofile.config)
-    // var dodchart = new Chart(document.getElementById("dod"+essTypeId+essId).getContext('2d'), dodprofile.config)
-    var soc1chart = new Chart(cardchart1, socprofile.config)
-    var dod1chart = new Chart(cardchart2, dodprofile.config)
+  // var socchart = new Chart(document.getElementById("soc"+essTypeId+essId).getContext('2d'), socprofile.config)
+  // var dodchart = new Chart(document.getElementById("dod"+essTypeId+essId).getContext('2d'), dodprofile.config)
+  var soc1chart = new Chart(cardchart1, socprofile.config)
+  var dod1chart = new Chart(cardchart2, dodprofile.config)
 }
 
 function editEssElement(essType, essId, essData, socprofile, dodprofile) {
 
-    essTypeId = essType.replace(/\s+/g, "")
+  essTypeId = essType.replace(/\s+/g, "")
 
-    var cardObject = document.getElementById(essTypeId+"-"+essId)
-    var pObject = cardObject.querySelectorAll('p')
-    
-    for(var i = 0; i < 7; i++) {
-      pObject[i].innerHTML = strMap.eiStrMap(essData[i+1]['name']) + ": " + essData[i+1]['value']
-    }
+  var cardObject = document.getElementById(essTypeId + "-" + essId)
+  var pObject = cardObject.querySelectorAll('p')
 
-    cardObject.querySelector('button').innerHTML = essType + "-" + essId + "  (Quantity: " + essData[0]['value'] + ")"
-  
-    socprofile.config['options']['responsive'] = true
-    socprofile.config['options']['maintainAspectRatio'] = false
-    dodprofile.config['options']['responsive'] = true    
-    dodprofile.config['options']['maintainAspectRatio'] = false
-    var socchart = new Chart(document.getElementById("soc"+essTypeId+essId), socprofile.config)
-    var dodchart = new Chart(document.getElementById("dod"+essTypeId+essId), dodprofile.config)
+  for (var i = 0; i < 7; i++) {
+    pObject[i].innerHTML = strMap.eiStrMap(essData[i + 1]['name']) + ": " + essData[i + 1]['value']
+  }
+
+  cardObject.querySelector('button').innerHTML = essType + "-" + essId + "  (Quantity: " + essData[0]['value'] + ")"
+
+  socprofile.config['options']['responsive'] = true
+  socprofile.config['options']['maintainAspectRatio'] = false
+  dodprofile.config['options']['responsive'] = true
+  dodprofile.config['options']['maintainAspectRatio'] = false
+  var socchart = new Chart(document.getElementById("soc" + essTypeId + essId), socprofile.config)
+  var dodchart = new Chart(document.getElementById("dod" + essTypeId + essId), dodprofile.config)
 }
 
 function createElement(type, ...args) {
-    var ele = document.createElement(type)
-    for(var i = 0; i < args.length; i++) {
-        var kv = args[i].split('=')
-        ele.setAttribute(kv[0], kv[1])
-    }
-    return ele
+  var ele = document.createElement(type)
+  for (var i = 0; i < args.length; i++) {
+    var kv = args[i].split('=')
+    ele.setAttribute(kv[0], kv[1])
+  }
+  return ele
 }
 
 function createDataElem(args) {
-    var data = args
-    var downloadbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'id=dataDownloadBtn')
-    downloadbtn.innerHTML = 'Download'
-    var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
-    deletebtn.innerHTML = 'Delete'
-    
-    var cardBody = createElement('div', 'class=card-body')
+  var data = args
+  var downloadbtn = createElement('button', 'type=button', 'class=btn btn-light btn-sm', 'id=dataDownloadBtn')
+  downloadbtn.innerHTML = 'Download'
+  var deletebtn = createElement('button', 'type=button', 'class=btn btn-danger btn-sm')
+  deletebtn.innerHTML = 'Delete'
 
-    var card = createElement('div', 'class=card mb-1', 'id='+data)
-    var cardiv = createElement('div', 'class=col-sm-4')
-   
-  
-    for (const [key, value] of Object.entries(data)) {
-      var p
-      if(key === 'id' || key === 'irr' || key === 'revenue' || key === 'pbp'){
+  var cardBody = createElement('div', 'class=card-body')
+
+  var card = createElement('div', 'class=card mb-1', 'id=' + data)
+  var cardiv = createElement('div', 'class=col-sm-4')
+
+
+  for (const [key, value] of Object.entries(data)) {
+    var p
+    if (key === 'id' || key === 'irr' || key === 'revenue' || key === 'pbp') {
+      p = createElement('p', 'class=mb-1 ')
+      p.innerHTML = (strMap.diStrMap(key) + ": " + (+value.toFixed(2))).bold()
+      cardBody.appendChild(p)
+    } else if (key === 'percentages') {
+      p = createElement('p', 'class=mb-1 ')
+      p.innerHTML = (strMap.diStrMap(key) + ": " + value).bold()
+      cardBody.appendChild(p)
+    } else if (key === 'prices') {
+      numOfMarket = value.length
+      if (numOfMarket >= 1) {
         p = createElement('p', 'class=mb-1 ')
-        p.innerHTML = (strMap.diStrMap(key) + ": " + (+value.toFixed(2))).bold()
+        p.innerHTML = ("Primary<br /> Buying Price: " + (+value[0][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[0][1].toFixed(2))).bold()
         cardBody.appendChild(p)
-	    } else if (key === 'percentages'){
+      }
+      if (numOfMarket >= 2) {
         p = createElement('p', 'class=mb-1 ')
-        p.innerHTML = (strMap.diStrMap(key) + ": " + value).bold()
+        p.innerHTML = ("Secondary<br /> Buying Price: " + (+value[1][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[1][1].toFixed(2))).bold()
         cardBody.appendChild(p)
-	    } else if (key === 'prices'){
-        numOfMarket = value.length
-        if(numOfMarket>=1){
-          p = createElement('p', 'class=mb-1 ')
-          p.innerHTML = ("Primary<br /> Buying Price: " + (+value[0][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[0][1].toFixed(2))).bold()
-          cardBody.appendChild(p)
-        }
-        if(numOfMarket>=2){
-          p = createElement('p', 'class=mb-1 ')
-          p.innerHTML = ("Secondary<br /> Buying Price: " + (+value[1][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[1][1].toFixed(2))).bold()
-          cardBody.appendChild(p)
-        }
-        if(numOfMarket>=3){
-          p = createElement('p', 'class=mb-1 ')
-          p.innerHTML = ("Tertiary<br /> Buying Price: " + (+value[2][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[2][1].toFixed(2))).bold()
-          cardBody.appendChild(p)
-        }
+      }
+      if (numOfMarket >= 3) {
+        p = createElement('p', 'class=mb-1 ')
+        p.innerHTML = ("Tertiary<br /> Buying Price: " + (+value[2][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[2][1].toFixed(2))).bold()
+        cardBody.appendChild(p)
       }
     }
+  }
 
-    var dataDisplay = document.getElementById('dataComparison')
-    if(dataDisplay.childElementCount === 0){
-        var row = createElement('div', 'class=row')
-        dataDisplay.appendChild(row)   
+  var dataDisplay = document.getElementById('dataComparison')
+  if (dataDisplay.childElementCount === 0) {
+    var row = createElement('div', 'class=row')
+    dataDisplay.appendChild(row)
+  }
+
+  cardBody.appendChild(downloadbtn)
+  cardBody.appendChild(deletebtn)
+  card.appendChild(cardBody)
+  cardiv.appendChild(card)
+  dataDisplay.lastElementChild.appendChild(cardiv)
+
+
+  downloadbtn.addEventListener('click', function (e) {
+    tot_timestamps = data['soc'].length
+    numOfBattery = data['soc'][0].length
+    numOfMarket = data['prices'].length
+
+    // console.log("num of battery: " + numOfBattery + "    num of market: " + numOfMarket)
+    marketTitle = ""
+    bp = ""
+    sp = ""
+    percentage = ""
+    if (numOfMarket >= 1) {
+      marketTitle += "Primary Market"
+      bp += data['prices'][0][0]
+      sp += data['prices'][0][1]
+      percentage += data['percentages'][0]
+    }
+    if (numOfMarket >= 2) {
+      marketTitle += ",Secondary Market"
+      bp += ',' + data['prices'][1][0]
+      sp += ',' + data['prices'][1][1]
+      percentage += ',' + data['percentages'][1]
+    }
+    if (numOfMarket >= 3) {
+      marketTitle += ","
+      bp += ',' + data['prices'][2][0]
+      sp += ',' + data['prices'][2][1]
+      percentage += ',' + data['percentages'][2]
     }
 
-    cardBody.appendChild(downloadbtn)
-    cardBody.appendChild(deletebtn)
-    card.appendChild(cardBody)
-    cardiv.appendChild(card)
-    dataDisplay.lastElementChild.appendChild(cardiv)
+    var lineArray = ["Simulation time (min), " + tot_timestamps,
+    "Battery Life," + (+data['x'].toFixed(2)) + ",,," + marketTitle,
+    "IRR," + (+data['irr'].toFixed(6)) + ",,Buying Price," + bp,
+    "Revenue," + (+data['revenue'].toFixed(2)) + ",,Selling Price," + sp,
+    "PBP," + (+data['pbp'].toFixed(6)) + ",,Percentage," + percentage]
+    lineArray.push("")
+    let title = ""
+    for (i = 0; i < numOfBattery; ++i) {
+      title += "ess" + (i + 1) + ",,, "
+    }
+    lineArray.push(title)
 
-
-    downloadbtn.addEventListener('click', function(e) {
-      tot_timestamps = data['soc'].length
-      numOfBattery = data['soc'][0].length
-      numOfMarket = data['prices'].length
-
-      // console.log("num of battery: " + numOfBattery + "    num of market: " + numOfMarket)
-      marketTitle = ""
-      bp = ""
-      sp = ""
-      percentage = ""
-      if(numOfMarket>=1){
-        marketTitle += "Primary Market"
-        bp += data['prices'][0][0]
-        sp += data['prices'][0][1]
-        percentage += data['percentages'][0]
-      }
-      if(numOfMarket>=2){
-        marketTitle += ",Secondary Market"
-        bp += ',' + data['prices'][1][0]
-        sp += ',' + data['prices'][1][1]
-        percentage += ',' + data['percentages'][1]
-      }
-      if(numOfMarket>=3){
-        marketTitle += "," 
-        bp += ',' + data['prices'][2][0]
-        sp += ',' + data['prices'][2][1]
-        percentage += ',' + data['percentages'][2]
-      }
-
-      var lineArray = ["Simulation time (min), " + tot_timestamps,
-                      "Battery Life,"+(+data['x'].toFixed(2)) + ",,," + marketTitle, 
-                      "IRR," + (+data['irr'].toFixed(6)) + ",,Buying Price," + bp, 
-                      "Revenue,"+(+data['revenue'].toFixed(2)) + ",,Selling Price," + sp,
-                      "PBP," + (+data['pbp'].toFixed(6)) + ",,Percentage," + percentage]
-      lineArray.push("")
-      let title = ""
-      for(i=0; i<numOfBattery; ++i){
-        title += "ess" + (i+1) + ",,, "
-      }
-      lineArray.push(title)
-
-      title = "Time, "
-      for(i=0; i<numOfBattery; ++i){
-        title += "Power Input, Power Output, SoC, "
-      }
-      lineArray.push(title)
-      for(i=0; i<tot_timestamps; ++i){
-        line = ""
-        d = new Date(timestamp)
-        ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d)
-        mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d)
-        da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d)
-        hour = new Intl.DateTimeFormat('en', { hour: 'numeric' , hour12: false}).format(d)
-        min = new Intl.DateTimeFormat('en', { minute: '2-digit' }).format(d)
-        if(hour == 24)
-          hour = '00'
-        if(min.length == 1)
-          min = '0' + min
-        timeString = `${mo}-${da}-${ye} ${hour}:${min}`
-        // console.log(timeString)
-        line += timeString
-        line += ', '
-        timestamp += 60000
-        if(numOfBattery == 1){
-          line += data['power'][i][0] + ", " + data['power'][i][1] + ", "
-          line += data['soc'][i]
-        } else {
-          for(j=0; j<numOfBattery; ++j){
-            line += data['power'][i][j][0] + ", " + data['power'][i][j][1] + ", "
-            line += data['soc'][i][j] + ", "
-          }
-
+    title = "Time, "
+    for (i = 0; i < numOfBattery; ++i) {
+      title += "Power Input, Power Output, SoC, "
+    }
+    lineArray.push(title)
+    for (i = 0; i < tot_timestamps; ++i) {
+      line = ""
+      d = new Date(timestamp)
+      ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d)
+      mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d)
+      da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d)
+      hour = new Intl.DateTimeFormat('en', { hour: 'numeric', hour12: false }).format(d)
+      min = new Intl.DateTimeFormat('en', { minute: '2-digit' }).format(d)
+      if (hour == 24)
+        hour = '00'
+      if (min.length == 1)
+        min = '0' + min
+      timeString = `${mo}-${da}-${ye} ${hour}:${min}`
+      // console.log(timeString)
+      line += timeString
+      line += ', '
+      timestamp += 60000
+      if (numOfBattery == 1) {
+        line += data['power'][i][0] + ", " + data['power'][i][1] + ", "
+        line += data['soc'][i]
+      } else {
+        for (j = 0; j < numOfBattery; ++j) {
+          line += data['power'][i][j][0] + ", " + data['power'][i][j][1] + ", "
+          line += data['soc'][i][j] + ", "
         }
-        lineArray.push(line)
+
       }
+      lineArray.push(line)
+    }
 
 
-      // var lineArray = ["IRR," + (+data['x'].toFixed(6)), "Year,"+(+data['y'].toFixed(2))]
-      
-      // title += "Power Output, Power Input, "
-      // for (i=0;i<numOfBattery;++i){
-      //   title += "Battery " + (i+1)
-      //   if(i != numOfBattery - 1)
-      //     title += ',' 
-      // }
-      // lineArray.push(title)
+    // var lineArray = ["IRR," + (+data['x'].toFixed(6)), "Year,"+(+data['y'].toFixed(2))]
 
-      // for(i=0; i<data['soc'].length; ++i){
-      //   line = ""
-        
-      //   for (j=0;j<numOfMarket;++j){
-      //     if(i<data['prices'].length){
-      //       line += '' + data['prices'][i][j][0] + ',' + data['prices'][i][j][1] + ','
-      //     }else{
-      //       line += ',,'
-      //     }
-      //   }
-      //   // if(i<data['prices'].length){
-      //   //   line += '' + data['prices'][i][0] + ',' + data['prices'][i][1] + ',' 
-      //   // }else{
-      //   //   line += ',,'
-      //   // }
-      //   if(i<data['power'].length){
-      //     line += '' + data['power'][i][0] + ',' + data['power'][i][1] + ',' 
-      //   }else{
-      //     line += ',,'
-      //   }
-      //   for (j=0;j<numOfBattery;++j){
-      //     line += '' + data['soc'][i][j]
-      //     if(j != numOfBattery - 1)
-      //       line += ',' 
-      //   }
-        
-      //   lineArray.push(line)
-      // }
+    // title += "Power Output, Power Input, "
+    // for (i=0;i<numOfBattery;++i){
+    //   title += "Battery " + (i+1)
+    //   if(i != numOfBattery - 1)
+    //     title += ',' 
+    // }
+    // lineArray.push(title)
 
-      let csvContent = lineArray.join('\n')
-      var filename
-      filename = dialog.showSaveDialog({
-        filters: [{
-          name: 'CSV',
-          extensions: ['csv']
-        }]
-      }).then(result => {
-          filename = result.filePath
-          if (filename === undefined) {
-            alert("Filename invalid, file not created!")
-            return
-          }
-          fs.writeFile(filename, csvContent, (err) => {
-            if (err) {
-              console.log("An error ocurred creating the file " + err.message)
-              return
-            }
-            console.log("Succesfully saved")
-          })
-        }).catch(err => {
-          alert(err)
-        })
+    // for(i=0; i<data['soc'].length; ++i){
+    //   line = ""
+
+    //   for (j=0;j<numOfMarket;++j){
+    //     if(i<data['prices'].length){
+    //       line += '' + data['prices'][i][j][0] + ',' + data['prices'][i][j][1] + ','
+    //     }else{
+    //       line += ',,'
+    //     }
+    //   }
+    //   // if(i<data['prices'].length){
+    //   //   line += '' + data['prices'][i][0] + ',' + data['prices'][i][1] + ',' 
+    //   // }else{
+    //   //   line += ',,'
+    //   // }
+    //   if(i<data['power'].length){
+    //     line += '' + data['power'][i][0] + ',' + data['power'][i][1] + ',' 
+    //   }else{
+    //     line += ',,'
+    //   }
+    //   for (j=0;j<numOfBattery;++j){
+    //     line += '' + data['soc'][i][j]
+    //     if(j != numOfBattery - 1)
+    //       line += ',' 
+    //   }
+
+    //   lineArray.push(line)
+    // }
+
+    let csvContent = lineArray.join('\n')
+    var filename
+    filename = dialog.showSaveDialog({
+      filters: [{
+        name: 'CSV',
+        extensions: ['csv']
+      }]
+    }).then(result => {
+      filename = result.filePath
+      if (filename === undefined) {
+        alert("Filename invalid, file not created!")
+        return
+      }
+      fs.writeFile(filename, csvContent, (err) => {
+        if (err) {
+          console.log("An error ocurred creating the file " + err.message)
+          return
+        }
+        console.log("Succesfully saved")
       })
-    deletebtn.addEventListener('click', function(e) {
-        cardiv.remove()
-    }) 
+    }).catch(err => {
+      alert(err)
+    })
+  })
+  deletebtn.addEventListener('click', function (e) {
+    cardiv.remove()
+  })
 
 }
 
 var irrParetoChart
 var revParetoChart
-function handleClickIRR(evt){
+function handleClickIRR(evt) {
   var activeElement = irrParetoChart.getElementAtEvent(evt)
-  if(activeElement.length>0){
+  if (activeElement.length > 0) {
     args = irrParetoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index]
     createDataElem(args)
   }
 }
-function handleClickRev(evt){
+function handleClickRev(evt) {
   var activeElement = revParetoChart.getElementAtEvent(evt)
-  if(activeElement.length>0){
+  if (activeElement.length > 0) {
     args = revParetoChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index]
     createDataElem(args)
   }
 }
 
-function handleHoverIRR(c, id){
+function handleHoverIRR(c, id) {
   var idx = 0,
     dataset = 0
-  for( var j=0; j<2; j++){
-    for( var i = 0; i < c.data.datasets[j].data.length; i++){
-      if(c.data.datasets[j].data[i]['id'] == id){
+  for (var j = 0; j < 2; j++) {
+    for (var i = 0; i < c.data.datasets[j].data.length; i++) {
+      if (c.data.datasets[j].data[i]['id'] == id) {
         idx = i
         dataset = j
         break;
@@ -670,173 +674,174 @@ function handleHoverIRR(c, id){
   }
 
   var meta = c.getDatasetMeta(dataset),
-      rect = c.canvas.getBoundingClientRect(),
-      point = meta.data[idx].getCenterPoint(),
-      evt = new MouseEvent('mousemove', {
-        clientX: rect.left + point.x,
-        clientY: rect.top + point.y
-      }),
-      node = c.canvas;
+    rect = c.canvas.getBoundingClientRect(),
+    point = meta.data[idx].getCenterPoint(),
+    evt = new MouseEvent('mousemove', {
+      clientX: rect.left + point.x,
+      clientY: rect.top + point.y
+    }),
+    node = c.canvas;
   node.dispatchEvent(evt);
 }
 
-function getParameters(){
+function getParameters() {
   parameters = {
     'energy_sources': [
-        {
-            'energy_type': 'Lithium-Ion',
-            'soc_profile_energy_scale': 20,
-            'soc_profile_max_input_th': 100,
-            'soc_profile_min_output_th': 0,
-            'soc_profile_max_power_upward': 10,
-            'soc_profile_max_power_downward': 10,
-            'efficiency_upward': 0.95,
-            'efficiency_downward': 0.95,
-            'cost': 310,
-            'dod_profile': True,
-            'd1': 2,
-            'c1': 10000000,
-            'd2': 4,
-            'c2': 1000000,
-            'd3': 17,
-            'c3': 100000,
-            'd4': 30,
-            'c4': 40000,
-            'd5': 60,
-            'c5': 10000,
-            'd6': 100,
-            'c6': 3000
-        },
-        {
-            'energy_type': 'PowerFlow',
-            'soc_profile_energy_scale': 40,
-            'soc_profile_max_input_th': 70,
-            'soc_profile_min_output_th': 30,
-            'soc_profile_max_power_upward': 10,
-            'soc_profile_max_power_downward': 10,
-            'efficiency_upward': 0.78,
-            'efficiency_downward': 0.78,
-            'cost': 470,
-            'dod_profile': False,
-            'd1': 0,
-            'c1': 10,
-            'd2': 0,
-            'c2': 10,
-            'd3': 0,
-            'c3': 0,
-            'd4': 0,
-            'c4': 0,
-            'd5': 0,
-            'c5': 0,
-            'd6': 0,
-            'c6': 0
-        }
+      {
+        'energy_type': 'Lithium-Ion',
+        'soc_profile_energy_scale': 20,
+        'soc_profile_max_input_th': 100,
+        'soc_profile_min_output_th': 0,
+        'soc_profile_max_power_upward': 10,
+        'soc_profile_max_power_downward': 10,
+        'efficiency_upward': 0.95,
+        'efficiency_downward': 0.95,
+        'cost': 310,
+        'dod_profile': True,
+        'd1': 2,
+        'c1': 10000000,
+        'd2': 4,
+        'c2': 1000000,
+        'd3': 17,
+        'c3': 100000,
+        'd4': 30,
+        'c4': 40000,
+        'd5': 60,
+        'c5': 10000,
+        'd6': 100,
+        'c6': 3000
+      },
+      {
+        'energy_type': 'PowerFlow',
+        'soc_profile_energy_scale': 40,
+        'soc_profile_max_input_th': 70,
+        'soc_profile_min_output_th': 30,
+        'soc_profile_max_power_upward': 10,
+        'soc_profile_max_power_downward': 10,
+        'efficiency_upward': 0.78,
+        'efficiency_downward': 0.78,
+        'cost': 470,
+        'dod_profile': False,
+        'd1': 0,
+        'c1': 10,
+        'd2': 0,
+        'c2': 10,
+        'd3': 0,
+        'c3': 0,
+        'd4': 0,
+        'c4': 0,
+        'd5': 0,
+        'c5': 0,
+        'd6': 0,
+        'c6': 0
+      }
     ],
     'markets': [
-        {
-            "time_window_in_delivery": 4,
-            "planning_phase_length": 60,
-            "selection_phase_length": 60,
-            "schedule_phase_length": 60,
-            "delivery_phase_length": 60,
-            "setpoint_interval": 1,
-            "percentage_fixed": true,
-            "price_cyclic_eps_upward": 1,
-            "price_cyclic_eps_downward": 1,
-            "percentage_cyclic_eps": 1,
-        },
-        {
-            "time_window_in_delivery": 4,
-            "planning_phase_length": 60,
-            "selection_phase_length": 60,
-            "schedule_phase_length": 60,
-            "delivery_phase_length": 60,
-            "setpoint_interval": 1,
-            "percentage_fixed": true
-        },
-        {
-            "time_window_in_delivery": 4,
-            "planning_phase_length": 60,
-            "selection_phase_length": 60,
-            "schedule_phase_length": 60,
-            "delivery_phase_length": 60,
-            "setpoint_interval": 1,
-        },
+      {
+        "time_window_in_delivery": 4,
+        "planning_phase_length": 60,
+        "selection_phase_length": 60,
+        "schedule_phase_length": 60,
+        "delivery_phase_length": 60,
+        "setpoint_interval": 1,
+        "percentage_fixed": true,
+        "price_cyclic_eps_upward": 1,
+        "price_cyclic_eps_downward": 1,
+        "percentage_cyclic_eps": 1,
+      },
+      {
+        "time_window_in_delivery": 4,
+        "planning_phase_length": 60,
+        "selection_phase_length": 60,
+        "schedule_phase_length": 60,
+        "delivery_phase_length": 60,
+        "setpoint_interval": 1,
+        "percentage_fixed": true
+      },
+      {
+        "time_window_in_delivery": 4,
+        "planning_phase_length": 60,
+        "selection_phase_length": 60,
+        "schedule_phase_length": 60,
+        "delivery_phase_length": 60,
+        "setpoint_interval": 1,
+      },
     ],
-    'config':{
-        'planning_horizon': 60,
-        'soh_update_interval': 24 * 7 * 60,
-        'tot_timestamps': 60
-    }}
+    'config': {
+      'planning_horizon': 60,
+      'soh_update_interval': 24 * 7 * 60,
+      'tot_timestamps': 60
+    }
+  }
   return parameters
 }
 function compareData(a, b) {
-	if (a['x'] > b['x']) return 1;
-	if (a['x'] < b['x']) return -1;
-  
-	return 0;
-  }
+  if (a['x'] > b['x']) return 1;
+  if (a['x'] < b['x']) return -1;
+
+  return 0;
+}
 function updateChartData(data) {
-  var revData = $.extend(true,{},data)
+  var revData = $.extend(true, {}, data)
   data['x'] = data['years']
   revData['x'] = revData['years']
-	data['y'] = data['irr']
+  data['y'] = data['irr']
   revData['y'] = revData['revenue']
-  
-	if(irrParetoChart.data.datasets[0].data.length == 0 && irrParetoChart.data.datasets[1].data.length == 0){
-		irrParetoChart.data.datasets[1].data.push(data)
-	} else {
-		pushTo = 0
-		for( var i = 0; i < irrParetoChart.data.datasets[1].data.length; i++){
 
-			if((data['x'] >= irrParetoChart.data.datasets[1].data[i]['x'] &&
-				data['y'] >= irrParetoChart.data.datasets[1].data[i]['y'])){
-					pushTo = 1
-					tmp = irrParetoChart.data.datasets[1].data.splice(i, 1)
-					irrParetoChart.data.datasets[0].data.push(tmp[0])
-					i--
-			} else if ((data['x'] > irrParetoChart.data.datasets[1].data[i]['x'] ||
-						data['y'] > irrParetoChart.data.datasets[1].data[i]['y'])){
-				pushTo = 1
-			} else if ((data['x'] < irrParetoChart.data.datasets[1].data[i]['x'] &&
-						data['y'] < irrParetoChart.data.datasets[1].data[i]['y'])){
-				pushTo = 0
-				break
-			}
-		}
-		
-		irrParetoChart.data.datasets[pushTo].data.push(data)
-		if(pushTo == 1){
-			irrParetoChart.data.datasets[1].data.sort(compareData)
-		}
-	}
-  if(revParetoChart.data.datasets[0].data.length == 0 && revParetoChart.data.datasets[1].data.length == 0){
-		revParetoChart.data.datasets[1].data.push(revData)
-	} else {
-		pushTo = 0
-		for( var i = 0; i < revParetoChart.data.datasets[1].data.length; i++){
+  if (irrParetoChart.data.datasets[0].data.length == 0 && irrParetoChart.data.datasets[1].data.length == 0) {
+    irrParetoChart.data.datasets[1].data.push(data)
+  } else {
+    pushTo = 0
+    for (var i = 0; i < irrParetoChart.data.datasets[1].data.length; i++) {
 
-			if((revData['x'] >= revParetoChart.data.datasets[1].data[i]['x'] &&
-				revData['y'] >= revParetoChart.data.datasets[1].data[i]['y'])){
-					pushTo = 1
-					tmp = revParetoChart.data.datasets[1].data.splice(i, 1)
-					revParetoChart.data.datasets[0].data.push(tmp[0])
-					i--
-			} else if ((revData['x'] > revParetoChart.data.datasets[1].data[i]['x'] ||
-						revData['y'] > revParetoChart.data.datasets[1].data[i]['y'])){
-				pushTo = 1
-			} else if ((revData['x'] < revParetoChart.data.datasets[1].data[i]['x'] &&
-						revData['y'] < revParetoChart.data.datasets[1].data[i]['y'])){
-				pushTo = 0
-				break
-			}
-		}
-		
-		revParetoChart.data.datasets[pushTo].data.push(revData)
-		if(pushTo == 1){
-			revParetoChart.data.datasets[1].data.sort(compareData)
-		}
-	}
+      if ((data['x'] >= irrParetoChart.data.datasets[1].data[i]['x'] &&
+        data['y'] >= irrParetoChart.data.datasets[1].data[i]['y'])) {
+        pushTo = 1
+        tmp = irrParetoChart.data.datasets[1].data.splice(i, 1)
+        irrParetoChart.data.datasets[0].data.push(tmp[0])
+        i--
+      } else if ((data['x'] > irrParetoChart.data.datasets[1].data[i]['x'] ||
+        data['y'] > irrParetoChart.data.datasets[1].data[i]['y'])) {
+        pushTo = 1
+      } else if ((data['x'] < irrParetoChart.data.datasets[1].data[i]['x'] &&
+        data['y'] < irrParetoChart.data.datasets[1].data[i]['y'])) {
+        pushTo = 0
+        break
+      }
+    }
+
+    irrParetoChart.data.datasets[pushTo].data.push(data)
+    if (pushTo == 1) {
+      irrParetoChart.data.datasets[1].data.sort(compareData)
+    }
+  }
+  if (revParetoChart.data.datasets[0].data.length == 0 && revParetoChart.data.datasets[1].data.length == 0) {
+    revParetoChart.data.datasets[1].data.push(revData)
+  } else {
+    pushTo = 0
+    for (var i = 0; i < revParetoChart.data.datasets[1].data.length; i++) {
+
+      if ((revData['x'] >= revParetoChart.data.datasets[1].data[i]['x'] &&
+        revData['y'] >= revParetoChart.data.datasets[1].data[i]['y'])) {
+        pushTo = 1
+        tmp = revParetoChart.data.datasets[1].data.splice(i, 1)
+        revParetoChart.data.datasets[0].data.push(tmp[0])
+        i--
+      } else if ((revData['x'] > revParetoChart.data.datasets[1].data[i]['x'] ||
+        revData['y'] > revParetoChart.data.datasets[1].data[i]['y'])) {
+        pushTo = 1
+      } else if ((revData['x'] < revParetoChart.data.datasets[1].data[i]['x'] &&
+        revData['y'] < revParetoChart.data.datasets[1].data[i]['y'])) {
+        pushTo = 0
+        break
+      }
+    }
+
+    revParetoChart.data.datasets[pushTo].data.push(revData)
+    if (pushTo == 1) {
+      revParetoChart.data.datasets[1].data.sort(compareData)
+    }
+  }
   irrParetoChart.update()
   revParetoChart.update()
 }
@@ -852,7 +857,7 @@ function generateResultChart() {
     purple: 'rgb(153, 102, 255)',
     grey: 'rgb(231,233,237)'
   }
-  
+
   var config = {
     fontSize: 50,
     data: {
@@ -863,7 +868,7 @@ function generateResultChart() {
         fill: false,
         data: [],
         pointHoverRadius: 10
-      },{
+      }, {
         label: 'Pareto Frontier',
         cubicInterpolationMode: 'monotone',
         borderColor: window.chartColors.blue,
@@ -878,14 +883,14 @@ function generateResultChart() {
     },
     options: {
       onClick: handleClickIRR,
-	  // events: ['mousemove', 'click', 'touchstart'],
+      // events: ['mousemove', 'click', 'touchstart'],
       plugins: {
         zoom: {
           // Container for pan options
           pan: {
             // Boolean to enable panning
             enabled: true,
-      
+
             // Panning directions. Remove the appropriate direction to disable
             // Eg. 'y' would only allow panning in the y direction
             // A function that is called as the user is panning and returns the
@@ -894,7 +899,7 @@ function generateResultChart() {
             //     return 'xy';
             //   },
             mode: 'xy',
-      
+
             rangeMin: {
               // Format of min pan range depends on scale type
               x: null,
@@ -905,27 +910,27 @@ function generateResultChart() {
               x: null,
               y: null
             },
-      
+
             // On category scale, factor of pan velocity
             speed: 20,
-      
+
             // Minimal pan distance required before actually applying pan
             threshold: 10,
-      
+
             // Function called while the user is panning
-            onPan: function({chart}) { console.log(`I'm panning!!!`); },
+            onPan: function ({ chart }) { console.log(`I'm panning!!!`); },
             // Function called once panning is completed
-            onPanComplete: function({chart}) { console.log(`I was panned!!!`); }
+            onPanComplete: function ({ chart }) { console.log(`I was panned!!!`); }
           },
-      
+
           // Container for zoom options
           zoom: {
             // Boolean to enable zooming
             enabled: true,
-      
+
             // Enable drag-to-zoom behavior
             drag: true,
-      
+
             // Drag-to-zoom effect can be customized
             // drag: {
             // 	 borderColor: 'rgba(225,225,225,0.3)'
@@ -933,7 +938,7 @@ function generateResultChart() {
             // 	 backgroundColor: 'rgb(225,225,225)',
             // 	 animationDuration: 0
             // },
-      
+
             // Zooming directions. Remove the appropriate direction to disable
             // Eg. 'y' would only allow zooming in the y direction
             // A function that is called as the user is zooming and returns the
@@ -942,7 +947,7 @@ function generateResultChart() {
             //     return 'xy';
             //   },
             mode: 'xy',
-      
+
             rangeMin: {
               // Format of min zoom range depends on scale type
               x: null,
@@ -953,18 +958,18 @@ function generateResultChart() {
               x: null,
               y: null
             },
-      
+
             // Speed of zoom via mouse wheel
             // (percentage of zoom on a wheel event)
             speed: 0.1,
-      
+
             // On category scale, minimal zoom level before actually applying zoom
             sensitivity: 3,
-      
+
             // Function called while the user is zooming
-            onZoom: function({chart}) { console.log(`I'm zooming!!!`); },
+            onZoom: function ({ chart }) { console.log(`I'm zooming!!!`); },
             // Function called once zooming is completed
-            onZoomComplete: function({chart}) { console.log(`I was zoomed!!!`); }
+            onZoomComplete: function ({ chart }) { console.log(`I was zoomed!!!`); }
           }
         }
       },
@@ -972,25 +977,25 @@ function generateResultChart() {
       aspectRatio: 1.5,
       tooltips: {
         callbacks: {
-          label: function(tooltipItem, data) {
-              // var pbp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['pbp']
-              // var revenue = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['revenue']
-              temp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]
-              handleHoverIRR(revParetoChart, temp['id'])
-              return [
-                ['id: ' + temp['id']],
-                ['Buying Price: ' + (+temp['prices'][0][0].toFixed(2))],
-                ['Selling Price: ' + (+temp['prices'][0][1].toFixed(2))],
-                ['Battery Life: ' + (+temp['x'].toFixed(2))],
-                ['IRR: ' + (+temp['irr'].toFixed(2)) + '%'],
-                ['Revenues: ' + (+temp['revenue'].toFixed(2)) + 'k'],
-                ['PBP: ' + (+temp['pbp'].toFixed(2))]
-              ]
-              
+          label: function (tooltipItem, data) {
+            // var pbp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['pbp']
+            // var revenue = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]['revenue']
+            temp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]
+            handleHoverIRR(revParetoChart, temp['id'])
+            return [
+              ['id: ' + temp['id']],
+              ['Buying Price: ' + (+temp['prices'][0][0].toFixed(2))],
+              ['Selling Price: ' + (+temp['prices'][0][1].toFixed(2))],
+              ['Battery Life: ' + (+temp['x'].toFixed(2))],
+              ['IRR: ' + (+temp['irr'].toFixed(2)) + '%'],
+              ['Revenues: ' + (+temp['revenue'].toFixed(2)) + 'k'],
+              ['PBP: ' + (+temp['pbp'].toFixed(2))]
+            ]
+
           }
         },
         bodyFontSize: 14,
-        displayColors: false          
+        displayColors: false
       },
       hover: {
         mode: 'nearest',
@@ -1027,22 +1032,22 @@ function generateResultChart() {
       }
     }
   }
-  var configRev = $.extend(true,{},config)
+  var configRev = $.extend(true, {}, config)
   configRev['options']['onClick'] = handleClickRev
   configRev['options']['tooltips']['callbacks'] = {
-    label: function(tooltipItem, data) {
-        temp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]
-        handleHoverIRR(irrParetoChart, temp['id'])
-        return [
-          ['id: ' + temp['id']],
-          ['Buying Price: ' + (+temp['prices'][0][0].toFixed(2))],
-          ['Selling Price: ' + (+temp['prices'][0][1].toFixed(2))],
-          ['Battery Life: ' + (+temp['x'].toFixed(2))],
-          ['IRR: ' + (+temp['irr'].toFixed(2)) + '%'],
-          ['Revenues: ' + (+temp['revenue'].toFixed(2)) + 'k'],
-          ['PBP: ' + (+temp['pbp'].toFixed(2))]
-        ]
-        
+    label: function (tooltipItem, data) {
+      temp = data['datasets'][tooltipItem['datasetIndex']]['data'][tooltipItem['index']]
+      handleHoverIRR(irrParetoChart, temp['id'])
+      return [
+        ['id: ' + temp['id']],
+        ['Buying Price: ' + (+temp['prices'][0][0].toFixed(2))],
+        ['Selling Price: ' + (+temp['prices'][0][1].toFixed(2))],
+        ['Battery Life: ' + (+temp['x'].toFixed(2))],
+        ['IRR: ' + (+temp['irr'].toFixed(2)) + '%'],
+        ['Revenues: ' + (+temp['revenue'].toFixed(2)) + 'k'],
+        ['PBP: ' + (+temp['pbp'].toFixed(2))]
+      ]
+
     }
   }
   configRev['options']['title']['text'] = 'Battery Life vs Revenues'
@@ -1068,11 +1073,11 @@ document.querySelectorAll('.custom-file input').forEach(e => {
 function uploadFile(e) {
   var labels = document.getElementsByTagName('LABEL');
   for (var i = 0; i < labels.length; i++) {
-      if(labels[i].htmlFor === e.target.id) {
-        labels[i].innerHTML = e.target.files[0].name
-      }
+    if (labels[i].htmlFor === e.target.id) {
+      labels[i].innerHTML = e.target.files[0].name
+    }
   }
-  marketDataList[e.target.id] = e.target.files[0].path  
+  marketDataList[e.target.id] = e.target.files[0].path
   // if validate, check here
   // const workbook = XLSX.readFile(e.target.files[0].path);
   // const sheet_name_list = workbook.SheetNames;
@@ -1094,16 +1099,268 @@ function updateFileSetting(e) {
 function formValidation() {
   var inputs = document.getElementsByTagName('input')
   var missing = []
-  for(var i = 0; i < inputs.length; i++) {
-    if(i < 6) {
-      if(inputs[i].value === null || inputs[i].value === "" && inputs[i].disabled === false) {
+  for (var i = 0; i < inputs.length; i++) {
+    if (i < 6) {
+      if (inputs[i].value === null || inputs[i].value === "" && inputs[i].disabled === false) {
         missing.push(strMap.ciStrMap(inputs[i].name))
       }
     } else {
-      if(inputs[i].files.length === 0 && inputs[i].disabled === false) {
-         missing.push(strMap.fiStrMap(inputs[i].id))
+      if (inputs[i].files.length === 0 && inputs[i].disabled === false) {
+        missing.push(strMap.fiStrMap(inputs[i].id))
       }
-    } 
+    }
   }
   return missing
 }
+
+function isObjEmpty() {
+  for(let type in essObjList) {
+    if(Object.keys(essObjList[type]).length !== 0) return false
+  }
+  return true
+}
+
+var essColorMapping = { 
+  'Power Flow Battery': '#d4dcff', 
+  'Lithium-Ion': '#f5edf0', 
+  'Supercapacitor': '#a0c4e2', 
+  'Custom': '#b8dbd9' 
+}
+
+// topology
+
+var $ = go.GraphObject.make;
+
+var myDiagram =
+  $(go.Diagram, "myDiagramDiv",
+    {
+      "undoManager.isEnabled": true,
+      layout: $(go.TreeLayout,
+        { angle: 0, layerSpacing: 35 })
+    });
+
+function createTopology() {
+  if(isObjEmpty()) {
+    var model = $(go.GraphLinksModel);
+    model.nodeDataArray = []
+    model.linkDataArray = []
+    myDiagram.model = model;
+    return
+  }
+
+  var nodeDataArray = []
+  
+  for (let type in essObjList) {
+    for (let num in essObjList[type]) {
+      let obj = {
+        key: type + '-' + num.toString(),
+        name: type + '-' + num.toString(),
+        // color: essColorMapping[type],
+        color: '#1E8449',
+        geo: 'battery100'
+      }
+      nodeDataArray.push(obj)
+    }
+  }
+
+  for (let market in marketObjList) {
+    let obj = {
+      key: market,
+      name: market.split(' ')[0],
+      // color: '#8AA399', 
+      color: '#2874A6',
+      // stroke: 'white',
+      geo: 'reserve'
+      // geometry: genControlCenter(10, 2)
+    }
+    nodeDataArray.push(obj)
+  }
+
+  let marketobj = {
+    key: 'mid', name: 'Grid', color: 'gray', geo: 'grid'//, stroke: 'white'
+  }
+
+  nodeDataArray.push(marketobj)
+
+  var linkDataArray = []
+
+  for(let i = 0; i < nodeDataArray.length; i++) {
+    if(nodeDataArray[i].key.includes('-')){
+      linkDataArray.push({
+        from: nodeDataArray[i].key, to: 'mid', color: 'lightgreen'
+      })
+    } else if(nodeDataArray[i].key !== 'mid') {
+      linkDataArray.push({
+        to: nodeDataArray[i].key, from: 'mid', color: 'lightblue'
+      })
+    }
+  }
+  var icons = {
+    "battery100":
+    "M30 8v12h-26v-12h26zM32 17h2v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5zM36 11v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5c1.109 0 2 0.891 2 2z",
+    "battery0":
+    "M34 9c1.109 0 2 0.891 2 2v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5zM34 17v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5h2z",
+    "battery25":
+    "M4 20v-12h8v12h-8zM34 9c1.109 0 2 0.891 2 2v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5zM34 17v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5h2z",
+    "battery50":
+    "M4 20v-12h14v12h-14zM34 9c1.109 0 2 0.891 2 2v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5zM34 17v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5h2z",
+    "battery75":
+    "M4 20v-12h20v12h-20zM34 9c1.109 0 2 0.891 2 2v6c0 1.109-0.891 2-2 2v2.5c0 1.375-1.125 2.5-2.5 2.5h-29c-1.375 0-2.5-1.125-2.5-2.5v-15c0-1.375 1.125-2.5 2.5-2.5h29c1.375 0 2.5 1.125 2.5 2.5v2.5zM34 17v-6h-2v-4.5c0-0.281-0.219-0.5-0.5-0.5h-29c-0.281 0-0.5 0.219-0.5 0.5v15c0 0.281 0.219 0.5 0.5 0.5h29c0.281 0 0.5-0.219 0.5-0.5v-4.5h2z",
+    "grid":
+    "M12 0l-12 16h12l-8 16 28-20h-16l12-12z",
+    "reserve":
+    "M32 19l-6-6v-9h-4v5l-6-6-16 16v1h4v10h10v-6h4v6h10v-10h4z"
+  };
+  function geoFunc(geoname) {
+    var geo = icons[geoname];
+    if (typeof geo === "string") {
+      geo = icons[geoname] = go.Geometry.parse(geo, true);
+    }
+    return geo;
+  }
+  
+  myDiagram.nodeTemplate =
+    $(go.Node, "Vertical", 
+      {
+        fromSpot: go.Spot.Right, toSpot: go.Spot.Left
+      },
+      // $(go.Node, "Auto",
+      // $(go.Shape, "Circle",
+      // { fill: "lightcoral", strokeWidth: 0, width: 65, height: 65 },
+      // new go.Binding("fill", "color")),
+    $(go.Shape,
+      { margin: 3, strokeWidth: 0 },
+      new go.Binding("geometry", "geo", geoFunc),
+      new go.Binding("fill", 'color')),
+    
+  $(go.TextBlock, "Default Text", { margin: 12, stroke: "black", font: "bold 16px sans-serif" }, new go.Binding("text", "name"), new go.Binding('stroke', 'stroke'))
+    );
+
+    var Colors = {
+      "red": "#be4b15",
+      "green": "#52ce60",
+      "blue": "#6ea5f8",
+      "lightred": "#fd8852",
+      "lightblue": "#85C1E9",
+      "lightgreen": "#7DCEA0",
+      "pink": "#faadc1",
+      "purple": "#d689ff",
+      "orange": "#f08c00"
+    }
+
+    // a conversion function for translating general color names to specific colors
+    function colorFunc(colorname) {
+      var c = Colors[colorname]
+      if (c) return c;
+      return "gray";
+    }
+    myDiagram.linkTemplate =
+    $(go.Link,
+      {
+        layerName: "Background",
+        routing: go.Link.Orthogonal,
+        corner: 15,
+        reshapable: true,
+        resegmentable: true,
+        fromSpot: go.Spot.RightSide,
+        toSpot: go.Spot.LeftSide
+      },
+      // make sure links come in from the proper direction and go out appropriately
+      new go.Binding("fromSpot", "fromSpot", go.Spot.parse),
+      new go.Binding("toSpot", "toSpot", go.Spot.parse),
+      new go.Binding("points").makeTwoWay(),
+      // mark each Shape to get the link geometry with isPanelMain: true
+      $(go.Shape, { isPanelMain: true, stroke: "gray", strokeWidth: 10 },
+        // get the default stroke color from the fromNode
+        new go.Binding("stroke", "fromNode", function(n) { return go.Brush.lighten((n && Colors[n.data.color]) || "gray"); }).ofObject(),
+        // but use the link's data.color if it is set
+        new go.Binding("stroke", "color", colorFunc)),
+      $(go.Shape, { isPanelMain: true, stroke: "white", strokeWidth: 3, name: "ELEC", strokeDashArray: [20, 40] })
+    );
+
+  var model = $(go.GraphLinksModel);
+
+  model.nodeDataArray = nodeDataArray
+  model.linkDataArray = linkDataArray
+  
+  myDiagram.model = model;
+  loop();  // animate some flow through the pipes
+}
+
+var opacity = 1;
+var down = true;
+function loop() {
+  var diagram = myDiagram;
+  setTimeout(function() {
+    var oldskips = diagram.skipsUndoManager;
+    diagram.skipsUndoManager = true;
+    diagram.links.each(function(link) {
+      var shape = link.findObject("ELEC");
+      var off = shape.strokeDashOffset - 3;
+      // animate (move) the stroke dash
+      shape.strokeDashOffset = (off <= 0) ? 60 : off;
+      // animte (strobe) the opacity:
+      if (down) opacity = opacity - 0.01;
+      else opacity = opacity + 0.003;
+      if (opacity <= 0) { down = !down; opacity = 0; }
+      if (opacity > 1) { down = !down; opacity = 1; }
+      shape.opacity = opacity;
+    });
+    diagram.skipsUndoManager = oldskips;
+    loop();
+  }, 60);
+}
+function genDiskStorage(w, h) {
+  var KAPPA = 4 * ((Math.sqrt(2) - 1) / 3);
+  var geo = new go.Geometry();
+  var cpxOffset = KAPPA * .5;
+  var cpyOffset = KAPPA * .1;
+  var fig = new go.PathFigure(w, .1 * h, true);
+  geo.add(fig);
+
+  // Body
+  fig.add(new go.PathSegment(go.PathSegment.Line, w, .9 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Bezier, .5 * w, h, w, (.9 + cpyOffset) * h,
+    (.5 + cpxOffset) * w, h));
+  fig.add(new go.PathSegment(go.PathSegment.Bezier, 0, .9 * h, (.5 - cpxOffset) * w, h,
+    0, (.9 + cpyOffset) * h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0, .1 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Bezier, .5 * w, 0, 0, (.1 - cpyOffset) * h,
+    (.5 - cpxOffset) * w, 0));
+  fig.add(new go.PathSegment(go.PathSegment.Bezier, w, .1 * h, (.5 + cpxOffset) * w, 0,
+    w, (.1 - cpyOffset) * h));
+  var fig2 = new go.PathFigure(w, .1 * h, false);
+  geo.add(fig2);
+  // Rings
+  fig2.add(new go.PathSegment(go.PathSegment.Bezier, .5 * w, .2 * h, w, (.1 + cpyOffset) * h,
+    (.5 + cpxOffset) * w, .2 * h));
+  fig2.add(new go.PathSegment(go.PathSegment.Bezier, 0, .1 * h, (.5 - cpxOffset) * w, .2 * h,
+    0, (.1 + cpyOffset) * h));
+  fig2.add(new go.PathSegment(go.PathSegment.Move, w, .2 * h));
+  fig2.add(new go.PathSegment(go.PathSegment.Bezier, .5 * w, .3 * h, w, (.2 + cpyOffset) * h,
+    (.5 + cpxOffset) * w, .3 * h));
+  fig2.add(new go.PathSegment(go.PathSegment.Bezier, 0, .2 * h, (.5 - cpxOffset) * w, .3 * h,
+    0, (.2 + cpyOffset) * h));
+  geo.spot1 = new go.Spot(0, .3);
+  geo.spot2 = new go.Spot(1, .9);
+  return geo;
+}
+
+function genControlCenter(w, h) {
+  var geo = new go.Geometry();
+  var fig = new go.PathFigure(0, h, true);
+  geo.add(fig);
+
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0, 0.8 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0.1 * w, 0.8 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0.1 * w, 0));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0.9 * w, 0));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0.9 * w, 0.8 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, w, 0.8 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, w, h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0, h));
+  fig.add(new go.PathSegment(go.PathSegment.Move, 0.1 * w, 0.8 * h));
+  fig.add(new go.PathSegment(go.PathSegment.Line, 0.9 * w, 0.8 * h).close());
+  return geo;
+}
+
