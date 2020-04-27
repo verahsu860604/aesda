@@ -158,7 +158,7 @@ ipc.on('run', (event, args) => {
 
     let totl = 1
     pyshell.on('message', function (message) {
-        console.log(message);
+        
         if (message.substring(0, 12) == 'START TIME: ') {
             console.log(message)
             mainWindow.webContents.send('startTime', message.split(': ')[1])
