@@ -382,7 +382,6 @@ class EnergySource(object):
                 last_p_buy = upper_bound_p_buy
         return last_p_buy, last_p_sell
 
-
     def tuning_parameter_fit(self):
         """Use simulation data in one month to tune the two parameters min_degradation_para and max_degradation_para.
         """
