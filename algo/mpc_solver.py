@@ -2,7 +2,7 @@ import numpy as np
 import cvxpy as cp #1.0.25
 import copy
 # import gurobipy
-import cplex
+# import cplex
 import sys
 
 class MarketState(object):
@@ -144,8 +144,8 @@ class MPCProblem(object):
 
         self.parameters = {
             'soc': cp.Parameter((self.num_energy_sources, ), nonneg=True),
-            'setpoint_upward': cp.Parameter((self.num_markets, ), nonneg=True),
-            'setpoint_downward': cp.Parameter((self.num_markets, ), nonneg=True),
+            'setpoint_upward_demand_multiplied': cp.Parameter((self.num_markets, ), nonneg=True),
+            'setpoint_downward_demand_multiplied': cp.Parameter((self.num_markets, ), nonneg=True),
             'demand_upward': cp.Parameter((self.num_markets, self.planning_horizon), nonneg=True),
             'demand_downward': cp.Parameter((self.num_markets, self.planning_horizon), nonneg=True)
         }
@@ -283,8 +283,10 @@ class MPCProblem(object):
         self.dynamic_constraints = []
 
         # Setpoint Constraint
-        self.dynamic_constraints.append(self.variables['power_market_upward'][:, 0] == cp.multiply(self.parameters['setpoint_upward'], self.parameters['demand_upward'][:,0]))
-        self.dynamic_constraints.append(self.variables['power_market_downward'][:, 0] == cp.multiply(self.parameters['setpoint_downward'], self.parameters['demand_downward'][:,0]))
+        self.dynamic_constraints.append(self.variables['power_market_upward'][:, 0] == self.parameters['setpoint_upward_demand_multiplied'])
+        self.dynamic_constraints.append(self.variables['power_market_downward'][:, 0] == self.parameters['setpoint_downward_demand_multiplied'])
+        # self.dynamic_constraints.append(self.variables['power_market_upward'][:, 0] == cp.multiply(self.parameters['setpoint_upward'], self.parameters['demand_upward'][:,0]))
+        # self.dynamic_constraints.append(self.variables['power_market_downward'][:, 0] == cp.multiply(self.parameters['setpoint_downward'], self.parameters['demand_downward'][:,0]))
 
         # Delivery constraint (Except at time=0, it is determined by setpoint)
         for j in range(self.num_markets):
@@ -575,15 +577,17 @@ class MPCSolver(object):
         """
 
         problem.parameters['soc'].value = self.state['soc']
-        problem.parameters['setpoint_upward'].value = self.state['setpoint_upward']
-        problem.parameters['setpoint_downward'].value = self.state['setpoint_downward']
 
         if direction == 'zero':
             for time_k in range(0, problem.planning_horizon):
                 self.state['demand_upward'][market_id][time_k] = 0
                 self.state['demand_downward'][market_id][time_k] = 0
+                
             problem.parameters['demand_upward'].value = self.state['demand_upward'][:, :problem.planning_horizon]
             problem.parameters['demand_downward'].value = self.state['demand_downward'][:, :problem.planning_horizon]
+
+            problem.parameters['setpoint_upward_demand_multiplied'].value = self.state['setpoint_upward'] * problem.parameters['demand_upward'].value[:,0]
+            problem.parameters['setpoint_downward_demand_multiplied'].value = self.state['setpoint_downward'] * problem.parameters['demand_downward'].value[:,0]
             return
 
         phase_id = 0 # 0: GC -> MC, 1: MC -> TD, 2: TD -> TF
@@ -629,6 +633,8 @@ class MPCSolver(object):
         # print('h', problem.parameters['demand_downward'].value[:,0].tolist())
         problem.parameters['demand_upward'].value = self.state['demand_upward'][:, :problem.planning_horizon]
         problem.parameters['demand_downward'].value = self.state['demand_downward'][:, :problem.planning_horizon]
+        problem.parameters['setpoint_upward_demand_multiplied'].value = self.state['setpoint_upward'] * problem.parameters['demand_upward'].value[:,0]
+        problem.parameters['setpoint_downward_demand_multiplied'].value = self.state['setpoint_downward'] * problem.parameters['demand_downward'].value[:,0]
 
     def _evolve_and_record(self, problem, prices, penalty):
         # print(self.num_energy_sources)

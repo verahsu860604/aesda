@@ -129,6 +129,9 @@ print(markets[0].__dict__)
 
 results = mpc.solve([[5, 150] for i in range(len(markets))], ['free' for i in range(len(markets))])
 
+print(results[-1]['soh'])
+print(tuple(results[-1]['soh']))
+print(min(tuple(results[-1]['soh'])))
 # assert results[-1]['soc'][0] < 0.03
 # assert results[-1]['soc'][0] < 0.03
 # revenue = 0
