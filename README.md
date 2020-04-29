@@ -17,13 +17,13 @@ The planning horizon is required to be at least the largest length from GC(Final
 
 The execution time grows exponentially with the planning horizon, as our experiment shows below:
 
-![](https://i.imgur.com/3xYyqjc.png)
+![](https://i.imgur.com/3xYyqjc.png =720x)
 
 The strategy quality means how well the model predictive control (MPC) method will achieve given the planning horizon. Accoding to our experiments, an intermediate value has the best performance. The recommended value is 3 to 6 times the longest delivery phase length among markets.
 
 The following graph shows how planning horizon changes with planning horizon, when the deliver phase length is 60 minutes.
 
-![](https://i.imgur.com/NFbSxLr.png)
+![](https://i.imgur.com/NFbSxLr.png =720x)
 
 
 #### SoH Update Frequency
@@ -43,7 +43,7 @@ Setpoint update interval means the frequency that the System Operator gives its 
 Number of time windows in minutes. The delivery phase is divided equally by this number to form several time windows. Each time window represents a period where the proposed power remains the same.
 
 ### Market Structure
-![market structure](https://imgur.com/OhylFPK.png)
+![market structure](https://imgur.com/OhylFPK.png =720x)
 All the markets share the same structure (see the above figure), but they can differ for the time unit of each session slot. This section is for the user to configure the phase length for each market. 
 #### Planning Phase Length
 Planning phase length for the current market in minutes.
@@ -130,7 +130,7 @@ Minimum State-of-Charge for providing maximum power output, this is a percentage
 Maximum State-of-Charge for absorbing maximum power input, this is a percentage to the dimension of the storage.
 #### SoC Profile Chart
 
-![](https://i.imgur.com/v6t7fjw.png)
+![](https://i.imgur.com/v6t7fjw.png =720x)
 
 
 The x-axis of this chart is the energy stored in the storage, and the y-axis is the power input/output. The blue line indicates when the storage is charging, and the purple line indicates when the storage is discharging. 
@@ -144,13 +144,13 @@ In this example, the current rated power input is 13, meaning the maximum power 
 #### Point *n* DoD
 #### Point *n* Cycles
 
-![](https://i.imgur.com/B06I4fm.png)
+![](https://i.imgur.com/B06I4fm.png =720x)
 
 ### Threshold for SoH Estimation
 #### Threshold
 The threshold that filters out the small fluctuation of SOC profile.
 #### Threshold Chart
-![](https://i.imgur.com/pOHIW92.png)
+![](https://i.imgur.com/pOHIW92.png =720x)
 
 This interactive chart allows the user to adjust the threshold that filters out the small fluctuation of SoC profile. The purple line is the original SoC profile, and the blue line is the result visualization after filtering out the fluctuation. User could play with the slider to find the desired threshold. Information about number of cycles and Depth of Discharge is extracted from the estimated SoC curve. Different thresholds will influence the update of SoH. 
 
@@ -158,12 +158,12 @@ For lithium-ion batteries with nonlinear DoD profile, larger DoD has a larger im
 
 ### Topography
 When the user configure ESS, there will be a dynamic diagram visualizing the topography of the configured battery systems and markets.
-![](https://imgur.com/dYHtMFe.gif)
+![](https://imgur.com/dYHtMFe.gif =1080x)
 
 ## Data
 This section is for the user to upload setpoint and price data files for their created markets. 
 
-![](https://i.imgur.com/E5yjptE.png)
+![](https://i.imgur.com/E5yjptE.png =720x)
 
 There are 6 upload fields for all 3 markets. Only the fields corresponding to markets that is instantiated in the system would be available. 
 
@@ -196,8 +196,7 @@ The price data file should have 3 colums. The first column is time, with month, 
 
 ## Result
 ### Pareto Graph
-![](https://imgur.com/yzrIdNS.png)
-![](https://i.imgur.com/4IHIm3a.png)
+![](https://i.imgur.com/4IHIm3a.png =720x)
 
 We have two Pareto graphs in the result page.
 For both of the graphs, the x-axis is the Estimated Battery Life, which is the estimated life of the most used energy storage system in this simulation. 
@@ -208,11 +207,11 @@ When datapoint on the graph is clicked, a more detailed block as below will appe
 
 #### Datapoint Detail
 
-![](https://imgur.com/GSfDWei.png =400x300)
+![](https://imgur.com/GSfDWei.png =360x)
 
 Users can add multiple datapoints for comparison,
 ex:
-![](https://imgur.com/ed4l5VV.png)
+![](https://imgur.com/ed4l5VV.png =720x)
 And choose desired ones to download.
 
 
