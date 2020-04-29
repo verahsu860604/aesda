@@ -142,6 +142,7 @@ class SOHEstimator(object):
                 cum_dod = np.round(cum * 100 / self.dimension)
                 if cum_dod >= 1:
                     pair = True
+                    cum_dod = min(cum_dod, 100)
                     cycles[int(cum_dod) - 1] += 1
                     if min_down[0] < soc_history[down_i + 1]:
                         down_i = min_down[1] - 1
@@ -171,6 +172,7 @@ class SOHEstimator(object):
             cum = max(abs(down_cum), up_cum)
             cum_dod = np.round(cum * 100 / self.dimension)
             if cum_dod >= 1:
+                cum_dod = min(cum_dod, 100)
                 cycles[int(cum_dod) - 1] += 1
                 if up == 1:
                     real_cycle.append(real_cycle[-1] + up_cum)
@@ -297,6 +299,8 @@ class EnergySource(object):
         self.soc_profile_min_soc = soc_profile_min_soc
         self.soc_profile_max_input_th = soc_profile_max_input_th * 0.01
         self.soc_profile_min_output_th = soc_profile_min_output_th * 0.01
+        # self.soc_profile_max_input_th = min(0.999, soc_profile_max_input_th * 0.01) # 0.999 as EPS
+        # self.soc_profile_min_output_th = max(0.001, soc_profile_min_output_th * 0.01) # 0.001 as EPS
         self.soc_profile_max_power_upward = soc_profile_max_power_upward
         self.soc_profile_max_power_downward = soc_profile_max_power_downward
         self.soc_profile_max_change_upward = soc_profile_max_change_upward

@@ -23,8 +23,12 @@ The strategy quality means how well the model predictive control (MPC) method wi
 
 The following graph shows how planning horizon changes with planning horizon, when the deliver phase length is 60 minutes.
 
-![](https://i.imgur.com/NFbSxLr.png =720x)
+#### Planning Horizon 
+The planning horizon of model predictive control (MPC) method in minute.
 
+#### SoH Update Frequency
+This value indicate the frequency of updating the storages' State-of-health in minute.
+![](https://i.imgur.com/NFbSxLr.png =720x)
 
 #### SoH Update Frequency
 This value indicates the frequency of updating the storages' State-of-health. With higher frequency, the batteries' state-of-health are updated more instantly, but the state-of-health estimation will be less accurate. It is recommended to set it within a range between 2 - 14 days. The default value (3 days) is good in most cases.

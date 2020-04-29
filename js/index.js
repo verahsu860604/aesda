@@ -18,6 +18,7 @@ let essObjList = { 'Power Flow Battery': {}, 'Lithium-Ion': {}, 'Supercapacitor'
 let marketDataList = {}
 
 generateResultChart()
+generateHorizonChart()
 const barColor = {
   'mi-planning': 'bg-warning',
   'mi-schedule': 'bg-success',
@@ -29,10 +30,10 @@ const barColor = {
 const defaultVal = {
   'ci-predic': 180,
   'ci-totTimestampMonth': 0,
-  'ci-totTimestampWeek': 0,
+  'ci-totTimestampWeek': 1,
   'ci-totTimestampDay': 0,
-  'ci-totTimestampHour': 12,
-  'ci-sohItv': 720
+  'ci-totTimestampHour': 0,
+  'ci-sohItv': 3
 }
 
 Object.keys(defaultVal).forEach(e => {
@@ -845,6 +846,104 @@ function updateChartData(data) {
 }
 
 
+function generateHorizonChart() {
+  horizontime = new Chart(document.getElementById('horizontime'), {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: "execution time",
+            data: [{x: 100, y:1.1071927499771118},
+              {x: 200, y:1.1157951807975769},
+              {x: 300, y:1.3206633806228638},
+              {x: 400, y:1.5165351700782776},
+              {x: 500, y:1.7447242093086243},
+              {x: 600, y:1.730249879360199},
+              {x: 700, y:1.8039585494995117},
+              {x: 800, y:2.0357539701461792},
+              {x: 900, y:2.2950398778915405},
+              {x: 1000, y:2.8807509183883667},
+              {x: 1100, y:3.029982349872589},
+              {x: 1200, y:3.3090636801719666},
+              {x: 1300, y:3.662331759929657},
+              {x: 1400, y:4.047674970626831},
+              {x: 1500, y:4.422535581588745},
+              {x: 1600, y:4.824610710144043},
+              {x: 1700, y:5.741664760112762},
+              {x: 1800, y:6.286210460662842},
+              {x: 1900, y:6.842949900627136},
+              {x: 2000, y:7.453676199913025},
+              {x: 2100, y:8.396958329677582},
+              {x: 2200, y:8.744274771213531},
+              {x: 2300, y:9.554511501789093},
+              {x: 2400, y:11.198296909332275}],
+            showLine: true
+          }]},
+      options: {
+          title: {
+              display: false,
+              text: 'Time'
+          },
+          scales: {
+              yAxes: [{
+                  scaleLabel: {
+                      display: true,
+                      labelString: 'Execution Time'
+                  },
+              }],
+              xAxes: [{
+                  scaleLabel: {
+                      display: true,
+                      labelString: 'Planning Horizon'
+                  },
+              }]
+          }
+      }
+  })
+  horizonquality = new Chart(document.getElementById('horizonquality'), {
+    type: 'scatter',
+
+    data: {
+      datasets: [
+        {
+          label: "strategy quality",
+          data: [{x:100, y:6015.174424500852 / 7200},
+            {x:200, y:7015.192395586166 / 7200},
+            {x:300, y:7088.487232713391 / 7200},
+            {x:400, y:7080.472046329362 / 7200},
+            {x:500, y:6960.3200078483715 / 7200},
+            {x:600, y:6870.814019403093 / 7200},
+            {x:700, y:6888.387555798566 / 7200},
+            {x:800, y:6574.051504836913 / 7200},
+            {x:900, y:6506.336433732839 / 7200},
+            {x:1200, y:6402.521962391004 / 7200},
+            {x:1500, y:6053.727190102876 / 7200},
+            {x:1900, y:5316.995741647057 / 7200}],
+          showLine: true
+        }]},
+    options: {
+        title: {
+            display: false,
+            text: 'Time'
+        },
+        scales: {
+            yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Strategy Quality'
+                },
+            }],
+            xAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Planning Horizon'
+                },
+            }]
+        }
+    }
+})
+}
+
 function generateResultChart() {
   window.chartColors = {
     red: 'rgb(255, 99, 132)',
@@ -1012,7 +1111,7 @@ function generateResultChart() {
           display: true,
           scaleLabel: {
             display: true,
-            labelString: 'Remaining Battery Life (Year)',
+            labelString: 'Estimated Battery Life (Year)',
             fontSize: 20
           }
         }],
@@ -1049,7 +1148,7 @@ function generateResultChart() {
     }
   }
   configRev['options']['title']['text'] = 'Battery Life vs Revenues'
-  configRev['options']['scales']['yAxes'][0]['scaleLabel']['labelString'] = 'Revenues (thousand dollars)'
+  configRev['options']['scales']['yAxes'][0]['scaleLabel']['labelString'] = 'Revenues (kEuro)'
 
   var ctxIRR = document.getElementById("irrParetoChart").getContext("2d")
   irrParetoChart = new Chart.Scatter(ctxIRR, config)

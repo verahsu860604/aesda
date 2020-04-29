@@ -693,8 +693,8 @@ class MPCSolver(object):
         record['setpoint_upward'] = self.state['setpoint_upward']
         record['setpoint_downward'] = self.state['setpoint_downward']
         record['revenue'] = [
-            problem.variables['power_market_downward'].value[market_id][0] * prices[market_id][1] - \
-            problem.variables['power_market_upward'].value[market_id][0] * prices[market_id][0]
+            problem.variables['power_market_downward'].value[market_id][0] * prices[market_id][1] / 60.0 - \
+            problem.variables['power_market_upward'].value[market_id][0] * prices[market_id][0] / 60.0 
             for market_id in range(self.num_markets)]
 
         if len(self.records) != 0:
