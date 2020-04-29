@@ -17,7 +17,7 @@ The planning horizon is required to be at least the largest length from GC(Final
 
 The execution time grows exponentially with the planning horizon, as our experiment shows below:
 
-![](https://i.imgur.com/3xYyqjc.png width=720)
+![](https://i.imgur.com/3xYyqjc.png | width=720)
 
 The strategy quality means how well the model predictive control (MPC) method will achieve given the planning horizon. Accoding to our experiments, an intermediate value has the best performance. The recommended value is 3 to 6 times the longest delivery phase length among markets.
 
