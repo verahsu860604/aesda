@@ -116,7 +116,7 @@ class CyclicCoordinate(object):
 
         # Cyclic Coordinate
         while True:
-            # print('ALGO 4, value bounds: ', value_bounds)
+            print('ALGO 4, value bounds: ', value_bounds)
             optimized = False
             for i in range(len(value_bounds)):
                 if value_bounds[i][1] - value_bounds[i][0] >= value_eps[i]: #TODO
@@ -138,14 +138,14 @@ class CyclicCoordinate(object):
                             soh_array = soh
                         print("DEBUG: cyclic coordinate min_soh", min(soh_array))
                         years = self.get_battery_life(min(soh_array))
-                        # print("DEBUG: years", years)
+                        print("DEBUG: years", years)
                         cashflow = getCashFlow(self.costs, revenue, years)
                         irr = getIRR(cashflow)
                         if math.isnan(irr): # TODO: IRR should not be nan
                             irr = 0
-                        # print("DEBUG: irr", irr)
+                        print("DEBUG: irr", irr)
                         pbp = getPBP(cashflow)
-                        # print("DEBUG: pbp", pbp)
+                        print("DEBUG: pbp", pbp)
                         # Print results:
                         if self.really_run:
                             self.global_id += 1

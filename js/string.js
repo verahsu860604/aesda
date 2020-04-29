@@ -76,8 +76,8 @@ var file = {
 }
 
 var config = {
-    'ci-predic'       : 'Prediction Horizon',
-    'ci-sohItv'       : 'SoH Update Interval',
+    'ci-predic'       : 'Planning Horizon',
+    'ci-sohItv'       : 'SoH Update Frequency (Days)',
     'ci-totTimestampMonth' : 'Total Timestamp (Month)',
     'ci-totTimestampWeek'  : 'Total Timestamp (Week)',
     'ci-totTimestampDay'   : 'Total Timestamp (Day)',

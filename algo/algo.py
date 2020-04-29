@@ -20,6 +20,7 @@ assert len(sys.argv) > 1
 parameters_ui = json.loads(sys.argv[1])
 
 data = param_mapping.map_param(parameters_ui)
+data['config']['soh_update_interval'] *= 1440
 print('DEBUG: data', data)
 sys.stdout.flush()
 

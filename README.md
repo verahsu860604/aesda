@@ -8,10 +8,10 @@ This is the user manual of AESDA application. The are 5 parts in this manual, in
 ## Configuration
 This part is to use some parameters to configure the system. 
 
-#### Prediction Horizon 
+#### Planning Horizon 
 The planning horizon of model predictive control (MPC) method in minute.
 
-#### SoH Update Interval
+#### SoH Update Frequency
 This value indicate the frequency of updating the storages' State-of-health in minute.
 
 #### Total Timestamp
