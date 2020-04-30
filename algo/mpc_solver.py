@@ -299,7 +299,8 @@ class MPCProblem(object):
                 ti = current_time + time_k
 
                 if ti % self.markets[j].phase_length == 0:
-                    gc_position = time_k - self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length
+                    # gc_position = time_k - self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length
+                    gc_position = time_k - 2 * self.markets[j].phase_length
                     if gc_position >= 0: # We have not proposed the plan
                         demand_fixed = False
 
@@ -321,7 +322,8 @@ class MPCProblem(object):
                 ti = current_time + time_k
 
                 if ti % self.markets[j].phase_length == 0:
-                    gc_position = time_k - self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length
+                    # gc_position = time_k - self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length
+                    gc_position = time_k - 2 * self.markets[j].phase_length
                     if gc_position >= 0: # We have not proposed the plan from this time on
                         constraints_set = True
                         # Before: Power-Demand should BE Equal
@@ -388,6 +390,7 @@ class MPCSolver(object):
         self.average_price = np.max(np.array(prices)[:,1])
         print('DEBUG: prices', prices) #VERBOSE
         print('DEBUG: average', self.average_price) #VERBOSE
+        print('DEBUG: percentages', percentages) #VERBOSE
         # Update percentage. 
         # After that, market[j] should have is_fixed and percentage
         tot = 100

@@ -37,13 +37,17 @@
                 <div class="card-body">
                     <h5 class="card-title">Market Percentage</h5>
                     <div class="form-row">
+                        <input required type="checkbox" id="mi-market_percentage_fixed" step="any" style="width: 5%" class="form-control" name="mi-market_percentage_fixed">
+                        <label style="margin-top:5px" for="mi-market_percentage_fixed">Is Market Participation Percentage Fixed?</label>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="mi-max_feasible_power_percentage">Max Feasible Power Percentage (%)</label>
-                            <input required type="number" step="any" class="form-control" name="mi-max_feasible_power_percentage">
+                            <input readonly required id="mi-max_feasible_power_percentage" type="number" step="any" class="form-control" name="mi-max_feasible_power_percentage">
                         </div>
                         <div class="form-group col-md-6">
                             <label for="mi-min_feasible_power_percentage">Min Feasible Power Percentage (%)</label>
-                            <input required type="number" step="any" class="form-control" name="mi-min_feasible_power_percentage">
+                            <input readonly required id="mi-min_feasible_power_percentage" type="number" step="any" class="form-control" name="mi-min_feasible_power_percentage">
                         </div>
                     </div>
                 </div>
@@ -87,7 +91,7 @@
                         </div>
                         <div class="form-group col-md-4">
                             <label for="mi-percentage_cyclic_n">Percentage Number of Interval</label>
-                            <input required type="number" step="any" class="form-control" name="mi-percentage_cyclic_n">
+                            <input readonly required id="mi-percentage_cyclic_n" type="number" step="any" class="form-control" name="mi-percentage_cyclic_n">
                         </div>
                     </div>
                     <div class="form-row">
@@ -101,7 +105,7 @@
                         </div>
                         <div class="form-group col-md-4">
                             <label for="mi-percentage_cyclic_eps">Percentage Min Interval</label>
-                            <input required type="number" step="any" class="form-control" name="mi-percentage_cyclic_eps">
+                            <input readonly required id="mi-percentage_cyclic_eps" type="number" step="any" class="form-control" name="mi-percentage_cyclic_eps">
                         </div>
                     </div>
                 </div>

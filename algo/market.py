@@ -148,7 +148,7 @@ class Market(object):
         self.price_cyclic_eps_downward = price_cyclic_eps_downward
         self.percentage_cyclic_eps = percentage_cyclic_eps
 
-        self.percentage_fixed = percentage_fixed
+        self.percentage_fixed = True if percentage_fixed else False
 
         self.upward_penalty = upward_penalty
         self.downward_penalty = downward_penalty

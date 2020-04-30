@@ -56,9 +56,9 @@ parameters = {
         {
             "time_window_in_delivery": 4, 
             # Primary
-            "planning_phase_length": 60,
-            "selection_phase_length": 60,
-            "schedule_phase_length": 60,
+            "planning_phase_length": 40,
+            "selection_phase_length": 30,
+            "schedule_phase_length": 20,
             "delivery_phase_length": 60,
             "price_cyclic_n_upward": 2,
             "price_cyclic_n_downward": 2,
@@ -75,9 +75,9 @@ parameters = {
         },
         {
             "time_window_in_delivery": 4, # Secondary
-            "planning_phase_length": 120,
-            "selection_phase_length": 120,
-            "schedule_phase_length": 120,
+            "planning_phase_length": 50,
+            "selection_phase_length": 30,
+            "schedule_phase_length": 70,
             "delivery_phase_length": 120,
             "setpoint_interval": 15,
             "price_cyclic_n_upward": 2,

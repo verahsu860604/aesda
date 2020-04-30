@@ -31,6 +31,8 @@ ess_mapping = \
     'ei-maxpout'            :   'soc_profile_max_power_downward',
     'ei-minsoc'             :   'soc_profile_min_output_th',
     'ei-maxsoc'             :   'soc_profile_max_input_th',
+    'ei-minsoclimit'             :   'soc_profile_min_soc',
+    'ei-maxsoclimit'             :   'soc_profile_max_soc',
     
     # dod, cycles
     'ei-p1d' : 'd1',
@@ -58,7 +60,7 @@ market_mapping = \
     'mi-price_cyclic_eps_upward'       : 'price_cyclic_eps_upward',
     'mi-price_cyclic_eps_downward'     : 'price_cyclic_eps_downward',
     'mi-percentage_cyclic_eps'         : 'percentage_cyclic_eps',
-    # : percentage_fixed
+    'mi-market_percentage_fixed'       : 'percentage_fixed',
 
     'mi-spUpdate'   :   'setpoint_interval',
     'mi-twDelivery' :   'time_window_in_delivery',
