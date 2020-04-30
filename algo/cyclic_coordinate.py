@@ -23,7 +23,7 @@ def getCashFlow(costs, cin, years):
         cashflow.append(cin_avg)
     cashflow.append(cin_avg*(years - full_years))
     cashflow = np.array(cashflow)
-    # print("DEBUG: cashflow", cashflow)
+    print("DEBUG: cashflow", cashflow)
     return cashflow
 
 def getIRR(cashflow):

@@ -222,8 +222,8 @@ class EnergySource(object):
                 energy_type='Lithium-Ion', 
                 self_discharge_ratio=0.0,
                 soc_profile_energy_scale=20,
-                soc_profile_max_soc=1.0, 
-                soc_profile_min_soc=0.0,
+                soc_profile_max_soc=100, 
+                soc_profile_min_soc=0,
                 soc_profile_max_input_th=100, 
                 soc_profile_min_output_th=0,
                 soc_profile_max_power_upward=10, 
@@ -260,8 +260,8 @@ class EnergySource(object):
             energy_type (str): Type of the energy ['Lithium-Ion', 'Flywheel']
             self_discharge_ratio (float): Self discharge Ratio every minute. Default 0.01
             soc_profile_energy_scale (float): The scale for all E-related parameters, in MWh
-            soc_profile_max_soc (float): EM for SOC Profile, in proportion.
-            soc_profile_min_soc (float): Em for SOC Profile, in proportion.
+            soc_profile_max_soc (int): EM for SOC Profile, in percentage.
+            soc_profile_min_soc (int): Em for SOC Profile, in percentage.
             soc_profile_max_input_th (int): Max SOC for absorbing maximum power input  [percentage];
             soc_profile_min_output_th (int): Min SOC for providing maximum power output  [percentage]
             soc_profile_max_power_upward (float): P+, in MW.
@@ -295,12 +295,10 @@ class EnergySource(object):
         self.energy_type = energy_type
         self.soc_profile_energy_scale = soc_profile_energy_scale
         self.self_discharge_ratio = self_discharge_ratio
-        self.soc_profile_max_soc = soc_profile_max_soc
-        self.soc_profile_min_soc = soc_profile_min_soc
-        self.soc_profile_max_input_th = soc_profile_max_input_th * 0.01
-        self.soc_profile_min_output_th = soc_profile_min_output_th * 0.01
-        # self.soc_profile_max_input_th = min(0.999, soc_profile_max_input_th * 0.01) # 0.999 as EPS
-        # self.soc_profile_min_output_th = max(0.001, soc_profile_min_output_th * 0.01) # 0.001 as EPS
+        self.soc_profile_max_soc = soc_profile_max_soc / 100.0
+        self.soc_profile_min_soc = soc_profile_min_soc / 100.0
+        self.soc_profile_max_input_th = min(self.soc_profile_max_soc - 1e-3, soc_profile_max_input_th * 0.01) # EPS
+        self.soc_profile_min_output_th = max(self.soc_profile_min_soc + 1e-3, soc_profile_min_output_th * 0.01) # EPS
         self.soc_profile_max_power_upward = soc_profile_max_power_upward
         self.soc_profile_max_power_downward = soc_profile_max_power_downward
         self.soc_profile_max_change_upward = soc_profile_max_change_upward
