@@ -299,7 +299,8 @@ class MPCProblem(object):
                 ti = current_time + time_k
 
                 if ti % self.markets[j].phase_length == 0:
-                    gc_position = time_k - self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length
+                    # gc_position = time_k - self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length
+                    gc_position = time_k - 2 * self.markets[j].phase_length
                     if gc_position >= 0: # We have not proposed the plan
                         demand_fixed = False
 
@@ -316,13 +317,13 @@ class MPCProblem(object):
                 self.dynamic_constraints.append(self.variables['power_market_downward'][j][1:] == self.parameters['demand_downward'][j][1:])
                 continue
                 
-            # If we have set the constraints
-            constraints_set = False
+            constraints_set = False # If we have set the constraints
             for time_k in range(1, self.planning_horizon):
                 ti = current_time + time_k
 
                 if ti % self.markets[j].phase_length == 0:
-                    gc_position = time_k - self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length
+                    # gc_position = time_k - self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length
+                    gc_position = time_k - 2 * self.markets[j].phase_length
                     if gc_position >= 0: # We have not proposed the plan from this time on
                         constraints_set = True
                         # Before: Power-Demand should BE Equal
@@ -389,6 +390,7 @@ class MPCSolver(object):
         self.average_price = np.max(np.array(prices)[:,1])
         print('DEBUG: prices', prices) #VERBOSE
         print('DEBUG: average', self.average_price) #VERBOSE
+        print('DEBUG: percentages', percentages) #VERBOSE
         # Update percentage. 
         # After that, market[j] should have is_fixed and percentage
         tot = 100
@@ -401,7 +403,7 @@ class MPCSolver(object):
                 self.markets[j].update_percentage(tot, is_fixed = False) # Not fixed, can use max of tot percent of power
 
         self.state = {
-            'soc': np.ones([self.num_energy_sources, ], dtype=np.float32) / 2, #TODO
+            'soc': np.array([self.energy_sources[i].soc_profile_min_soc for i in range(self.num_energy_sources)], dtype=np.float32),
             'soh': np.ones([self.num_energy_sources, ], dtype=np.float32),
             'market_state': [MarketState(self.markets[j]) for j in range(self.num_markets)],
             'setpoint_upward': [0 for j in range(self.num_markets)], # Only for the next minute
@@ -488,11 +490,18 @@ class MPCSolver(object):
 
                         # Rolling market_decision:
                         # For example: [137, 24, 99] -> [24, 99, 50]
-                        # print('DEBUG: soc', self.variables['soc'].value.tolist())
-                        # print('DEBUG: power_device_upward', self.variables['power_device_upward'].value.tolist())
-                        # print('DEBUG: power_device_downward', self.variables['power_device_downward'].value.tolist())
-                        # print('DEBUG: power_market_upward', self.variables['power_market_upward'].value.tolist())
-                        # print('DEBUG: power_market_downward', self.variables['power_market_downward'].value.tolist())
+                        # if direction == 'upward':
+                        #     print('DEBUG: soc', problem_bid_upward.variables['soc'].value.tolist())
+                        #     print('DEBUG: power_device_upward', problem_bid_upward.variables['power_device_upward'].value.tolist())
+                        #     print('DEBUG: power_device_downward', problem_bid_upward.variables['power_device_downward'].value.tolist())
+                        #     print('DEBUG: power_market_upward', problem_bid_upward.variables['power_market_upward'].value.tolist())
+                        #     print('DEBUG: power_market_downward', problem_bid_upward.variables['power_market_downward'].value.tolist())
+                        # if direction == 'downward':
+                        #     print('DEBUG: soc', problem_bid_downward.variables['soc'].value.tolist())
+                        #     print('DEBUG: power_device_upward', problem_bid_downward.variables['power_device_upward'].value.tolist())
+                        #     print('DEBUG: power_device_downward', problem_bid_downward.variables['power_device_downward'].value.tolist())
+                        #     print('DEBUG: power_market_upward', problem_bid_downward.variables['power_market_upward'].value.tolist())
+                        #     print('DEBUG: power_market_downward', problem_bid_downward.variables['power_market_downward'].value.tolist())
                 # Set 1
             #     self.config.planning_horizon = 2
             #     self._build_static_problem()
@@ -609,17 +618,28 @@ class MPCSolver(object):
                 elif direction == 'downward':
                     self.state['demand_upward'][market_id][time_k] = 0
 
-            else: 
+            elif phase_id <= 2: # TD -> TF
+
+                if direction == 'upward':
+                    self.state['demand_downward'][market_id][time_k] = 0
+                    if self.markets[market_id].is_fixed:
+                        self.state['demand_upward'][market_id][time_k] = self.markets[market_id].power_percentage / 100.0 * self.sum_nominal_max_power_upward
+                    else:
+                        self.state['demand_upward'][market_id][time_k] = 100.0 * self.sum_nominal_max_power_upward
+
+                else:
+                    self.state['demand_upward'][market_id][time_k] = 0
+                    if self.markets[market_id].is_fixed:
+                        self.state['demand_downward'][market_id][time_k] = self.markets[market_id].power_percentage / 100.0 * self.sum_nominal_max_power_downward
+                    else:
+                        self.state['demand_downward'][market_id][time_k] = 100.0 * self.sum_nominal_max_power_downward
+                
+            else:
                 self.state['demand_upward'][market_id][time_k] = 0
                 self.state['demand_downward'][market_id][time_k] = 0
 
                 # If direction == 'both': Keep both two values to be 0
 
-                if direction == 'upward':
-                    self.state['demand_upward'][market_id][time_k] = self.markets[market_id].power_percentage / 100.0 * self.sum_nominal_max_power_upward
-
-                if direction == 'downward':
-                    self.state['demand_downward'][market_id][time_k] = self.markets[market_id].power_percentage / 100.0 * self.sum_nominal_max_power_downward
 
         # problem.parameters['demand_upward'].value = self.state['demand_upward']
         # problem.parameters['demand_downward'].value = self.state['demand_downward']
@@ -688,7 +708,7 @@ class MPCSolver(object):
         #     'demand_upward': np.zeros([self.num_markets, self.config.planning_horizon], dtype=np.float32),
         #     'demand_downward': np.zeros([self.num_markets, self.config.planning_horizon], dtype=np.float32),
         # }
-        record['penalty'] = penalty
+        record['penalty'] = penalty / 60.0
         record['soh'] = self.state['soh'].tolist()
         record['setpoint_upward'] = self.state['setpoint_upward']
         record['setpoint_downward'] = self.state['setpoint_downward']

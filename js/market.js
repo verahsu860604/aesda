@@ -76,6 +76,23 @@ const defaultVal = {
     }
 }
 
+$("#mi-market_percentage_fixed").change(function() {
+    if($("#mi-market_percentage_fixed").is(":checked")){
+        $("#mi-max_feasible_power_percentage").prop('readonly', false);
+        $("#mi-min_feasible_power_percentage").prop('readonly', false);
+        $("#mi-percentage_cyclic_n").prop('readonly', false);
+        $("#mi-percentage_cyclic_eps").prop('readonly', false);
+        // $("#mi-market_percentage_fixed").value=1;
+    }
+    else{
+        $("#mi-max_feasible_power_percentage").prop('readonly', true);
+        $("#mi-min_feasible_power_percentage").prop('readonly', true);
+        $("#mi-percentage_cyclic_n").prop('readonly', true);
+        $("#mi-percentage_cyclic_eps").prop('readonly', true);
+        // $("#mi-market_percentage_fixed").value=0;
+    }
+});
+
 ipc.on('marketType', (event, args) => {
     marketType = args[0]
     marketData = args[1]

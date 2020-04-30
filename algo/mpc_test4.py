@@ -24,42 +24,42 @@ parameters = {
             'other_cost': 0, 
             'soc_profile_energy_scale': 8
         }, 
-        # {
-        #     'dod_profile_change_th': 0.2, 
-        #     'efficiency_upward': 0.95, 
-        #     'efficiency_downward': 0.95, 
-        #     'soc_profile_max_soc': 70,
-        #     'soc_profile_min_soc': 30,
-        #     'c4': 40000, 
-        #     'c1': 10000000, 
-        #     'soc_profile_max_power_downward': 10, 
-        #     'c5': 10000, 
-        #     'd4': 30, 
-        #     'self_discharge_ratio': 0, 
-        #     'd2': 4, 
-        #     'c6': 3000, 
-        #     'cost': 310, 
-        #     'c3': 100000, 
-        #     'other_cost': 0, 
-        #     'd6': 100, 
-        #     'd3': 17, 
-        #     'd5': 60, 
-        #     'soc_profile_min_output_th': 0, 
-        #     'c2': 1000000, 
-        #     'd1': 2, 
-        #     'soc_profile_max_power_upward': 10, 
-        #     'soc_profile_energy_scale': 4, 
-        #     'soc_profile_max_input_th': 100
-        # }
+        {
+            'dod_profile_change_th': 0.2, 
+            'efficiency_upward': 0.95, 
+            'efficiency_downward': 0.95, 
+            'soc_profile_max_soc': 70,
+            'soc_profile_min_soc': 30,
+            'c4': 40000, 
+            'c1': 10000000, 
+            'soc_profile_max_power_downward': 10, 
+            'c5': 10000, 
+            'd4': 30, 
+            'self_discharge_ratio': 0, 
+            'd2': 4, 
+            'c6': 3000, 
+            'cost': 310, 
+            'c3': 100000, 
+            'other_cost': 0, 
+            'd6': 100, 
+            'd3': 17, 
+            'd5': 60, 
+            'soc_profile_min_output_th': 0, 
+            'c2': 1000000, 
+            'd1': 2, 
+            'soc_profile_max_power_upward': 10, 
+            'soc_profile_energy_scale': 4, 
+            'soc_profile_max_input_th': 100
+        }
     ],
     'markets': [
         {
             "time_window_in_delivery": 4, 
             # Primary
-            "planning_phase_length": 20,
-            "selection_phase_length": 20,
+            "planning_phase_length": 40,
+            "selection_phase_length": 30,
             "schedule_phase_length": 20,
-            "delivery_phase_length": 20,
+            "delivery_phase_length": 60,
             "price_cyclic_n_upward": 2,
             "price_cyclic_n_downward": 2,
             "price_cyclic_eps_downward": 80,
@@ -73,25 +73,25 @@ parameters = {
             'price_data_path': 'data/primary_price.csv',
             'setpoint_data_path': 'data/primary_setpoint.csv'
         },
-        # {
-        #     "time_window_in_delivery": 4, # Secondary
-        #     "planning_phase_length": 60,
-        #     "selection_phase_length": 60,
-        #     "schedule_phase_length": 60,
-        #     "delivery_phase_length": 60,
-        #     "setpoint_interval": 15,
-        #     "price_cyclic_n_upward": 2,
-        #     "price_cyclic_n_downward": 2,
-        #     "price_cyclic_eps_downward": 80,
-        #     "price_cyclic_eps_upward": 16,
-        #     "max_feasible_selling_price": 250,
-        #     "min_feasible_selling_price": 150,
-        #     "min_feasible_buying_price": 1,
-        #     "max_feasible_buying_price": 20,
-        #     # "percentage_fixed": True,
-        #     'price_data_path': 'data/primary_price.csv',
-        #     'setpoint_data_path': 'data/primary_setpoint.csv'
-        # },
+        {
+            "time_window_in_delivery": 4, # Secondary
+            "planning_phase_length": 50,
+            "selection_phase_length": 30,
+            "schedule_phase_length": 70,
+            "delivery_phase_length": 120,
+            "setpoint_interval": 15,
+            "price_cyclic_n_upward": 2,
+            "price_cyclic_n_downward": 2,
+            "price_cyclic_eps_downward": 80,
+            "price_cyclic_eps_upward": 16,
+            "max_feasible_selling_price": 250,
+            "min_feasible_selling_price": 150,
+            "min_feasible_buying_price": 1,
+            "max_feasible_buying_price": 20,
+            # "percentage_fixed": True,
+            'price_data_path': 'data/primary_price.csv',
+            'setpoint_data_path': 'data/primary_setpoint.csv'
+        },
         # {
         #     "time_window_in_delivery": 4, # Tertiary
         #     "planning_phase_length": 960,
@@ -104,7 +104,7 @@ parameters = {
         # },
     ],
     'config':{
-        'planning_horizon': 1,
+        'planning_horizon': 360,
         'soh_update_interval': 1440,
         'tot_timestamps': 10080
     }

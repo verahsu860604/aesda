@@ -98,10 +98,27 @@ document.querySelector("#resetRevChartBtn").addEventListener('click', function (
   revParetoChart.resetZoom()
 })
 
+
 // ipc
 ipc.on('createMarketObj', (event, args) => {
   var marketType = args[0]
-  var marketData = args[1]
+  var oldMarketData = args[1]
+  var marketData = []
+  var found = false
+
+  for (i=0; i<oldMarketData.length;i++){
+    if (oldMarketData[i]['name'] === "mi-market_percentage_fixed"){
+      found = true
+    }
+    else {
+      marketData.push(oldMarketData[i])
+    }
+  }
+  marketData.push({
+    'name': 'mi-market_percentage_fixed',
+    'value': found === true ? "1" : "0"
+  })
+
 
   if (marketType in marketObjList) {
     marketObjList[marketType] = marketData

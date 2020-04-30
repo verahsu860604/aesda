@@ -8,14 +8,15 @@ class MarketDataLoader(object):
 
     """
 
-    def __init__(self, price_data_path=None, setpoint_data_path=None, config = None, time_stamp_scale = 60):
+    def __init__(self, price_data_path=None, setpoint_data_path=None, config = None, setpoint_time_scale = 1, price_time_scale = 60):
         """Market data loader builder.
     
         Args:
             price_data_path(str): 
             setpoint_data_path(str): 
         """
-        self.time_stamp_scale = time_stamp_scale
+        self.setpoint_time_scale = setpoint_time_scale
+        self.price_time_scale = price_time_scale
         self.price_data = None
         self.setpoint_data = None
         if price_data_path is not None:
@@ -35,6 +36,7 @@ class MarketDataLoader(object):
         """
         if self.setpoint_data is None:
             return None
+        timestamp = timestamp // self.setpoint_time_scale
         setpoint = self.setpoint_data[timestamp][1]
         return setpoint / 50 - 1
 
@@ -50,7 +52,7 @@ class MarketDataLoader(object):
         """
         if self.price_data is None:
             return None, None
-        timestamp = timestamp // self.time_stamp_scale
+        timestamp = timestamp // self.price_time_scale
         return (self.price_data[timestamp][2], self.price_data[timestamp][1])
 
 class Market(object):
@@ -133,7 +135,7 @@ class Market(object):
         self.is_fixed = False # Temporary storage
         self.power_percentage = 10 # Temporary storage
 
-        self.data_loader = MarketDataLoader(price_data_path=price_data_path, setpoint_data_path=setpoint_data_path)
+        self.data_loader = MarketDataLoader(price_data_path=price_data_path, setpoint_data_path=setpoint_data_path, setpoint_time_scale=setpoint_interval, price_time_scale=delivery_phase_length)
 
         self.phase_length = delivery_phase_length
         self.delivery_length = delivery_phase_length // time_window_in_delivery
@@ -146,7 +148,7 @@ class Market(object):
         self.price_cyclic_eps_downward = price_cyclic_eps_downward
         self.percentage_cyclic_eps = percentage_cyclic_eps
 
-        self.percentage_fixed = percentage_fixed
+        self.percentage_fixed = True if percentage_fixed else False
 
         self.upward_penalty = upward_penalty
         self.downward_penalty = downward_penalty
@@ -203,7 +205,7 @@ class Market(object):
         buying_price, selling_price = self.data_loader.get_prices(timestamp)
         # 0 250
         # 4 0
-        # print(buying_price, selling_price)
+        # print('DEBUG: Price', buying_price, selling_price)
         # print(prices[0], prices[1])
 
         if (buying_price is None) or (selling_price is None): # Not Found or error
