@@ -153,10 +153,11 @@ ipc.on('run', (event, args) => {
         // pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
         args: [JSON.stringify(args)]
     }
-    
+    let tottimestamp = args.configForm[args.configForm.length-1].value
     pyshell = new PythonShell('algo/algo.py', options, {});
 
     let totl = 1
+    let cnt = 0
     pyshell.on('message', function (message) {
         
         if (message.substring(0, 12) == 'START TIME: ') {
@@ -169,6 +170,13 @@ ipc.on('run', (event, args) => {
             console.log('TOTL: ' + totl)
         }
         else if (message.substring(0, 7) == 'DEBUG: ') {
+            if (message.substring(13,22) == 'timestamp') {
+                timestamp = parseInt(message.substring(24,32).split(' ')[0], 10)
+                if(timestamp % 100 == 10){
+                    new_progress = 0 + 100 * (cnt / totl + (timestamp / tottimestamp) * (1/totl))
+                    mainWindow.webContents.send('updateProgressBarFast', [new_progress])
+                }
+            }
             console.log(message)
         }
         else if (message.indexOf('license') !== -1) {
@@ -180,7 +188,7 @@ ipc.on('run', (event, args) => {
             }
             data = JSON.parse(message)
             cnt = data['id']
-            new_progress = Math.round( 10 + 90 * cnt / totl )
+            new_progress = Math.round( 0 + 100 * cnt / totl )
             // console.log(data)
             mainWindow.webContents.send('updateProgressBar', [new_progress, data])
             

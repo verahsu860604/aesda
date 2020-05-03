@@ -56,9 +56,9 @@ parameters = {
         {
             "time_window_in_delivery": 4, 
             # Primary
-            "planning_phase_length": 20,
-            "selection_phase_length": 20,
-            "schedule_phase_length": 20,
+            "planning_phase_length": 0,
+            "selection_phase_length": 10,
+            "schedule_phase_length": 10,
             "delivery_phase_length": 20,
             "price_cyclic_n_upward": 2,
             "price_cyclic_n_downward": 2,
@@ -104,7 +104,7 @@ parameters = {
         # },
     ],
     'config':{
-        'planning_horizon': 1,
+        'planning_horizon': 60,
         'soh_update_interval': 1440,
         'tot_timestamps': 10080
     }

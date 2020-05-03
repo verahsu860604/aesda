@@ -49,13 +49,34 @@
                                         </div>
                                     </div>
                                     <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <label for="ci-strategy">Strategy</label>
+                                            <select class="custom-select" name="ci-strategy">
+                                                <option selected value="0">Conservative</option>
+                                                <!-- <option value="1">Aggressive I (Considering Optimistic Case)</option> -->
+                                                <option value="1">Aggressive I (Regardless of SOC Level)</option>
+                                                <option value="2">Aggressive II (Always Propose the Maximum Power)</option>
+                                            </select>
+                                        </div>  
+                                        <div class="form-group col-md-6">
+                                            <label for="ci-optimizer">Optimizer</label>
+                                            <select class="custom-select" name="ci-optimizer">
+                                                <option selected value="0">GUROBI (Fastest, License Needed)</option>
+                                                <option value="1">CPLEX (License Needed)</option>
+                                                <option value="2">GLPK (Open Source)</option>
+                                            </select>
+                                        </div>
+                                    </div>  
+                                    <div class="form-row">
                                         <div class="m-2">Simulation Run Length</div>
                                         <input type="number" step="any" class="form-control col-md-1" name="ci-totTimestampMonth" ><span class="m-2">Months</span>
                                         <input type="number" step="any" class="form-control col-md-1" name="ci-totTimestampWeek" ><span class="m-2">Weeks</span>
                                         <input type="number" step="any" class="form-control col-md-1" name="ci-totTimestampDay" ><span class="m-2">Days</span>
                                         <input type="number" step="any" class="form-control col-md-1" name="ci-totTimestampHour" ><span class="m-2">Hours</span>
-                                    </div>                         
+                                    </div> 
+                    
                                 </div>
+                                
                             </div>
                             
                             <div class="row">
