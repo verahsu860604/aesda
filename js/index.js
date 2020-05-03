@@ -530,7 +530,7 @@ function createDataElem(args) {
 
   var dataDisplay = document.getElementById('dataComparison')
   if (dataDisplay.childElementCount === 0) {
-    var row = createElement('div', 'class=row')
+    var row = createElement('div', 'class=row mt-2')
     dataDisplay.appendChild(row)
   }
 
