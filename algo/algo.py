@@ -33,12 +33,12 @@ markets = [market.Market(**kwargs) for kwargs in data['markets']]
 mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources)
 
 # Fake run
-cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, costs, really_run=False)
+cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, costs, data, really_run=False)
 solutions_fake = cc.Algo5()
 print("totl: " + str(len(solutions_fake)))
 sys.stdout.flush()
 
-cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, costs)
+cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, costs, data)
 solutions = cc.Algo5()
 # print(solutions)
 # pe = pareto.ParetoEfficient(solutions)

@@ -32,47 +32,47 @@ const defaultVal = {
         'mi-upPenalty': 1, // missing
         'mi-dwnPenalty': 1 // missing
     }, 'Secondary Reserve': {
+        'mi-spUpdate': 1,
+        'mi-twDelivery': 4,
+        'mi-upMinPrice': 5,
+        'mi-upMaxPrice': 30,
+        'mi-dwnMinPrice': 100,
+        'mi-dwnMaxPrice': 400,
+        'mi-max_feasible_power_percentage' : 80,
+        'mi-min_feasible_power_percentage' : 20,
+        'mi-price_cyclic_n_upward'         : 4,
+        'mi-price_cyclic_n_downward'       : 5,
+        'mi-percentage_cyclic_n'           : 1,
+        'mi-price_cyclic_eps_upward'       : 25, 
+        'mi-price_cyclic_eps_downward'     : 300,
+        'mi-percentage_cyclic_eps'         : 60,
+        'mi-planning': 0,
+        'mi-schedule': 60,
+        'mi-selection': 0,
+        'mi-delivery': 240,
+        'mi-upPenalty': 30, // missing
+        'mi-dwnPenalty': 400 // missing
+    }, 'Tertiary Reserve': {
         'mi-spUpdate': 15,
         'mi-twDelivery': 4,
-        'mi-upMinPrice': 1,
-        'mi-upMaxPrice': 20,
-        'mi-dwnMinPrice': 150,
-        'mi-dwnMaxPrice': 250,
-        'mi-max_feasible_power_percentage' : 20,
-        'mi-min_feasible_power_percentage' : 0,
-        'mi-price_cyclic_n_upward'         : 2,
-        'mi-price_cyclic_n_downward'       : 2,
-        'mi-percentage_cyclic_n'           : 2,
-        'mi-price_cyclic_eps_upward'       : 16, 
-        'mi-price_cyclic_eps_downward'     : 80,
-        'mi-percentage_cyclic_eps'         : 5,
-        'mi-planning': 120,
-        'mi-schedule': 120,
-        'mi-selection': 120,
-        'mi-delivery': 120,
-        'mi-upPenalty': 1, // missing
-        'mi-dwnPenalty': 1 // missing
-    }, 'Tertiary Reserve': {
-        'mi-spUpdate': 60,
-        'mi-twDelivery': 4,
-        'mi-upMinPrice': 1,
-        'mi-upMaxPrice': 20,
-        'mi-dwnMinPrice': 150,
-        'mi-dwnMaxPrice': 250,
-        'mi-max_feasible_power_percentage' : 20,
-        'mi-min_feasible_power_percentage' : 0,
-        'mi-price_cyclic_n_upward'         : 2,
-        'mi-price_cyclic_n_downward'       : 2,
-        'mi-percentage_cyclic_n'           : 2,
-        'mi-price_cyclic_eps_upward'       : 16, 
-        'mi-price_cyclic_eps_downward'     : 80,
-        'mi-percentage_cyclic_eps'         : 5,
-        'mi-planning': 240,
-        'mi-schedule': 240,
-        'mi-selection': 240,
+        'mi-upMinPrice': 5,
+        'mi-upMaxPrice': 30,
+        'mi-dwnMinPrice': 100,
+        'mi-dwnMaxPrice': 400,
+        'mi-max_feasible_power_percentage' : 80,
+        'mi-min_feasible_power_percentage' : 20,
+        'mi-price_cyclic_n_upward'         : 4,
+        'mi-price_cyclic_n_downward'       : 5,
+        'mi-percentage_cyclic_n'           : 1,
+        'mi-price_cyclic_eps_upward'       : 25, 
+        'mi-price_cyclic_eps_downward'     : 300,
+        'mi-percentage_cyclic_eps'         : 60,
+        'mi-planning': 0,
+        'mi-schedule': 60,
+        'mi-selection': 0,
         'mi-delivery': 240,
-        'mi-upPenalty': 1, // missing
-        'mi-dwnPenalty': 1 // missing
+        'mi-upPenalty': 30, // missing
+        'mi-dwnPenalty': 400 // missing
     }
 }
 

@@ -219,6 +219,7 @@ class EnergySource(object):
     """
 
     def __init__(self, 
+                name='',
                 energy_type='Lithium-Ion', 
                 self_discharge_ratio=0.0,
                 soc_profile_energy_scale=20,
