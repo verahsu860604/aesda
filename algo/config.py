@@ -9,7 +9,9 @@ class Config(object):
                 soh_update_interval = 24 * 7 * 60, # Weekly
                 start_time = '2018-01-01',
                 end_time = '2019-01-01',
-                tot_timestamps = 300
+                tot_timestamps = 300,
+                strategy = 0,
+                optimizer = 0
             ):
         """Config builder.
 
@@ -21,3 +23,5 @@ class Config(object):
         self.planning_horizon = planning_horizon
         self.soh_update_interval = soh_update_interval
         self.tot_timestamps = tot_timestamps
+        self.strategy = strategy
+        self.optimizer = optimizer

@@ -4,8 +4,9 @@ config_mapping = \
 {
     'ci-predic'       : 'planning_horizon',
     'ci-sohItv'       : 'soh_update_interval',
-    'ci-totTimestamp' : 'tot_timestamps'
-    
+    'ci-totTimestamp' : 'tot_timestamps',
+    'ci-strategy'     : 'strategy',
+    'ci-optimizer'    : 'optimizer'
 }
 
 ess_mapping = \
@@ -19,6 +20,7 @@ ess_mapping = \
     'ei-dimen'              :   'soc_profile_energy_scale',
     'ei-cost'               :   'cost',
     'ei-othercost'          :   'other_cost',
+    'ei-name'          :   'name',
     # TODO not found in python
     # 'ei-othercost'          :
     
@@ -61,6 +63,7 @@ market_mapping = \
     'mi-price_cyclic_eps_downward'     : 'price_cyclic_eps_downward',
     'mi-percentage_cyclic_eps'         : 'percentage_cyclic_eps',
     'mi-market_percentage_fixed'       : 'percentage_fixed',
+    'mi-name'                : 'name',
 
     'mi-spUpdate'   :   'setpoint_interval',
     'mi-twDelivery' :   'time_window_in_delivery',
@@ -69,8 +72,8 @@ market_mapping = \
     'mi-dwnMinPrice':   'min_feasible_selling_price',
     'mi-dwnMaxPrice':   'max_feasible_selling_price',
     'mi-planning'   :   'planning_phase_length',
-    'mi-schedule'   :   'selection_phase_length',
-    'mi-selection'  :   'schedule_phase_length',
+    'mi-schedule'   :   'schedule_phase_length',
+    'mi-selection'  :   'selection_phase_length',
     'mi-delivery'   :   'delivery_phase_length',
 
     'setpoint_data_path': 'setpoint_data_path',
@@ -113,6 +116,9 @@ def map_param(param_ui):
                     key = market_mapping.get(market_dict['name'])
                     if key: # if key exists in market_mapping
                         val = market_dict['value']
+                        if key == 'mi-name' or key == 'ei-name' or key == 'name':
+                            param['markets'][-1][key] = val
+                            continue
                         if key != 'setpoint_data_path' and key != 'price_data_path':
                             if val:
                                 val = ast.literal_eval(val)
@@ -133,6 +139,9 @@ def map_param(param_ui):
                                 key = ess_mapping.get(battery_dict['name']) 
                                 if key: # if key exists in ess_mapping
                                     val = battery_dict['value']
+                                    if key == 'mi-name' or key == 'ei-name' or key == 'name':
+                                        param['energy_sources'][-1][key] = val
+                                        continue
                                     if val:
                                         val = ast.literal_eval(val)
                                     else:

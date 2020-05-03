@@ -32,13 +32,14 @@ class MarketDataLoader(object):
             timestamp (int): The time of request.
 
         Returns:
+            time_str (string): Current time.
             setpoint (float) in range [-1, 1]. If < 0 means downward percentage, setpoint > 0 means upward percentage.
         """
         if self.setpoint_data is None:
-            return None
+            return '', None
         timestamp = timestamp // self.setpoint_time_scale
         setpoint = self.setpoint_data[timestamp][1]
-        return setpoint / 50 - 1
+        return self.setpoint_data[timestamp][0], setpoint / 50 - 1
 
     def get_prices(self, timestamp):
         """Get setpoint data of given timestamp.
@@ -61,7 +62,7 @@ class Market(object):
     Handles parameters and market decisions
     """
     def __init__(self,
-
+                name='',
                 price_data_path = None,
                 setpoint_data_path = None,
 
@@ -137,7 +138,7 @@ class Market(object):
 
         self.data_loader = MarketDataLoader(price_data_path=price_data_path, setpoint_data_path=setpoint_data_path, setpoint_time_scale=setpoint_interval, price_time_scale=delivery_phase_length)
 
-        self.phase_length = delivery_phase_length
+        # self.phase_length = delivery_phase_length
         self.delivery_length = delivery_phase_length // time_window_in_delivery
 
         self.price_cyclic_n_upward = price_cyclic_n_upward
@@ -169,6 +170,7 @@ class Market(object):
             timestamp (int): The time of request.
 
         Returns:
+            time_str (str). Time string.
             setpoint (float) in range [-1, 1]. If < 0 means downward percentage, setpoint > 0 means upward percentage.
         """
 
@@ -177,13 +179,13 @@ class Market(object):
 
         if self.data_loader is None: # No data specified
             # return 0
-            return random.random() * 2 - 1 # Use random data
+            return '', random.random() * 2 - 1 # Use random data
 
-        setpoint = self.data_loader.get_setpoint(timestamp)
+        time_str, setpoint = self.data_loader.get_setpoint(timestamp)
         if setpoint is None: # Not Found or error
             # return 0
-            return random.random() * 2 - 1 # Use random data
-        return setpoint
+            return '', random.random() * 2 - 1 # Use random data
+        return time_str, setpoint
 
     def get_market_decision(self, timestamp, prices):
         """Get market decision data of given timestamp and prices.

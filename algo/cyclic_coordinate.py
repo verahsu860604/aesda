@@ -53,11 +53,12 @@ class CyclicCoordinate(object):
     """
 
 
-    def __init__(self, markets, mpc_solver, costs, really_run = True):
+    def __init__(self, markets, mpc_solver, costs, parameters, really_run = True):
         self.markets = markets
         self.mpc_solver = mpc_solver
         self.costs = costs
         self.really_run = really_run
+        self.parameters = parameters
         self.global_id = 0
 
     def run_mpc(self, prices, percentages):
@@ -67,8 +68,11 @@ class CyclicCoordinate(object):
             prices (List): List of Prices ([[buying_price, selling_price],]).
             percentages (List): List of float numbers (or 'free' for not fixed), representing market participation.
         """
+        print('DEBUG: prices', prices) #VERBOSE
+        print('DEBUG: percentages', percentages) #VERBOSE
+
         if not self.really_run:
-            return 0, np.array([0, 0]), [0, 0], np.array([0, 0])
+            return 0, np.array([0, 0]), [0, 0], np.array([0, 0]), None
 
         results = self.mpc_solver.solve(prices, percentages)
         revenue = 0
@@ -77,7 +81,19 @@ class CyclicCoordinate(object):
         return revenue, \
             np.array([results[time_k]['soc'] for time_k in range(len(results))]), \
             tuple(results[-1]['soh']), \
-            np.array([[results[time_k]['power_device_upward'], results[time_k]['power_device_downward']] for time_k in range(len(results))])
+            np.array([[results[time_k]['power_device_upward'], results[time_k]['power_device_downward']] for time_k in range(len(results))]), \
+            {
+                'time': [results[time_k]['time'] for time_k in range(len(results))],
+                'power_market': np.array([[results[time_k]['power_market_upward'], results[time_k]['power_market_downward']] for time_k in range(len(results))]),
+                'market_decision': [results[time_k]['market_decision'] for time_k in range(len(results))],
+                'revenue': [sum(results[time_k]['revenue']) for time_k in range(len(results))],
+                'penalty': [results[time_k]['penalty'] for time_k in range(len(results))],
+                'tot_revenue': [results[time_k]['tot_revenue'] for time_k in range(len(results))],
+                'tot_penalty': [results[time_k]['tot_penalty'] for time_k in range(len(results))],
+                'soh': np.array([results[time_k]['soh'] for time_k in range(len(results))]),
+                'setpoint': [results[time_k]['setpoint_raw'] for time_k in range(len(results))],
+                'config': self.parameters
+            }
 
     def get_battery_life(self, soh):
         """Calculate the remaining years for the battery with the same usage
@@ -124,11 +140,11 @@ class CyclicCoordinate(object):
                     search_space = np.linspace(value_bounds[i][0], value_bounds[i][1], value_cyclic_ns[i] + 2)
                     epi_solutions = []
                     for value_i, value in enumerate(search_space):
-                        if value_i == 0 or value_i == len(search_space) - 1:
-                            continue
+                        # if value_i == 0 or value_i == len(search_space) - 1:
+                        #     continue
                         current_value_params = value_best_so_far[:] # [:] means copying the list
                         current_value_params[i] = value
-                        revenue, soc, soh, storage = self.run_mpc(np.reshape(current_value_params, [-1, 2]).tolist(), percentage)
+                        revenue, soc, soh, storage, meta_data = self.run_mpc(np.reshape(current_value_params, [-1, 2]).tolist(), percentage)
                         revenue = revenue * 60*24*7*52 / self.mpc_solver.config.tot_timestamps
 
                         print("DEBUG: cyclic coordinate soh", soh)
@@ -156,11 +172,21 @@ class CyclicCoordinate(object):
                                     'irr': irr,
                                     'pbp': pbp,
                                     'soc': soc.tolist(),
+                                    'soh': meta_data['soh'].tolist(),
                                     # 'soh': soh_array,
                                     'years': years,
                                     'power': storage.tolist(),
                                     'prices': np.reshape(current_value_params, [-1, 2]).tolist(),
-                                    'percentages': percentage
+                                    'percentages': percentage,
+                                    'time': meta_data['time'],
+                                    'power_market': meta_data['power_market'].tolist(),
+                                    'market_decision': meta_data['market_decision'],
+                                    'revenue_record': meta_data['revenue'],
+                                    'penalty_record': meta_data['penalty'],
+                                    'tot_revenue_record': meta_data['tot_revenue'],
+                                    'tot_penalty_record': meta_data['tot_penalty'],
+                                    'setpoint': meta_data['setpoint'],
+                                    'config': meta_data['config']
                                 }
                             ), flush=True)
                             
@@ -168,7 +194,7 @@ class CyclicCoordinate(object):
                     epi_solutions.sort(reverse=True, key=lambda x: x[0])
                     best_value_i = epi_solutions[0][1]
                     value_best_so_far[i] = search_space[best_value_i]
-                    value_bounds[i] = [search_space[best_value_i - 1], search_space[best_value_i + 1]]
+                    value_bounds[i] = [search_space[max(0, best_value_i - 1)], search_space[min(len(search_space)-1,best_value_i + 1)]]
                     solutions.extend(epi_solutions)
 
             if not optimized:
@@ -201,7 +227,7 @@ class CyclicCoordinate(object):
         if len(value_bounds) == 0:
             # No fixed market
             list_solutions = self.Algo4(['free' for i in range(len(self.markets))])
-            solutions.extend([s + ('free', 'free', 'free') for s in list_solutions])
+            solutions.extend([s + tuple(['free' for i in range(len(self.markets))]) for s in list_solutions])
             return solutions
 
         # if [market.percentage_fixed for market in self.markets] == [True for market in self.markets]:
@@ -217,8 +243,8 @@ class CyclicCoordinate(object):
                     search_space = np.linspace(value_bounds[i][0], value_bounds[i][1], value_cyclic_ns[i] + 2)
                     epi_solutions = []
                     for value_i, value in enumerate(search_space):
-                        if value_i == 0 or value_i == len(search_space) - 1:
-                            continue
+                        # if value_i == 0 or value_i == len(search_space) - 1:
+                        #     continue
                         current_value_params = value_best_so_far[:] # [:] means copying the list
                         current_value_params[i] = value
                         percentages = []
@@ -243,7 +269,7 @@ class CyclicCoordinate(object):
                     epi_solutions.sort(reverse=True, key=lambda x: x[0])
                     best_value_i = epi_solutions[0][1]
                     value_best_so_far[i] = search_space[best_value_i]
-                    value_bounds[i] = [search_space[best_value_i - 1], search_space[best_value_i + 1]]
+                    value_bounds[i] = [search_space[max(0, best_value_i - 1)], search_space[min(len(search_space)-1,best_value_i + 1)]]
 
             if not optimized:
                 break

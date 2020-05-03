@@ -4,6 +4,7 @@ import copy
 # import gurobipy
 # import cplex
 import sys
+import math
 
 class MarketState(object):
     """ Market State stores the market decision of a phase of a market.
@@ -18,14 +19,14 @@ class MarketState(object):
         Args:
             market (Market): The market.
         """
-        self.demand_delivery_upward = [[0 for i in range(market.time_window_in_delivery)]] * 2 # For example: [[0, 0, 0, 0], [0, 0, 0, 0]]
-        # if test_mode:
-        #     self.demand_delivery_downward = [[2 for i in range(market.time_window_in_delivery)]] * 2
-        # else:
-        self.demand_delivery_downward = [[0 for i in range(market.time_window_in_delivery)]] * 2
 
-        self.power_delivery_upward = [0 for i in range(market.time_window_in_delivery)]
-        self.power_delivery_downward = [0 for i in range(market.time_window_in_delivery)]
+        self.number_of_buffer = math.ceil((market.selection_phase_length + market.schedule_phase_length) / market.delivery_phase_length) + 1
+        self.demand_delivery_upward = [[0 for i in range(market.time_window_in_delivery)]] * self.number_of_buffer # For example: [[0, 0, 0, 0], [0, 0, 0, 0]]
+        # if test_mode:
+        #     self.demand_delivery_downward = [[2 for i in range(market.time_window_in_delivery)]] * self.number_of_buffer
+        # else:
+        self.demand_delivery_downward = [[0 for i in range(market.time_window_in_delivery)]] * self.number_of_buffer
+
         self.market = market
         self.decision = 'none'
     
@@ -41,12 +42,11 @@ class MarketState(object):
             temp =  self.demand_delivery_downward
         else:
             assert False, 'Direction should be eith upward or downward'
-        
-        assert phase_id <= 1, 'Phase id should be 0 or 1'
+        assert phase_id <= self.number_of_buffer - 1, 'Phase id should be 0 or 1'
         answer = []
         for delivery_id in range(self.market.time_window_in_delivery):
             answer.extend([temp[phase_id][delivery_id]] * self.market.delivery_length)
-        
+        # print(direction, phase_id, 'answer:', answer)
         # Copy answer
         return answer[:]
 
@@ -61,30 +61,35 @@ class MarketState(object):
         assert decision in ['both', 'upward', 'downward', 'none'], 'Decision format error!'
         print('DEBUG: decision', decision) #VERBOSE
         self.decision = decision
-        # Rolling the data in MC -> TD to be in GC -> MC
-        self.demand_delivery_upward[0] = self.demand_delivery_upward[1][:]
-        self.demand_delivery_downward[0] = self.demand_delivery_downward[1][:]
 
         if decision == 'both':
-            self.demand_delivery_upward[1] = self.power_delivery_upward[:]
-            self.demand_delivery_downward[1] = self.power_delivery_downward[:]
+            pass
 
         elif decision == 'upward':
-            self.demand_delivery_upward[1] = self.power_delivery_upward[:]
-            self.demand_delivery_downward[1] = [0 for i in range(self.market.time_window_in_delivery)]
+            self.demand_delivery_downward[-1] = [0 for i in range(self.market.time_window_in_delivery)]
 
         elif decision == 'downward':
-            self.demand_delivery_upward[1] = [0 for i in range(self.market.time_window_in_delivery)]
-            self.demand_delivery_downward[1] = self.power_delivery_downward[:]
+            self.demand_delivery_upward[-1] = [0 for i in range(self.market.time_window_in_delivery)]
 
         else:
-            self.demand_delivery_upward[1] = [0 for i in range(self.market.time_window_in_delivery)]
-            self.demand_delivery_downward[1] = [0 for i in range(self.market.time_window_in_delivery)]
+            self.demand_delivery_upward[-1] = [0 for i in range(self.market.time_window_in_delivery)]
+            self.demand_delivery_downward[-1] = [0 for i in range(self.market.time_window_in_delivery)]
 
         print('DEBUG: marketupdate demand_delivery_upward', self.demand_delivery_upward)
         print('DEBUG: marketupdate demand_delivery_downward', self.demand_delivery_downward)
     
-    def update_new_strategy(self, direction, power_values):
+        return decision
+        
+    def delivery_phase_change(self):
+        """ Update inner states.
+        """
+        for i in range(self.number_of_buffer-1):
+            self.demand_delivery_upward[i] = self.demand_delivery_upward[i+1][:]
+            self.demand_delivery_downward[i] = self.demand_delivery_downward[i+1][:]
+        self.demand_delivery_upward[-1] = [0 for i in range(self.market.time_window_in_delivery)]
+        self.demand_delivery_downward[-1] = [0 for i in range(self.market.time_window_in_delivery)]
+
+    def update_new_strategy(self, direction, power_values, value=False):
         """ Update power strategy (Not).
 
             This function should be called only once every phase change.
@@ -95,12 +100,21 @@ class MarketState(object):
         assert direction in ['upward', 'downward'], 'Direction format error!'
         # power_values /= 1.5 #TODO
         # assert len(power_values) >= 3 * self.market.phase_length
-        print('DEBUG: new strategy', len(power_values[self.market.phase_length * 2: self.market.phase_length * 3])) #VERBOSE
-        print('DEBUG: new strategy value', power_values[self.market.phase_length * 2: self.market.phase_length * 3: self.market.delivery_length]) #VERBOSE
-        if direction == 'upward':
-            self.power_delivery_upward = np.array(power_values[self.market.phase_length * 2: self.market.phase_length * 3: self.market.delivery_length])
-        elif direction == 'downward':
-            self.power_delivery_downward = np.array(power_values[self.market.phase_length * 2: self.market.phase_length * 3: self.market.delivery_length])
+        # print(self.market.selection_phase_length, self.market.schedule_phase_length, self.market.delivery_phase_length, self.market.delivery_length)
+        # print(len(power_values))
+        # print(power_values)
+        if value:
+            if direction == 'upward':
+                self.demand_delivery_upward[-1] = np.ones([self.market.time_window_in_delivery]) * power_values
+            elif direction == 'downward':
+                self.demand_delivery_downward[-1] = np.ones([self.market.time_window_in_delivery]) * power_values
+        else:
+            print('DEBUG: new strategy', len(power_values[self.market.selection_phase_length + self.market.schedule_phase_length: self.market.selection_phase_length + self.market.schedule_phase_length + self.market.delivery_phase_length])) #VERBOSE
+            print('DEBUG: new strategy value', power_values[self.market.selection_phase_length + self.market.schedule_phase_length: self.market.selection_phase_length + self.market.schedule_phase_length + self.market.delivery_phase_length: self.market.delivery_length]) #VERBOSE
+            if direction == 'upward':
+                self.demand_delivery_upward[-1] = np.array(power_values[self.market.selection_phase_length + self.market.schedule_phase_length: self.market.selection_phase_length + self.market.schedule_phase_length + self.market.delivery_phase_length: self.market.delivery_length])
+            elif direction == 'downward':
+                self.demand_delivery_downward[-1] = np.array(power_values[self.market.selection_phase_length + self.market.schedule_phase_length: self.market.selection_phase_length + self.market.schedule_phase_length + self.market.delivery_phase_length: self.market.delivery_length])
 
 
 
@@ -272,7 +286,7 @@ class MPCProblem(object):
 
         self.potential_profit = cp.sum(cp.multiply(cp.multiply(self.variables['soc'][:,-1], efficiency_downward),soc_profile_energy_scale)) * 60 * self.average_price
 
-    def _set_basic_parameters_and_constraints(self, current_time):
+    def _set_basic_parameters_and_constraints(self, current_time, is_energy_problem=False):
         """ Set parameters and dynamic constraints (Constraints related to the demands / delivery / setpoints are dynamic)
         
         Args:
@@ -292,20 +306,22 @@ class MPCProblem(object):
         for j in range(self.num_markets):
             if self.markets[j].is_fixed: # if fixed, the power should always be equal.
                 continue
-
+            if is_energy_problem:
+                continue
             last_time_k = 1 # The last delivery
             demand_fixed = True # if we have not proposed the plan or we know market decision, the delivery constraint is redundent
             for time_k in range(1, self.planning_horizon):
                 ti = current_time + time_k
 
-                if ti % self.markets[j].phase_length == 0:
-                    # gc_position = time_k - self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length
-                    gc_position = time_k - 2 * self.markets[j].phase_length
-                    if gc_position >= 0: # We have not proposed the plan
-                        demand_fixed = False
+                gc_position = last_time_k - self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length
+                # gc_position = time_k - 2 * self.markets[j].phase_length
+                if gc_position >= 0: # We have not proposed the plan
+                    demand_fixed = False
 
                 if ti % self.markets[j].delivery_length == 0 and time_k - last_time_k >= 2: # Should be at least two intervals
+                    print('last_time_k: time_k', last_time_k, time_k)
                     if demand_fixed == False: # We have not proposed the plan for this delivery phase, so we should set constraints.
+                        print('set')
                         self.dynamic_constraints.append(self.variables['power_market_upward'][j][last_time_k: time_k-1] == self.variables['power_market_upward'][j][last_time_k+1: time_k])
                         self.dynamic_constraints.append(self.variables['power_market_downward'][j][last_time_k: time_k-1] == self.variables['power_market_downward'][j][last_time_k+1: time_k])
                     last_time_k = time_k
@@ -316,24 +332,29 @@ class MPCProblem(object):
                 self.dynamic_constraints.append(self.variables['power_market_upward'][j][1:] == self.parameters['demand_upward'][j][1:])
                 self.dynamic_constraints.append(self.variables['power_market_downward'][j][1:] == self.parameters['demand_downward'][j][1:])
                 continue
-                
+            
+            if is_energy_problem:
+                self.dynamic_constraints.append(self.variables['power_market_upward'][j][1: self.planning_horizon] == self.parameters['demand_upward'][j][1: self.planning_horizon])
+                self.dynamic_constraints.append(self.variables['power_market_downward'][j][1: self.planning_horizon] == self.parameters['demand_downward'][j][1: self.planning_horizon])
+                continue
+
             constraints_set = False # If we have set the constraints
             for time_k in range(1, self.planning_horizon):
                 ti = current_time + time_k
 
-                if ti % self.markets[j].phase_length == 0:
-                    # gc_position = time_k - self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length
-                    gc_position = time_k - 2 * self.markets[j].phase_length
-                    if gc_position >= 0: # We have not proposed the plan from this time on
-                        constraints_set = True
-                        # Before: Power-Demand should BE Equal
-                        self.dynamic_constraints.append(self.variables['power_market_upward'][j][1: time_k] == self.parameters['demand_upward'][j][1: time_k])
-                        self.dynamic_constraints.append(self.variables['power_market_downward'][j][1: time_k] == self.parameters['demand_downward'][j][1: time_k])
-     
-                        # After: Power should be <= Demand
-                        self.dynamic_constraints.append(self.variables['power_market_upward'][j][time_k:] <= self.parameters['demand_upward'][j][time_k:])
-                        self.dynamic_constraints.append(self.variables['power_market_downward'][j][time_k:] <= self.parameters['demand_downward'][j][time_k:])
-                        break
+                # if ti % self.markets[j].delivery_phase_length == (- self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length) % :
+                gc_position = time_k - self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length
+                # gc_position = time_k - 2 * self.markets[j].phase_length
+                if gc_position >= 0: # We have not proposed the plan from this time on
+                    constraints_set = True
+                    # Before: Power-Demand should BE Equal
+                    self.dynamic_constraints.append(self.variables['power_market_upward'][j][1: time_k] == self.parameters['demand_upward'][j][1: time_k])
+                    self.dynamic_constraints.append(self.variables['power_market_downward'][j][1: time_k] == self.parameters['demand_downward'][j][1: time_k])
+    
+                    # After: Power should be <= Demand
+                    self.dynamic_constraints.append(self.variables['power_market_upward'][j][time_k:] <= self.parameters['demand_upward'][j][time_k:])
+                    self.dynamic_constraints.append(self.variables['power_market_downward'][j][time_k:] <= self.parameters['demand_downward'][j][time_k:])
+                    break
 
             # If the planning horizon is not long enough
             if not constraints_set:
@@ -371,7 +392,8 @@ class MPCSolver(object):
         self.sum_nominal_max_power_upward = sum(energy_source.soc_profile_max_power_upward * energy_source.efficiency_upward for energy_source in self.energy_sources) #TODO 1.0 / ?
         self.sum_nominal_max_power_downward = sum(energy_source.soc_profile_max_power_downward * energy_source.efficiency_downward for energy_source in self.energy_sources) 
         
-        self.config.planning_horizon = max(self.config.planning_horizon, max([3 * market.phase_length + 1 for market in self.markets]))
+        self.config.energy_planning_horizon = self.config.planning_horizon + 1
+        self.config.planning_horizon = max(self.config.energy_planning_horizon, max([market.selection_phase_length + market.schedule_phase_length + market.delivery_phase_length + 1 for market in self.markets]))
 
     def solve(self, prices=None, percentages=None):
         """Solve the MPC problem.
@@ -388,9 +410,7 @@ class MPCSolver(object):
             'Number of prices and percentages should be equal'
 
         self.average_price = np.max(np.array(prices)[:,1])
-        print('DEBUG: prices', prices) #VERBOSE
         print('DEBUG: average', self.average_price) #VERBOSE
-        print('DEBUG: percentages', percentages) #VERBOSE
         # Update percentage. 
         # After that, market[j] should have is_fixed and percentage
         tot = 100
@@ -424,14 +444,20 @@ class MPCSolver(object):
 
         problem_bid_upward = MPCProblem(self.config.planning_horizon, 'upward', self)
         problem_bid_downward = MPCProblem(self.config.planning_horizon, 'downward', self)
-        problem_energy = MPCProblem(2, 'both', self)
+        problem_energy = MPCProblem(self.config.energy_planning_horizon, 'both', self)
 
         for current_time in range(self.config.tot_timestamps):
+            market_decision = ['' for i in range(self.num_markets)]
+            time_str = ''
+            setpoint_raw = []
             print('DEBUG: soc', self.state['soc'])#VERBOSE
             for j in range(self.num_markets):
                 
                 # Load setpoint
-                setpoint = self.markets[j].get_setpoint(current_time)
+                tstr, setpoint = self.markets[j].get_setpoint(current_time)
+                if self.markets[j].setpoint_interval == 1:
+                    time_str = tstr
+                setpoint_raw.append(50 * (setpoint + 1))
                 if setpoint < 0:
                     self.state['setpoint_upward'][j] = 0
                     self.state['setpoint_downward'][j] = abs(setpoint)
@@ -439,12 +465,22 @@ class MPCSolver(object):
                     self.state['setpoint_upward'][j] = abs(setpoint)
                     self.state['setpoint_downward'][j] = 0
 
+            if len(time_str) == 0:
+                time_str = tstr
+                
+            for j in range(self.num_markets):
+
                 # Load market decision
                 # IF k = MC, load decisions
-                if current_time % self.markets[j].phase_length == 0:
+                if current_time % self.markets[j].delivery_phase_length == (- self.markets[j].schedule_phase_length) % self.markets[j].delivery_phase_length and self.markets[j].selection_phase_length != 0:
                     # Update market_decision:
-                    self.state['market_state'][j].update_market_decision(self.markets[j].get_market_decision(current_time, prices[j]))
-            
+                    md = self.state['market_state'][j].update_market_decision(self.markets[j].get_market_decision(current_time, prices[j]))
+                    market_decision[j] = md
+
+            for j in range(self.num_markets):
+                if current_time % self.markets[j].delivery_phase_length == 0 and self.markets[j].selection_phase_length + self.markets[j].schedule_phase_length != 0:
+                    self.state['market_state'][j].delivery_phase_change()
+
             # Set basic parameters (SOC, SOH) and set time related dynamic constraints (Constant delivery, demands related)
             # self._build_static_problem()
             # self._set_basic_parameters_and_constraints(current_time, self.state, prices)
@@ -455,58 +491,85 @@ class MPCSolver(object):
             # self._set_basic_parameters_and_constraints(current_time, self.state, prices)
 
             # IF k = GC, iterate two ways
+            flag = False
+            for j in range(self.num_markets):  
+                if current_time % self.markets[j].delivery_phase_length == (- self.markets[j].schedule_phase_length - self.markets[j].selection_phase_length) % self.markets[j].delivery_phase_length:
+                    flag = True
 
-            if current_time % self.markets[0].phase_length == 0:
+            if flag:
                 for direction in ['upward', 'downward']:
-
-                    # inv_direction = 'upward' if direction == 'downward' else 'downward'
-                    # If upward, set demand parameter, supposing only doing upward, with downward = 0, vice versa.
-
-                    if direction == 'upward':
-                        for j in range(self.num_markets):
-                            self._set_demands(problem_bid_upward, current_time, j, direction)
-                        r = problem_bid_upward.problem.solve(solver=cp.GUROBI)#SOLVER
-                    else:
-                        for j in range(self.num_markets):
-                            self._set_demands(problem_bid_downward, current_time, j, direction)
-                        r = problem_bid_downward.problem.solve(solver=cp.GUROBI)#SOLVER
-                        
-                    print('DEBUG: Type2 timestamp:', current_time, direction + ' revenue', r)#VERBOSE
-                    if r < -1e20:
-                        for j in range(self.num_markets):
-                            if current_time % self.markets[j].phase_length == 0:
-                                self.state['market_state'][j].update_new_strategy(direction, [0 for k in range(3*self.markets[j].phase_length)])
-                    else:
+                    if self.config.strategy == 2:
                         for j in range(self.num_markets):  
-                            if current_time % self.markets[j].phase_length == 0: 
+                            # if current_time % self.markets[j].delivery_phase_length == 0: 
+                            if direction == 'upward':
+                                self.state['market_state'][j].update_new_strategy(direction, self.sum_nominal_max_power_upward / self.num_markets, value=True)
+                            if direction == 'downward':
+                                self.state['market_state'][j].update_new_strategy(direction, self.sum_nominal_max_power_downward / self.num_markets, value=True)
+                    else:
+                            
+                        if direction == 'upward':
+                            for j in range(self.num_markets):
+                                self._set_demands(problem_bid_upward, current_time, j, direction)
+                            try:
+                                if self.config.optimizer == 0:
+                                    r = problem_bid_upward.problem.solve(solver=cp.GUROBI,TimeLimit=3,MIPGap=1e-2)#SOLVER
+                                elif self.config.optimizer == 1:
+                                    r = problem_bid_upward.problem.solve(solver=cp.CPLEX)#SOLVER
+                                else:
+                                    r = problem_bid_upward.problem.solve(solver=cp.GLPK_MI)#SOLVER
+                            except:
+                                r = -2e20
+                        else:
+                            for j in range(self.num_markets):
+                                self._set_demands(problem_bid_downward, current_time, j, direction)
+                            try:
+                                if self.config.optimizer == 0:
+                                    r = problem_bid_downward.problem.solve(solver=cp.GUROBI,TimeLimit=3,MIPGap=1e-2)#SOLVER
+                                elif self.config.optimizer == 1:
+                                    r = problem_bid_downward.problem.solve(solver=cp.CPLEX)#SOLVER
+                                else:
+                                    r = problem_bid_downward.problem.solve(solver=cp.GLPK_MI)#SOLVER
+
+                            except:
+                                r = -2e20
+
+                        # print('demand_upward', self.state['demand_upward'])
+                        # print('demand_downward', self.state['demand_downward'])
+
+                        print('DEBUG: Type2 timestamp:', current_time, direction + ' revenue', r)#VERBOSE
+                        if r < -1e20 or r > 1e20:
+                            for j in range(self.num_markets):
+                                # if current_time % self.markets[j].delivery_phase_length == 0:
+                                self.state['market_state'][j].update_new_strategy(direction, [0 for k in range(self.markets[j].selection_phase_length + self.markets[j].schedule_phase_length + self.markets[j].delivery_phase_length)])
+                        else:
+                            for j in range(self.num_markets):  
+                                # if current_time % self.markets[j].delivery_phase_length == 0: 
                                 if direction == 'upward':
                                     self.state['market_state'][j].update_new_strategy(direction, problem_bid_upward.variables['power_market_' + direction].value[j])
                                 if direction == 'downward':
                                     self.state['market_state'][j].update_new_strategy(direction, problem_bid_downward.variables['power_market_' + direction].value[j])
-                        # r = self.problem.solve(solver=cp.ECOS_BB, mi_max_iters=5, mi_rel_eps=5e-2)
-                        # print('ECOS timestamp:', current_time, 'market', j, direction + ' revenue', r)
-                        # r = self.problem.problem.solve(solver=cp.GUROBI)
-                        # print('GUROBI timestamp:', current_time, 'market', j, direction + ' revenue', r)
+                            
+                            # if direction == 'upward':
+                            #     print('DEBUG: soc', problem_bid_upward.variables['soc'].value.tolist())
+                            #     print('DEBUG: power_device_upward', problem_bid_upward.variables['power_device_upward'].value.tolist())
+                            #     print('DEBUG: power_device_downward', problem_bid_upward.variables['power_device_downward'].value.tolist())
+                            #     print('DEBUG: power_market_upward', problem_bid_upward.variables['power_market_upward'].value.tolist())
+                            #     print('DEBUG: power_market_downward', problem_bid_upward.variables['power_market_downward'].value.tolist())
+                            # if direction == 'downward':
+                            #     print('DEBUG: soc', problem_bid_downward.variables['soc'].value.tolist())
+                            #     print('DEBUG: power_device_upward', problem_bid_downward.variables['power_device_upward'].value.tolist())
+                            #     print('DEBUG: power_device_downward', problem_bid_downward.variables['power_device_downward'].value.tolist())
+                            #     print('DEBUG: power_market_upward', problem_bid_downward.variables['power_market_upward'].value.tolist())
+                            #     print('DEBUG: power_market_downward', problem_bid_downward.variables['power_market_downward'].value.tolist())
 
-                        # Rolling market_decision:
-                        # For example: [137, 24, 99] -> [24, 99, 50]
-                        # if direction == 'upward':
-                        #     print('DEBUG: soc', problem_bid_upward.variables['soc'].value.tolist())
-                        #     print('DEBUG: power_device_upward', problem_bid_upward.variables['power_device_upward'].value.tolist())
-                        #     print('DEBUG: power_device_downward', problem_bid_upward.variables['power_device_downward'].value.tolist())
-                        #     print('DEBUG: power_market_upward', problem_bid_upward.variables['power_market_upward'].value.tolist())
-                        #     print('DEBUG: power_market_downward', problem_bid_upward.variables['power_market_downward'].value.tolist())
-                        # if direction == 'downward':
-                        #     print('DEBUG: soc', problem_bid_downward.variables['soc'].value.tolist())
-                        #     print('DEBUG: power_device_upward', problem_bid_downward.variables['power_device_upward'].value.tolist())
-                        #     print('DEBUG: power_device_downward', problem_bid_downward.variables['power_device_downward'].value.tolist())
-                        #     print('DEBUG: power_market_upward', problem_bid_downward.variables['power_market_upward'].value.tolist())
-                        #     print('DEBUG: power_market_downward', problem_bid_downward.variables['power_market_downward'].value.tolist())
-                # Set 1
-            #     self.config.planning_horizon = 2
-            #     self._build_static_problem()
-            #     self._set_basic_parameters_and_constraints(current_time, self.state, prices)  
-            #     self.problem = cp.Problem(cp.Maximize(self.profit + self.potential_profit), self.constraints + self.dynamic_constraints)
+                for j in range(self.num_markets):
+                    if self.markets[j].selection_phase_length == 0:
+                        md = self.state['market_state'][j].update_market_decision(self.markets[j].get_market_decision(current_time, prices[j]))
+                        market_decision[j] = md
+
+                for j in range(self.num_markets):
+                    if self.markets[j].selection_phase_length + self.markets[j].schedule_phase_length == 0:
+                        self.state['market_state'][j].delivery_phase_change()
 
             for j in range(self.num_markets):
                 self._set_demands(problem_energy, current_time, j, 'both')
@@ -519,15 +582,30 @@ class MPCSolver(object):
 
             # r = self.problem.solve(solver=cp.ECOS_BB)
             # print('ECOS timestamp:', current_time, 'setpoint revenue', r)
-            r = problem_energy.problem.solve(solver=cp.GUROBI)#SOLVER
+            try:
+                if self.config.optimizer == 0:
+                    r = problem_energy.problem.solve(solver=cp.GUROBI,TimeLimit=3,MIPGap=1e-2)#SOLVER
+                elif self.config.optimizer == 1:
+                    r = problem_energy.problem.solve(solver=cp.CPLEX)#SOLVER
+                else:
+                    r = problem_energy.problem.solve(solver=cp.GLPK_MI)#SOLVER
+            except:
+                r = -2e20
             print('DEBUG: Type1 timestamp:', current_time, 'setpoint revenue', r)
             penalty = 0
-            if r < -1e20:
+            if r < -1e20 or r > 1e20:
                 # self.state['soc'] += 0.1
 
                 # print(self.state)
                 # self._build_static_problem()
                 # self._set_basic_parameters_and_constraints(current_time, self.state, prices) 
+
+
+                print('DEBUG: ', self.state['setpoint_upward'])
+                print('DEBUG: ', self.state['demand_upward'][:])
+                print('DEBUG: ', self.state['setpoint_downward'])
+                print('DEBUG: ', self.state['demand_downward'][:])
+
                 for j in range(self.num_markets):
                     self._set_demands(problem_energy, current_time, j, 'zero') 
                               
@@ -535,10 +613,15 @@ class MPCSolver(object):
 
                 # r = self.problem.solve(solver=cp.ECOS_BB)
                 # print('ECOS timestamp:', current_time, 'setpoint revenue', r)
-                r = problem_energy.problem.solve(solver=cp.GUROBI)#SOLVER
+                if self.config.optimizer == 0:
+                    r = problem_energy.problem.solve(solver=cp.GUROBI, MIPGap=1e-2)#SOLVER
+                elif self.config.optimizer == 1:
+                    r = problem_energy.problem.solve(solver=cp.CPLEX)#SOLVER
+                else:
+                    r = problem_energy.problem.solve(solver=cp.GLPK_MI)#SOLVER
 
-                for j in range(self.num_markets):
-                    self._set_demands(problem_energy, current_time, j, 'both')
+                # for j in range(self.num_markets):
+                #     self._set_demands(problem_energy, current_time, j, 'both')
 
                 print('DEBUG: ', self.state['setpoint_upward'])
                 print('DEBUG: ', self.state['demand_upward'][:])
@@ -570,7 +653,7 @@ class MPCSolver(object):
                     self.state['soh'][i] -= soh_change
                 last_update = current_time
 
-            self._evolve_and_record(problem_energy, prices, penalty)
+            self._evolve_and_record(problem_energy, prices, penalty, market_decision, time_str, setpoint_raw)
 
         return self.records
 
@@ -583,13 +666,21 @@ class MPCSolver(object):
             direction (str): str in ['both', 'upward', 'downward']. If upward, the downward is set to be 0.
         """
 
-        problem.parameters['soc'].value = self.state['soc']
+        if self.config.strategy == 1: # Aggressive
+            if direction == 'upward':
+                problem.parameters['soc'].value = np.array([self.energy_sources[i].soc_profile_min_soc for i in range(self.num_energy_sources)], dtype=np.float32)
+            elif direction == 'downward':
+                problem.parameters['soc'].value = np.array([self.energy_sources[i].soc_profile_max_soc for i in range(self.num_energy_sources)], dtype=np.float32)
+            else:
+                problem.parameters['soc'].value = self.state['soc']
+        else:
+            problem.parameters['soc'].value = self.state['soc']
 
         if direction == 'zero':
             for time_k in range(0, problem.planning_horizon):
                 self.state['demand_upward'][market_id][time_k] = 0
                 self.state['demand_downward'][market_id][time_k] = 0
-                
+            
             problem.parameters['demand_upward'].value = self.state['demand_upward'][:, :problem.planning_horizon]
             problem.parameters['demand_downward'].value = self.state['demand_downward'][:, :problem.planning_horizon]
 
@@ -597,42 +688,57 @@ class MPCSolver(object):
             problem.parameters['setpoint_downward_demand_multiplied'].value = self.state['setpoint_downward'] * problem.parameters['demand_downward'].value[:,0]
             return
 
+
+        # if direction == 'both':
+
+        #     for time_k in range(0, problem.planning_horizon):
+        #         self.state['demand_upward'][market_id][time_k] = 0
+        #         self.state['demand_downward'][market_id][time_k] = 0
+        #     self.state['demand_upward'][market_id][0] = self.state['market_state'][market_id].get_demand('upward', 0)[current_time % self.markets[market_id].delivery_phase_length]
+        #     self.state['demand_downward'][market_id][0] = self.state['market_state'][market_id].get_demand('downward', 0)[current_time % self.markets[market_id].delivery_phase_length]
+        #     problem.parameters['demand_upward'].value = self.state['demand_upward'][:, :problem.planning_horizon]
+        #     problem.parameters['demand_downward'].value = self.state['demand_downward'][:, :problem.planning_horizon]
+
+        #     problem.parameters['setpoint_upward_demand_multiplied'].value = self.state['setpoint_upward'] * problem.parameters['demand_upward'].value[:,0]
+        #     problem.parameters['setpoint_downward_demand_multiplied'].value = self.state['setpoint_downward'] * problem.parameters['demand_downward'].value[:,0]
+        #     return
+
         phase_id = 0 # 0: GC -> MC, 1: MC -> TD, 2: TD -> TF
-        self.state['demand_upward'][market_id][0] = self.state['market_state'][market_id].get_demand('upward', 0)[current_time % self.markets[market_id].phase_length]
-        self.state['demand_downward'][market_id][0] = self.state['market_state'][market_id].get_demand('downward', 0)[current_time % self.markets[market_id].phase_length]
+        self.state['demand_upward'][market_id][0] = self.state['market_state'][market_id].get_demand('upward', 0)[current_time % self.markets[market_id].delivery_phase_length]
+        self.state['demand_downward'][market_id][0] = self.state['market_state'][market_id].get_demand('downward', 0)[current_time % self.markets[market_id].delivery_phase_length]
+
 
         for time_k in range(1, problem.planning_horizon):
             ti = current_time + time_k
-            if ti % self.markets[market_id].phase_length == 0 and time_k != 0:
-                phase_id += 1 # (0 to 1) GC -> MC to MC -> TD, or (1 to 2) MC -> TD to TD -> TF
+            # print(time_k, phase_id, self.sum_nominal_max_power_upward)
+            if ti % self.markets[market_id].delivery_phase_length == 0 and time_k != 0:
+                phase_id += 1
 
-            # if phase_id <= 1:  # GC -> MC and MC -> TD
-            if phase_id <= 1:  # GC -> MC and MC -> TD
-
-                self.state['demand_upward'][market_id][time_k] = self.state['market_state'][market_id].get_demand('upward', phase_id)[ti % self.markets[market_id].phase_length]
-                self.state['demand_downward'][market_id][time_k] = self.state['market_state'][market_id].get_demand('downward', phase_id)[ti % self.markets[market_id].phase_length]
+            if phase_id <= self.state['market_state'][market_id].number_of_buffer - 2 or (direction == 'both' and phase_id <= self.state['market_state'][market_id].number_of_buffer - 1):  # GC -> MC and MC -> TD
+                self.state['demand_upward'][market_id][time_k] = self.state['market_state'][market_id].get_demand('upward', phase_id)[ti % self.markets[market_id].delivery_phase_length]
+                self.state['demand_downward'][market_id][time_k] = self.state['market_state'][market_id].get_demand('downward', phase_id)[ti % self.markets[market_id].delivery_phase_length]
                 
                 if direction == 'upward':
-                    self.state['demand_downward'][market_id][time_k] = 0
+                    self.state['demand_downward'][market_id][time_k] = 0 
 
                 elif direction == 'downward':
                     self.state['demand_upward'][market_id][time_k] = 0
 
-            elif phase_id <= 2: # TD -> TF
+            elif phase_id <= self.state['market_state'][market_id].number_of_buffer - 1: # TD -> TF
 
                 if direction == 'upward':
                     self.state['demand_downward'][market_id][time_k] = 0
                     if self.markets[market_id].is_fixed:
                         self.state['demand_upward'][market_id][time_k] = self.markets[market_id].power_percentage / 100.0 * self.sum_nominal_max_power_upward
                     else:
-                        self.state['demand_upward'][market_id][time_k] = 100.0 * self.sum_nominal_max_power_upward
+                        self.state['demand_upward'][market_id][time_k] = self.sum_nominal_max_power_upward
 
                 else:
                     self.state['demand_upward'][market_id][time_k] = 0
                     if self.markets[market_id].is_fixed:
                         self.state['demand_downward'][market_id][time_k] = self.markets[market_id].power_percentage / 100.0 * self.sum_nominal_max_power_downward
                     else:
-                        self.state['demand_downward'][market_id][time_k] = 100.0 * self.sum_nominal_max_power_downward
+                        self.state['demand_downward'][market_id][time_k] = self.sum_nominal_max_power_downward
                 
             else:
                 self.state['demand_upward'][market_id][time_k] = 0
@@ -649,12 +755,17 @@ class MPCSolver(object):
         # print(self.state['demand_downward'][0])
         # print('h', problem.parameters['demand_upward'].value[:,0].tolist())
         # print('h', problem.parameters['demand_downward'].value[:,0].tolist())
+
+        # print('HAHA: ', self.state['demand_upward'][:, :problem.planning_horizon])
+        # print('HAHA: ', self.state['demand_downward'][:, :problem.planning_horizon])
         problem.parameters['demand_upward'].value = self.state['demand_upward'][:, :problem.planning_horizon]
         problem.parameters['demand_downward'].value = self.state['demand_downward'][:, :problem.planning_horizon]
         problem.parameters['setpoint_upward_demand_multiplied'].value = self.state['setpoint_upward'] * problem.parameters['demand_upward'].value[:,0]
         problem.parameters['setpoint_downward_demand_multiplied'].value = self.state['setpoint_downward'] * problem.parameters['demand_downward'].value[:,0]
 
-    def _evolve_and_record(self, problem, prices, penalty):
+
+
+    def _evolve_and_record(self, problem, prices, penalty, market_decision, time_str, setpoint_raw):
         # print(self.num_energy_sources)
         print('DEBUG: soc', problem.variables['soc'].value.tolist())
         print('DEBUG: soh', self.state['soh'])
@@ -665,8 +776,8 @@ class MPCSolver(object):
         print('DEBUG: power_market_downward', problem.variables['power_market_downward'].value.tolist())
         # print(self.parameters['demand_upward'].value.tolist())
         # print(self.state['demand_upward'][:,0].tolist())
-        print('DEBUG: setpoint upward', self.state['setpoint_upward'])
-        print('DEBUG: setpoint downward', self.state['setpoint_downward'])
+        # print('DEBUG: setpoint upward', self.state['setpoint_upward'])
+        # print('DEBUG: setpoint downward', self.state['setpoint_downward'])
         # print(problem.variables['power_market_downward'].value[:,0].tolist())
         # print(self.parameters['demand_downward'].value[:,0].tolist())
         # print(self.state['demand_upward'][:,-1].tolist())
@@ -708,10 +819,15 @@ class MPCSolver(object):
         #     'demand_upward': np.zeros([self.num_markets, self.config.planning_horizon], dtype=np.float32),
         #     'demand_downward': np.zeros([self.num_markets, self.config.planning_horizon], dtype=np.float32),
         # }
+        if len(market_decision) == 0:
+            record['market_decision'] = [' ' for i in range(self.num_markets)]
+        record['time'] = time_str
         record['penalty'] = penalty / 60.0
         record['soh'] = self.state['soh'].tolist()
         record['setpoint_upward'] = self.state['setpoint_upward']
         record['setpoint_downward'] = self.state['setpoint_downward']
+        record['market_decision'] = market_decision
+        record['setpoint_raw'] = setpoint_raw
         record['revenue'] = [
             problem.variables['power_market_downward'].value[market_id][0] * prices[market_id][1] / 60.0 - \
             problem.variables['power_market_upward'].value[market_id][0] * prices[market_id][0] / 60.0 

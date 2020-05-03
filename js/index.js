@@ -28,9 +28,9 @@ const barColor = {
 
 // init config
 const defaultVal = {
-  'ci-predic': 180,
-  'ci-totTimestampMonth': 0,
-  'ci-totTimestampWeek': 1,
+  'ci-predic': 60,
+  'ci-totTimestampMonth': 1,
+  'ci-totTimestampWeek': 0,
   'ci-totTimestampDay': 0,
   'ci-totTimestampHour': 0,
   'ci-sohItv': 3
@@ -118,7 +118,15 @@ ipc.on('createMarketObj', (event, args) => {
     'name': 'mi-market_percentage_fixed',
     'value': found === true ? "1" : "0"
   })
-
+  let marketTypeDict = {
+    'Primary Reserve': 0,
+    'Secondary Reserve': 1,
+    'Tertiary Reserve': 2,
+  }
+  marketData.push({
+    'name': 'mi-name',
+    'value': marketType
+  })
 
   if (marketType in marketObjList) {
     marketObjList[marketType] = marketData
@@ -137,6 +145,11 @@ ipc.on('createEssObj', (event, args) => {
   var essType = args[0]
   var essId = args[1]
   var essData = args[2]
+  console.log(essData)
+  essData.push({
+    'name': 'ei-name',
+    'value': essType
+  })
   var socprofile = args[3]
   var dodprofile = args[4]
 
@@ -174,8 +187,9 @@ ipc.on('generateResult', (event, args) => {
     progressBar.style = "width: 0%"
     // convert timestamp to minute
     var configForm = $("form").serializeArray()
-    let totTimestampMin = (((parseFloat(configForm[2].value) * 30) + (parseFloat(configForm[3].value) * 7) + parseFloat(configForm[4].value)) * 24 + parseFloat(configForm[5].value)) * 60
-    for(let i = 2; i < 6; i++) configForm.pop()
+    console.log(configForm)
+    let totTimestampMin = (((parseFloat(configForm[4].value) * 30) + (parseFloat(configForm[5].value) * 7) + parseFloat(configForm[6].value)) * 24 + parseFloat(configForm[7].value)) * 60
+    for(let i = 4; i < 8; i++) configForm.pop()
     configForm.push({"name": "ci-totTimestamp", "value": totTimestampMin.toString()})
     // append files to market objects
     appendFilesToMarket()
@@ -204,19 +218,28 @@ function appendFilesToMarket() {
 }
 ipc.on('startTime', (event, args) => {
   timestamp = Date.parse(args)
+  progressHint.innerHTML = 'Simulating... <br />'
   console.log("timestamp: " + args)
   console.log("timestamp: " + timestamp)
 })
 
+previous_revenue = 0
+
 ipc.on('updateProgressBar', (event, args) => {
   progressBar.style = "width: " + args[0] + "%"
-  progressHint.innerHTML = 'Simulating... <br />' + 'Current Revenue (kEuro) = ' + (+args[1]['revenue'].toFixed(2))
+  previous_revenue = args[1]['revenue']
+  progressHint.innerHTML = 'Simulating ' + args[0].toFixed(3) + '% <br />' + 'Current Revenue (kEuro) = ' + (+args[1]['revenue'].toFixed(2))
   updateChartData(args[1])
+})
+
+ipc.on('updateProgressBarFast', (event, args) => {
+  progressBar.style = "width: " + args[0] + "%"
+  progressHint.innerHTML = 'Simulating ' + args[0].toFixed(3) + '% <br />' + 'Current Revenue (kEuro) = ' + (+previous_revenue.toFixed(2))
 })
 
 ipc.on('doneProgressBar', (event, args) => {
   progressBar.classList = "bg-success"
-  progressHint.innerHTML = progressHint.innerHTML.replace('Simulating...', 'Done!')
+  progressHint.innerHTML = progressHint.innerHTML.replace('Simulating', 'Done!')
 })
 
 // functions
@@ -482,21 +505,26 @@ function createDataElem(args) {
       cardBody.appendChild(p)
     } else if (key === 'prices') {
       numOfMarket = value.length
-      if (numOfMarket >= 1) {
+      for (j=0;j<numOfMarket;j++){
         p = createElement('p', 'class=mb-1 ')
-        p.innerHTML = ("Primary<br /> Buying Price: " + (+value[0][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[0][1].toFixed(2))).bold()
-        cardBody.appendChild(p)
+        p.innerHTML = (data['config']['markets'][j]['name'] + "<br /> Buying Price: " + (+value[0][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[0][1].toFixed(2))).bold()
+        cardBody.appendChild(p) 
       }
-      if (numOfMarket >= 2) {
-        p = createElement('p', 'class=mb-1 ')
-        p.innerHTML = ("Secondary<br /> Buying Price: " + (+value[1][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[1][1].toFixed(2))).bold()
-        cardBody.appendChild(p)
-      }
-      if (numOfMarket >= 3) {
-        p = createElement('p', 'class=mb-1 ')
-        p.innerHTML = ("Tertiary<br /> Buying Price: " + (+value[2][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[2][1].toFixed(2))).bold()
-        cardBody.appendChild(p)
-      }
+      // if (numOfMarket >= 1) {
+      //   p = createElement('p', 'class=mb-1 ')
+      //   p.innerHTML = ("Primary<br /> Buying Price: " + (+value[0][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[0][1].toFixed(2))).bold()
+      //   cardBody.appendChild(p)
+      // }
+      // if (numOfMarket >= 2) {
+      //   p = createElement('p', 'class=mb-1 ')
+      //   p.innerHTML = ("Secondary<br /> Buying Price: " + (+value[1][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[1][1].toFixed(2))).bold()
+      //   cardBody.appendChild(p)
+      // }
+      // if (numOfMarket >= 3) {
+      //   p = createElement('p', 'class=mb-1 ')
+      //   p.innerHTML = ("Tertiary<br /> Buying Price: " + (+value[2][0].toFixed(2)) + "<br />" + "Selling Price: " + (+value[2][1].toFixed(2))).bold()
+      //   cardBody.appendChild(p)
+      // }
     }
   }
 
@@ -517,6 +545,28 @@ function createDataElem(args) {
     tot_timestamps = data['soc'].length
     numOfBattery = data['soc'][0].length
     numOfMarket = data['prices'].length
+    config = data['config']
+
+    // 'id': self.global_id,
+    // 'revenue': revenue/1000,
+    // 'irr': irr,
+    // 'pbp': pbp,
+    // 'soc': soc.tolist(),
+    // 'soh': soh.tolist(),
+    // # 'soh': soh_array,
+    // 'years': years,
+    // 'power': storage.tolist(),
+    // 'prices': np.reshape(current_value_params, [-1, 2]).tolist(),
+    // 'percentages': percentage,
+    // 'time': meta_data['time'],
+    // 'power_market': meta_data['power_market'].tolist(),
+    // 'market_decision': meta_data['market_decision'],
+    // 'revenue_record': meta_data['revenue'],
+    // 'penalty_record': meta_data['penalty'],
+    // 'tot_revenue_record': meta_data['tot_revenue'],
+    // 'tot_penalty_record': meta_data['tot_penalty'],
+    // 'setpoint': meta_data['setpoint'].tolist(),
+    // 'config': meta_data['config']
 
     // console.log("num of battery: " + numOfBattery + "    num of market: " + numOfMarket)
     marketTitle = ""
@@ -524,71 +574,95 @@ function createDataElem(args) {
     sp = ""
     percentage = ""
     if (numOfMarket >= 1) {
-      marketTitle += "Primary Market"
-      bp += data['prices'][0][0]
-      sp += data['prices'][0][1]
+      marketTitle += config['markets'][0]['name']
+      bp += data['prices'][0][0].toFixed(2)
+      sp += data['prices'][0][1].toFixed(2)
       percentage += data['percentages'][0]
     }
     if (numOfMarket >= 2) {
-      marketTitle += ",Secondary Market"
-      bp += ',' + data['prices'][1][0]
-      sp += ',' + data['prices'][1][1]
+      marketTitle += "," + config['markets'][1]['name']
+      bp += ',' + data['prices'][1][0].toFixed(2)
+      sp += ',' + data['prices'][1][1].toFixed(2)
       percentage += ',' + data['percentages'][1]
     }
     if (numOfMarket >= 3) {
-      marketTitle += ","
-      bp += ',' + data['prices'][2][0]
-      sp += ',' + data['prices'][2][1]
+      marketTitle += "," + config['markets'][2]['name']
+      bp += ',' + data['prices'][2][0].toFixed(2)
+      sp += ',' + data['prices'][2][1].toFixed(2)
       percentage += ',' + data['percentages'][2]
     }
 
-    var lineArray = ["Simulation time (min), " + tot_timestamps,
-    "Battery Life," + (+data['x'].toFixed(2)) + ",,," + marketTitle,
-    "IRR," + (+data['irr'].toFixed(6)) + ",,Buying Price," + bp,
-    "Revenue," + (+data['revenue'].toFixed(2)) + ",,Selling Price," + sp,
-    "PBP," + (+data['pbp'].toFixed(6)) + ",,Percentage," + percentage]
+    var lineArray = ["Simulation time (days), " + (tot_timestamps / 1440).toFixed(2),
+    "Battery Life (Years)," + (+data['x'].toFixed(2)) + ",,," + marketTitle,
+    "IRR (%)," + (+data['irr'].toFixed(6)) + ",,Buying Price," + bp,
+    "Revenue (kEuro)," + (+data['revenue'].toFixed(2)) + ",,Selling Price," + sp,
+    "PBP (Years)," + (+data['pbp'].toFixed(6)) + ",,Percentage," + percentage]
     lineArray.push("")
-    let title = ""
+    let title = ","
     for (i = 0; i < numOfBattery; ++i) {
-      title += "ess" + (i + 1) + ",,, "
+      title += "Energy Source " + (i + 1) + ":" + config['energy_sources'][i]['name'] + ",,,,"
     }
+    for (i = 0; i < numOfMarket; ++i) {
+      title += "Market " + (i + 1) + ":" + config['markets'][i]['name'] + ",,,,"
+    }
+    title += "Overall, "
     lineArray.push(title)
 
     title = "Time, "
     for (i = 0; i < numOfBattery; ++i) {
-      title += "Power Input, Power Output, SoC, "
+      title += "Power Input (MW), Power Output (MW), State-of-Charge (%), State-of-Health (%), "
     }
+    for (i = 0; i < numOfMarket; ++i) {
+      title += "Power Bought (MW), Power Sold (MW), Setpoint, Market Decision, "
+    }
+    title += "Penalty (kEuro), Total Penalty (kEuro), Revenue (kEuro), Total Revenue (kEuro)"
     lineArray.push(title)
     for (i = 0; i < tot_timestamps; ++i) {
       line = ""
-      d = new Date(timestamp)
-      ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d)
-      mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d)
-      da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d)
-      hour = new Intl.DateTimeFormat('en', { hour: 'numeric', hour12: false }).format(d)
-      min = new Intl.DateTimeFormat('en', { minute: '2-digit' }).format(d)
-      if (hour == 24)
-        hour = '00'
-      if (min.length == 1)
-        min = '0' + min
-      timeString = `${mo}-${da}-${ye} ${hour}:${min}`
+      // d = new Date(timestamp)
+      // ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d)
+      // mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d)
+      // da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d)
+      // hour = new Intl.DateTimeFormat('en', { hour: 'numeric', hour12: false }).format(d)
+      // min = new Intl.DateTimeFormat('en', { minute: '2-digit' }).format(d)
+      // if (hour == 24)
+      //   hour = '00'
+      // if (min.length == 1)
+      //   min = '0' + min
+      // timeString = `${mo}-${da}-${ye} ${hour}:${min}`
+      timeString = data['time'][i]
       // console.log(timeString)
       line += timeString
       line += ', '
-      timestamp += 60000
-      if (numOfBattery == 1) {
-        line += data['power'][i][0] + ", " + data['power'][i][1] + ", "
-        line += data['soc'][i]
-      } else {
-        for (j = 0; j < numOfBattery; ++j) {
-          line += data['power'][i][j][0] + ", " + data['power'][i][j][1] + ", "
-          line += data['soc'][i][j] + ", "
-        }
-
+      // if (numOfBattery == 1) {
+      //   line += data['power'][i][0].toFixed(2) + ", " + data['power'][i][1].toFixed(2) + ", "
+      //   line += data['soc'][i].toFixed(2) + ", " + data['soh'][i].toFixed(2) + ", "
+      // } else {
+      for (j = 0; j < numOfBattery; ++j) {
+        line += data['power'][i][0][j].toFixed(2) + ", " + data['power'][i][1][j].toFixed(2) + ", "
+        line += (100 * data['soc'][i][j]).toFixed(2) + ", " + (100 * data['soh'][i][j]).toFixed(6) + ", "
       }
+
+      // }
+
+      // if (numOfMarket == 1) {
+      //   line += data['power_market'][i][0].toFixed(2) + ", " + data['power_market'][i][1].toFixed(2) + ", "
+      //   line += data['setpoint'][i][0].toFixed(2) + ", " + data['market_decision'][i][0] + ", "
+      // } else {
+      for (j = 0; j < numOfMarket; ++j) {
+        line += data['power_market'][i][0][j].toFixed(2) + ", " + data['power_market'][i][1][j].toFixed(2) + ", "
+        line += data['setpoint'][i][j].toFixed(2) + ", " + (data['market_decision'][i][j] || " ") + ", "
+      }
+
+      // }
+
+      line += data['penalty_record'][i].toFixed(2) + ", " + data['tot_penalty_record'][i].toFixed(2) + ', '
+      line += data['revenue_record'][i].toFixed(2) + ", " + data['tot_revenue_record'][i].toFixed(2)
+
       lineArray.push(line)
     }
 
+    console.log('lineArray ready!')
 
     // var lineArray = ["IRR," + (+data['x'].toFixed(6)), "Year,"+(+data['y'].toFixed(2))]
 
