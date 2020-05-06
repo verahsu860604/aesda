@@ -249,6 +249,21 @@ const mainMenuTemplate = [
                 // }
             }
         ]
+    }, {
+        label: 'Help', 
+        submenu: [
+            {
+                label: 'User Manual',
+                click() {
+                    electron.shell.openExternal('https://hackmd.io/@wjNrd-H4TUazkUk6gQ-OPw/Bkmqu53O8')
+                }
+            },{
+                label: 'Github',
+                click() {
+                    electron.shell.openExternal('https://github.com/verahsu860604/aesda')
+                }
+            }
+        ]
     }
 ]
 
