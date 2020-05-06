@@ -54,6 +54,7 @@ class MarketDataLoader(object):
         if self.price_data is None:
             return None, None
         timestamp = timestamp // self.price_time_scale
+        return (random.randint(1, 30), random.randint(100, 400))
         return (self.price_data[timestamp][2], self.price_data[timestamp][1])
 
 class Market(object):

@@ -1,4 +1,6 @@
 node_modules/
+record*.txt
+cache_test*
 .vscode/
 pyenv/
 algo/output*/

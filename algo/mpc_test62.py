@@ -125,7 +125,7 @@ mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy
 print(energy_sources[0].__dict__)
 print(markets[0].__dict__)
 
-results = mpc.solve([[30, 250] for i in range(len(markets))], [20, 'free'])
+results = mpc.solve([[15, 300] for i in range(len(markets))], [20, 'free'])
 
 print(results[-1]['soh'])
 print(tuple(results[-1]['soh']))

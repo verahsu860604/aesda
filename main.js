@@ -8,6 +8,9 @@ const {PythonShell} = require('python-shell')
 
 let mainWindow, marketWindow, essWindow
 
+process.on('uncaughtException', (err) => {
+    console.log(err)
+})
 // SET ENV
 process.env.NODE_ENV = 'development'
 

@@ -11,6 +11,7 @@ class Config(object):
                 end_time = '2019-01-01',
                 tot_timestamps = 300,
                 strategy = 0,
+                threshold = 1e-2,
                 optimizer = 0
             ):
         """Config builder.
@@ -25,3 +26,4 @@ class Config(object):
         self.tot_timestamps = tot_timestamps
         self.strategy = strategy
         self.optimizer = optimizer
+        self.threshold = threshold
