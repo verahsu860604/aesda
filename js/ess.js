@@ -145,10 +145,10 @@ ipc.on('essType', (event, args) => {
     essData = args[2]
 
     document.getElementById('essType').innerHTML = essType + "-" + essId
-
+    
     if (essData !== '') {
         essData.forEach(e => {
-            document.getElementById('essForm').elements[e['name']].value = e['value']
+            if(e['name'] !== "ei-name") document.getElementById('essForm').elements[e['name']].value = e['value']
         });
     } else {
         setDefault(defaultVal[essType])

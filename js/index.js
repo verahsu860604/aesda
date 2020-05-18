@@ -8,7 +8,6 @@ const { BrowserWindow } = electron.remote
 const ipc = electron.ipcRenderer
 const { PythonShell } = require('python-shell')
 
-// const XLSX = require('xlsx');
 var timestamp
 
 let marketObjList = {}
@@ -145,7 +144,6 @@ ipc.on('createEssObj', (event, args) => {
   var essType = args[0]
   var essId = args[1]
   var essData = args[2]
-  console.log(essData)
   essData.push({
     'name': 'ei-name',
     'value': essType
@@ -1266,10 +1264,6 @@ function uploadFile(e) {
     }
   }
   marketDataList[e.target.id] = e.target.files[0].path
-  // if validate, check here
-  // const workbook = XLSX.readFile(e.target.files[0].path);
-  // const sheet_name_list = workbook.SheetNames;
-  // console.log(XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]))
 }
 
 function updateFileSetting(e) {

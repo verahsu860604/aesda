@@ -98,9 +98,10 @@ ipc.on('marketType', (event, args) => {
     marketData = args[1]
     
     document.getElementById('marketType').innerHTML = marketType
+    
     if(marketData !== "") {
         marketData.forEach(e => {
-            document.getElementById('marketForm').elements[e['name']].value = e['value']
+            if(e['name'] !== "mi-name") document.getElementById('marketForm').elements[e['name']].value = e['value']
         });
     }else {
         setDefault(defaultVal[marketType])
