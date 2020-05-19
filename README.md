@@ -17,18 +17,14 @@ The planning horizon is required to be at least the largest length from GC(Final
 
 The execution time grows exponentially with the planning horizon, as our experiment shows below:
 
-![](https://i.imgur.com/3xYyqjc.png =720x)
+![](https://i.imgur.com/3xYyqjc.png | width=720)
 
 The strategy quality means how well the model predictive control (MPC) method will achieve given the planning horizon. Accoding to our experiments, an intermediate value has the best performance. The recommended value is 3 to 6 times the longest delivery phase length among markets.
 
 The following graph shows how planning horizon changes with planning horizon, when the deliver phase length is 60 minutes.
 
-#### Planning Horizon 
-The planning horizon of model predictive control (MPC) method in minute.
-
-#### SoH Update Frequency
-This value indicate the frequency of updating the storages' State-of-health in minute.
 ![](https://i.imgur.com/NFbSxLr.png =720x)
+
 
 #### SoH Update Frequency
 This value indicates the frequency of updating the storages' State-of-health. With higher frequency, the batteries' state-of-health are updated more instantly, but the state-of-health estimation will be less accurate. It is recommended to set it within a range between 2 - 14 days. The default value (3 days) is good in most cases.

@@ -363,7 +363,9 @@ function InitThresholdEstimation() {
     let options = {
         args: [0.0]
     }
-    let pyshell = new PythonShell('__dirname/../algo/visual.py', options, {});
+    
+    pathToPythonScript = path.join(__dirname, '../visual.py');
+    let pyshell = new PythonShell(pathToPythonScript, options, {});
 
     let totl = 1
     pyshell.on('message', function (message) {
@@ -388,7 +390,8 @@ function updateThresholdEstimation(val) {
     let options = {
         args: [val]
     }
-    let pyshell = new PythonShell('__dirname/../algo/visual.py', options, {});
+    pathToPythonScript = path.join(__dirname, '../algo/visual.py');
+    let pyshell = new PythonShell(pathToPythonScript, options, {});
 
     let totl = 1
     pyshell.on('message', function (message) {
