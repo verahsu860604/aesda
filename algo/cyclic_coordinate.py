@@ -154,11 +154,12 @@ class CyclicCoordinate(object):
                             soh_array = soh
                         print("DEBUG: cyclic coordinate min_soh", min(soh_array))
                         years = self.get_battery_life(min(soh_array))
+                        years = min(100.0, years)
                         print("DEBUG: years", years)
                         cashflow = getCashFlow(self.costs, revenue, years)
                         irr = getIRR(cashflow)
                         if math.isnan(irr): # TODO: IRR should not be nan
-                            irr = 0
+                            irr = -100
                         print("DEBUG: irr", irr)
                         pbp = getPBP(cashflow)
                         print("DEBUG: pbp", pbp)

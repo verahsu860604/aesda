@@ -54,8 +54,8 @@ class MarketDataLoader(object):
         if self.price_data is None:
             return None, None
         timestamp = timestamp // self.price_time_scale
-        return (random.randint(1, 30), random.randint(100, 400))
-        return (self.price_data[timestamp][2], self.price_data[timestamp][1])
+        price1, price2 = self.price_data[timestamp][2], self.price_data[timestamp][1]
+        return random.randint(1, 30) if not price1 > 1e-5 else price1, random.randint(100, 400) if not price2 > 1e-5 else price2
 
 class Market(object):
     """Market represents a reserve market (primary, secondary or tertiary)

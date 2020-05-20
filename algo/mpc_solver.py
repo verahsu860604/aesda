@@ -108,6 +108,9 @@ class MarketState(object):
                 self.demand_delivery_upward[-1] = np.ones([self.market.time_window_in_delivery]) * power_values
             elif direction == 'downward':
                 self.demand_delivery_downward[-1] = np.ones([self.market.time_window_in_delivery]) * power_values
+            print('DEBUG: new strategy', self.demand_delivery_upward[-1]) #VERBOSE
+            print('DEBUG: new strategy', self.demand_delivery_downward[-1]) #VERBOSE
+
         else:
             print('DEBUG: new strategy', len(power_values[self.market.selection_phase_length + self.market.schedule_phase_length: self.market.selection_phase_length + self.market.schedule_phase_length + self.market.delivery_phase_length])) #VERBOSE
             print('DEBUG: new strategy value', power_values[self.market.selection_phase_length + self.market.schedule_phase_length: self.market.selection_phase_length + self.market.schedule_phase_length + self.market.delivery_phase_length: self.market.delivery_length]) #VERBOSE
@@ -378,6 +381,12 @@ class MPCProblem(object):
                 self.dynamic_constraints.append(self.variables['power_market_downward'][j][1: self.planning_horizon] == self.parameters['demand_downward'][j][1: self.planning_horizon])
                 continue
 
+            if self.config.strategy == 1:
+                self.dynamic_constraints.append(self.variables['power_market_upward'][j][1: self.planning_horizon] <= self.parameters['demand_upward'][j][1: self.planning_horizon])
+                self.dynamic_constraints.append(self.variables['power_market_downward'][j][1: self.planning_horizon] <= self.parameters['demand_downward'][j][1: self.planning_horizon])
+                continue
+
+
             constraints_set = False # If we have set the constraints
             for time_k in range(1, self.planning_horizon):
                 ti = current_time + time_k
@@ -639,8 +648,8 @@ class MPCSolver(object):
                 # print('ECOS timestamp:', current_time, 'setpoint revenue', r)
                 r = problem_energy.solve(timelimit=100)
 
-                # for j in range(self.num_markets):
-                #     self._set_demands(problem_energy, current_time, j, 'both')
+                for j in range(self.num_markets):
+                    self._set_demands(problem_energy, current_time, j, 'both')
 
                 print('DEBUG: ', self.state['setpoint_upward'])
                 print('DEBUG: ', self.state['demand_upward'][:])
@@ -687,9 +696,9 @@ class MPCSolver(object):
 
         if self.config.strategy == 1: # Aggressive
             if direction == 'upward':
-                problem.parameters['soc'].value = np.array([self.energy_sources[i].soc_profile_min_soc for i in range(self.num_energy_sources)], dtype=np.float32)
+                problem.parameters['soc'].value = np.array([0.5 for i in range(self.num_energy_sources)], dtype=np.float32)
             elif direction == 'downward':
-                problem.parameters['soc'].value = np.array([self.energy_sources[i].soc_profile_max_soc for i in range(self.num_energy_sources)], dtype=np.float32)
+                problem.parameters['soc'].value = np.array([0.5 for i in range(self.num_energy_sources)], dtype=np.float32)
             else:
                 problem.parameters['soc'].value = self.state['soc']
         else:
