@@ -613,7 +613,7 @@ function createDataElem(args) {
     for (i = 0; i < numOfMarket; ++i) {
       title += "Power Bought (MW), Power Sold (MW), Setpoint, Market Decision, "
     }
-    title += "Penalty (kEuro), Total Penalty (kEuro), Revenue (kEuro), Total Revenue (kEuro)"
+    title += "Penalty (Euro), Total Penalty (Euro), Revenue (Euro), Total Revenue (Euro)"
     lineArray.push(title)
     for (i = 0; i < tot_timestamps; ++i) {
       line = ""

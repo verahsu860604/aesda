@@ -104,9 +104,10 @@ parameters = {
         # },
     ],
     'config':{
-        'planning_horizon': 60,
+        'planning_horizon': 1,
         'soh_update_interval': 1440,
-        'tot_timestamps': 10080
+        'tot_timestamps': 4320,
+        "strategy": 1
     }
 }
 

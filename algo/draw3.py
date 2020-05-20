@@ -113,8 +113,8 @@ parameters = {
  ],
  'config': 
     {
-        'tot_timestamps': 432,
-        'planning_horizon': 60,
+        'tot_timestamps': 4320,
+        'planning_horizon': 1,
         'soh_update_interval': 4320,
         'strategy': 0,
         'optimizer': 0
@@ -128,11 +128,12 @@ def get_parameters():
 
 import time
 
-for horizon in range(1, 300, 10):
+for threshold_log in np.linspace(-4, 4, 17):
+    threshold = 10 ** threshold_log
     start = time.time()
 
     data = get_parameters()
-    data['config']['planning_horizon'] = horizon
+    data['config']['threshold'] = threshold
     myconfig = config.Config(**data['config'])
     energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energy_sources']]
     markets = [market.Market(**kwargs) for kwargs in data['markets']]
@@ -144,9 +145,9 @@ for horizon in range(1, 300, 10):
     for time_k in range(len(results)):
         revenue += sum(results[time_k]['revenue']) - results[time_k]['penalty']
         penalty += results[time_k]['penalty']
-    with open('record.txt', 'a') as f:
+    with open('record_tuning.txt', 'a') as f:
         f.write('========================\n')
-        f.write('horizon' + str(horizon) + '\n')
+        f.write('threshold_log' + str(threshold_log) + '\n')
         f.write('revenue' + str(revenue) + '\n')
         f.write('penalty' + str(penalty) + '\n')
         f.write('time' + str(time.time() - start) + '\n')

@@ -113,8 +113,8 @@ parameters = {
  ],
  'config': 
     {
-        'tot_timestamps': 432,
-        'planning_horizon': 60,
+        'tot_timestamps': 540,
+        'planning_horizon': 20,
         'soh_update_interval': 4320,
         'strategy': 0,
         'optimizer': 0
@@ -128,49 +128,32 @@ def get_parameters():
 
 import time
 
-for horizon in range(1, 300, 10):
-    start = time.time()
+for optimizer in range(0, 3):
+    for enum in range(1, 3):
+        for mnum in range(1, 3):
 
-    data = get_parameters()
-    data['config']['planning_horizon'] = horizon
-    myconfig = config.Config(**data['config'])
-    energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energy_sources']]
-    markets = [market.Market(**kwargs) for kwargs in data['markets']]
-    mpc = mpc_solver.MPCSolver(config=myconfig, markets=markets, energy_sources=energy_sources)
+            start = time.time()
 
-    results = mpc.solve([[30, 200] for i in range(len(markets))], ['free' for i in range(len(markets))])
-    revenue = 0
-    penalty = 0
-    for time_k in range(len(results)):
-        revenue += sum(results[time_k]['revenue']) - results[time_k]['penalty']
-        penalty += results[time_k]['penalty']
-    with open('record.txt', 'a') as f:
-        f.write('========================\n')
-        f.write('horizon' + str(horizon) + '\n')
-        f.write('revenue' + str(revenue) + '\n')
-        f.write('penalty' + str(penalty) + '\n')
-        f.write('time' + str(time.time() - start) + '\n')
+            data = get_parameters().copy()
+            data['config']['optimizer'] = optimizer
+            data['energy_sources'] = data['energy_sources'][:enum]
+            data['markets'] = data['markets'][:mnum]
+            myconfig = config.Config(**data['config'])
+            energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energy_sources']]
+            markets = [market.Market(**kwargs) for kwargs in data['markets']]
+            mpc = mpc_solver.MPCSolver(config=myconfig, markets=markets, energy_sources=energy_sources)
 
-    # config = config.Config(**data['config'])
-    # energy_sources = [energy_source.EnergySource(**kwargs) for kwargs in data['energy_sources']]
-    # for ess in energy_sources:
-    #     ess.tuning_parameter_fit()
-    # markets = [market.Market(**kwargs) for kwargs in data['markets']]
-    # mpc = mpc_solver.MPCSolver(config=config, markets=markets, energy_sources=energy_sources)
-
-    # # Fake run
-    # cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, [10, 10], really_run=False)
-    # solutions_fake = cc.Algo5()
-    # print("totl: " + str(len(solutions_fake)))
-
-    # cc = cyclic_coordinate.CyclicCoordinate(markets, mpc, [10, 10])
-    # solutions = cc.Algo5()
-    # print(solutions[0])
-    # pe = pareto.ParetoEfficient(solutions)
-    # inefficient_list, efficient_list = pe.pareto_analysis()
-    # tuple(Revenue, value_i(useless), soc_record, soh for each device, power record, prices, percentages)
-    # (216.29629629629628, 2, array([[1.        , 1.        ], [0.95061731, 1.        ]]), 
-    # (1.0, 1.0), array([[[ 0.,  0.], [24.,  0.]],[[ 0.,  0.],[ 0., 12.]]]), 
-    # [2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469, 2.2222222222222223, 18.02469135802469], 
-    # (6.666666666666667, 10.0, 'free'))
-    # assert len(solutions) == 36
+            results = mpc.solve([[30, 200] for i in range(len(markets))], ['free' for i in range(len(markets))])
+            revenue = 0
+            penalty = 0
+            for time_k in range(len(results)):
+                revenue += sum(results[time_k]['revenue']) - results[time_k]['penalty']
+                penalty += results[time_k]['penalty']
+            with open('record2.txt', 'a') as f:
+                f.write('========================\n')
+                f.write('optimizer' + str(optimizer) + '\n')
+                f.write('enum' + str(enum) + '\n')
+                f.write('mnum' + str(mnum) + '\n')
+                f.write('revenue' + str(revenue) + '\n')
+                f.write('penalty' + str(penalty) + '\n')
+                f.write('time' + str(time.time() - start) + '\n')
