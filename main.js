@@ -12,7 +12,8 @@ process.on('uncaughtException', (err) => {
     console.log(err)
 })
 // SET ENV
-process.env.NODE_ENV = 'development'
+// process.env.NODE_ENV = 'development'
+process.env.NODE_ENV = 'production'
 
 // create windows
 function createWindow() {
@@ -157,7 +158,12 @@ ipc.on('run', (event, args) => {
         args: [JSON.stringify(args)]
     }
     let tottimestamp = args.configForm[args.configForm.length-1].value
-    pyshell = new PythonShell('algo/algo.py', options, {});
+    
+    pathToPythonScript = path.join(__dirname, 'algo/algo.py');
+    console.log(pathToPythonScript);
+    pyshell = new PythonShell(pathToPythonScript, options, {});
+    
+    // pyshell = new PythonShell('algo/algo.py', options, {});
 
     let totl = 1
     let cnt = 0
@@ -222,10 +228,6 @@ const mainMenuTemplate = [
         label: 'App',
         submenu: [
             {
-                label: 'Reset',
-                // click() {console.log('Hit reset!')}
-            },
-            {
                 label: 'Quit Application',
                 accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
                 click() {app.quit()}
@@ -240,13 +242,6 @@ const mainMenuTemplate = [
                 click() {
                     mainWindow.webContents.send('generateResult')
                 }
-            },{
-                label: 'Stop',
-                // click() {
-                //     pyshell.terminate(signal, () => {
-                //         console.log(signal);  
-                //     })
-                // }
             }
         ]
     }, {
@@ -283,6 +278,12 @@ if(process.env.NODE_ENV !== 'production') {
             }
         ]
     })
+    
+// Enable live reload for Electron too
+    require('electron-reload')(__dirname, {
+        // Note that the path to electron may vary according to the main file
+        electron: require(`${__dirname}/node_modules/electron`)
+    })
 }
 
 // when first start the app
@@ -302,7 +303,7 @@ app.on('activate', () => {
 })
 
 // Enable live reload for Electron too
-require('electron-reload')(__dirname, {
-    // Note that the path to electron may vary according to the main file
-    electron: require(`${__dirname}/node_modules/electron`)
-})
+// require('electron-reload')(__dirname, {
+//     // Note that the path to electron may vary according to the main file
+//     electron: require(`${__dirname}/node_modules/electron`)
+// })
