@@ -8,3 +8,4 @@ algo/data*/
 *.prof
 *.pyc
 __pycache__/
+Python37/

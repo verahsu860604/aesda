@@ -361,6 +361,7 @@ function generageDodChart() {
 function InitThresholdEstimation() {
     
     let options = {
+        pythonPath: path.join(__dirname, '../Python37/python.exe'),
         args: [0.0]
     }
     
@@ -388,6 +389,7 @@ function InitThresholdEstimation() {
 function updateThresholdEstimation(val) {
     $('#threshold').val(val); 
     let options = {
+        pythonPath: path.join(__dirname, '../Python37/python.exe'),
         args: [val]
     }
     pathToPythonScript = path.join(__dirname, '../algo/visual.py');

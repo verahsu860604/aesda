@@ -153,8 +153,7 @@ var pyshell;
 
 ipc.on('run', (event, args) => {
     let options = {
-        // machine specific
-        // pythonPath: 'C:/Users/cjyan/Anaconda3/python.exe',
+        pythonPath: path.join(__dirname, 'Python37/python.exe'), 
         args: [JSON.stringify(args)]
     }
     let tottimestamp = args.configForm[args.configForm.length-1].value

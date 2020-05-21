@@ -1,12 +1,37 @@
 AESDA
 ===
+# Installation
+
+1. **Packaged code download**:
+Download packaged code for your machine here:
+https://drive.google.com/drive/folders/1bWAf5G-1fyme8kLkGnzE3dzSLOJ7FHj2?usp=sharing
+
+Unzip the zip file. Skip to step 4 if you download the package with Python.
+
+2. **Python installation**
+
+Download and install Python3 (with pip): https://www.python.org/downloads/
+(Python 3.5 recommended)
+
+
+3. **Python packages installation**
+
+With `cmd`, go to the unzipped directory, enter `pip install -r requirements.txt`. This will install the required packages on your machine.
+
+4. **Run the app**
+* For Windows users, run `aesda-app.exe`
+* For Mac users, run `aesda-app.app`
+
+**Troubleshoot**
+
+If users encounter error: `A Javascript error occurred in the main process: Uncaught Exception: Error: ModuleNotFoundError: No module named 'pandas'`, chances are there are multiple versions of Python on the machine and the system path is not properly set.
+In this case, users can download the version with Python.
 
 # User Manual
 
 This is the user manual of the AESDA application. There are 5 parts in this manual, corresponding to the 5 tabs of the interface, inputs/outputs in each part will be explained, as well as its related information. 
 
 [TOC]
-
 ## Configuration
 This part is to configure the system with global parameters. There are input boxes on the interface, users could set the values according to their scenario.
 
@@ -17,7 +42,7 @@ The planning horizon is required to be at least the largest length from GC(Final
 
 The execution time grows exponentially with the planning horizon, as our experiment shows below:
 
-![](https://i.imgur.com/3xYyqjc.png | width=720)
+![](https://i.imgur.com/3xYyqjc.png =720x)
 
 The strategy quality means how well the model predictive control (MPC) method will achieve given the planning horizon. Accoding to our experiments, an intermediate value has the best performance. The recommended value is 3 to 6 times the longest delivery phase length among markets.
 
@@ -31,6 +56,18 @@ This value indicates the frequency of updating the storages' State-of-health. Wi
 
 #### Simulation Run Length
 The total run length of the simulation. There are four input boxes corresponded to the length of months, weeks, days and hours. The computation time will be very long with large run length. The recommended length is between one week to one month.
+
+#### Strategy
+Users can choose different strategies to have different running time but they will have different results:
++ Conservative:
++ Aggressive I:
++ Aggressive II:
+
+#### Optimizer
+Users can choose different optimizer based on the license they have.
++ GUROBI:
++ CPLEX:
++ GLPK:
 
 ## Market
 In the interface, user can choose which market to instantiate from the dropdown menu. After instantiating, a info card of which will show on the right, user could edit or delete the market afterwards.
@@ -98,7 +135,7 @@ Penalty for downward violation per MWh.
 
 
 ## ESS
-In the interface, the user can create 4 kinds of ESS from the dropdown menu, power-flow, lithuion, supercapacitor and custom. After creating the storage, a dynamic diagram showing the energy storage system topology will present how the power flow from storages to the created markets. User could edit or delete the storages afterwards. 
+In the interface, the user can create 4 kinds of Energy Storage System (ESS) from the dropdown menu, power-flow, lithuion, supercapacitor and custom. After creating the storage, a dynamic diagram showing the energy storage system topology will present how the power flow from storages to the created markets. User could edit or delete the storages afterwards. 
 
 ### General Configuration
 User should configure these values based on their ESS.
@@ -167,7 +204,7 @@ This section is for the user to upload setpoint and price data files for their c
 
 There are 6 upload fields for all 3 markets. Only the fields corresponding to markets that is instantiated in the system would be available. 
 
-### Data file format
+### Data File Format
 Two data files is required for each market, and the data file should be excel files with setpoint or price data. 
 
 #### Setpoint data file
@@ -217,28 +254,93 @@ And choose desired ones to download.
 
 ### Downloaded Data
 The first section shows some basic information such as the simulation length, estimated battery life, and revenue.
-| Simulation time (min) | 3000 |
+| Simulation time (days) | 30 |
 |:--------------------- | ---- |
-| Battery Life (year)   | 20   |
-| IRR (%)               | 20   |
-| Revenue (kEuro)       | 2000 |
-| PBP (year)            | 3    |
-
+| Battery Life (year)   | 26.69   |
+| IRR (%)               | 2.36   |
+| Revenue (kEuro)       | 1273.38 |
+| PBP (year)            | 20    |
 
 
 The second section shows the information for each created market. It shows the selected prices and market participation percentage.
-|                      | Primary Market | Secondary Market |
+|                      | Tertiary Reserve | Secondary Reserve |
 | -------------------- | -------------- | ---------------- |
-| Buying Price (Euro)  | 3.33           | 3.33             |
-| Selling Price (Euro) | 66.67          | 50               |
-| Percentage           | free           | free             |
+| Buying Price (Euro)  | 5           | 17.5             |
+| Selling Price (Euro) | 250          | 250               |
+| Percentage           | free           | 20             |
 
 
-The final section shows the SoC and power transaction of the batteries. Aside from time column, there will be 3 columns for each ESS, indicating the Power Output, Power Input, and SoC of the time.
-|             |    ess2      |             |     | ess2        |              |     |
-|:----------- |:------------ |:----------- |:--- |:----------- | ------------ | --- |
-| Time        | Power Output | Power Input | Soc | Power Input | Power Output | Soc |
-| 1/1/16 0:00 |      0        |       0      |  1   |      2.642278       |      0        |  1   |
-| 1/1/16 0:01 | 0         | 0        |  0.998899   |      1.617928       |         0     |  1   |
+The final section shows the power transaction of each battery and market. Aside from time column, there will be 4 columns for each ESS, indicating the Power Input, Power Output, SoC, and SoH of the time. And there will also be 4 columns for each market to show the power sold, power bought, setpoint, and market decision. Lastly, there will be 4 columns to show the overall results such as penalty, cumulated penalty, revenue, and cumulated revenue.
 
 
+|               | Energy Source 1:Power Flow Battery |                   |                     |                     | Energy Source 2:Lithium-Ion |                   |                     |                     |  Market 2:Tertiary Reserve   |     |     |     |  Market 2:Secondary Reserve   |     |     |     |  Overall   |     |     |     |
+| ------------- | ---------------------------------- | ----------------- | ------------------- | ------------------- | --------------------------- | ----------------- | ------------------- | ------------------- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Time          | Power Input (MW)                   | Power Output (MW) | State-of-Charge (%) | State-of-Health (%) | Power Input (MW)            | Power Output (MW) | State-of-Charge (%) | State-of-Health (%) |  Power Bought (MW)   |  Power Sold (MW)   |  Setpoint   |  Market Decision   |   Power Bought (MW)  |  Power Sold (MW)   |  Setpoint   |  Market Decision   |  Penalty (Euro)   |  Total Penalty (Euro)   |  Revenue (Euro)   |  Total Revenue (Euro)   |
+| 2016/1/1 0:00 | 0                                  | 0                 | 0                   | 100                 | 0                           | 0                 | 20                  | 100                 |  0   |    0 |  30   |     |  0   |0     |  30   |     |  0   |  0   |  0   |  0   |
+| 2016/1/1 0:01 | 0                                  | 0                 | 0                   | 100                 | 0                           | 0                 | 20                  | 100                 |  0   | 0    |  30   |     | 0    |   0  |  30   |     |  0   |  0   |   0  |   0  |
+
+
+---
+
+## Example
+### Step 1: General Configuration
+*Users may refer to [Configuration](#Configuration) for inputs detail.*
+
+Users input planning horizon (may refer to graphs below while deciding), SoH update frequency, simulation run length here. Users may also choose different strategy and optimizer. 
+
+![](https://imgur.com/rDKARMO.png =720x)
+
+### Step 2: Market Configuration
+*Users may refer to [Market](#Market) for inputs detail.*
+
+Users may create and configure primary, secondary, and tertiary markets here. Users are limited to create the markets with this order.
+
+![](https://imgur.com/bTxz7tU.png =720x)
+Add a market.
+
+![](https://imgur.com/ve5cvZN.png =720x)
+Input desired values or use the default ones.
+
+![](https://imgur.com/Y9Po0cB.png =720x)
+Created markets information.
+
+### Step 3: ESS Configuration
+*Users may refer to [ESS](#ESS) for inputs detail.*
+
+Users may create and configure ESS here. Users may choose different threshold for SoH estimation here, and the configured power constraints profile and DoD profile can be shown here. The topography of created markets and ESS will be shown here as well.
+
+![](https://imgur.com/FnsjgPO.png =720x)
+Add an ESS.
+
+![](https://imgur.com/8Pkaywu.png =720x)
+Input desired values or use the default ones.
+
+![](https://imgur.com/sBbsuo4.png =720x)
+Created ESS and the topography will be shown.
+
+### Step 4: Data Input
+*Users may refer to [Data](#Data) for file format. Users may also download these provided example files.*
+
+
+| Setpoints CSV | Prices CSV |
+| -------- | -------- |
+| https://bit.ly/2WiCzVP     |   https://bit.ly/3feWBsQ   | 
+
+
+For each of the market the user created, the user must input two files, one for the setpoints and one for the prices, according to file format mentioned [here](#Data-File-Format).
+
+![](https://imgur.com/UTyF9PG.png =720x)
+
+### Step 5: Run the Simulation & Get the Result
+*Users may refer to [Result](#Result) for more details.*
+Users may run the simulation by clicking the Run button in Build, or CTRL+R on Windows devices, CMD+R on MACOS devices.
+
+During the simulation, users can see the latest result and the Pareto graphs updating.
+
+![](https://imgur.com/1py7ACU.png =720x)
+
+Users may click on the data points to add a data point "card" below for comparison and download. (This can be done during or after finishing the simulation)
+
+![](https://imgur.com/GSfDWei.png =240x)
+
+The downloaded data file format can be found [here](#Downloaded-Data).
